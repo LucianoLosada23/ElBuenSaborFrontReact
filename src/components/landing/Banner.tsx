@@ -28,6 +28,7 @@ export default function Banner() {
         <div className="relative w-full h-[300px] md:h-[400px]">
           <img
             src="/banner.jpg"
+            loading="lazy"
             alt="Imagen del banner"
             className="object-cover rounded-lg"
           />

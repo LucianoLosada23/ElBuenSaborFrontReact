@@ -5,11 +5,19 @@ import Operation from "../components/landing/Operation";
 
 export default function Landing() {
   return (
-        <>
-          <Banner/>
-          <Operation/>
-          <Aboutus/>
-          <Contact/>
-        </>
+    <>
+      <section>
+        <Banner/>
+      </section>
+      <section>
+        <Operation/>
+      </section>
+      <section>
+        <Aboutus/>
+      </section>
+      <section>
+        <Contact/>
+      </section>
+    </>
   )
 }

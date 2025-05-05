@@ -1,8 +1,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import {UserCircleIcon , ChevronDownIcon , ShoppingBagIcon} from "@heroicons/react/24/solid"
+import { memo } from "react";
 
-export default function Navbar() {
+export default  memo(function Navbar()  {
   const [userAuth, setUserAuth] = useState<boolean>(true);
   const [open, setOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -114,4 +115,4 @@ export default function Navbar() {
       </div>
     </nav>
   );
-}
+})

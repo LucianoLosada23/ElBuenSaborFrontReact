@@ -14,6 +14,7 @@ export default function Aboutus() {
           <img
             src="/delibery.jpg"
             alt="Imagen del banner"
+            loading="lazy"
             className="w-full h-full object-cover rounded-tl-lg rounded-bl-lg"
           />
           <div className="absolute inset-0 bg-terciario/12 rounded-tl-lg rounded-bl-lg"></div>
