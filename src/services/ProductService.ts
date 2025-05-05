@@ -9,7 +9,8 @@ export const getProducts = async (): Promise<Product[]> => {
             name: "Pizza",
             description: "La pizza mas rica de todo el condado esta aca en nuestro buen sabor",
             price: 10,
-            image: "https://example.com/pizza.jpg",
+            time : "30", 
+            image: "burger.svg",
             categoryId: 1,
             stock: 100
         },
@@ -18,7 +19,8 @@ export const getProducts = async (): Promise<Product[]> => {
             name: "Hamburguesa",
             description: "La hamburguesa mas rica de todo el condado esta aca en nuestro buen sabor",
             price: 15,
-            image: "https://example.com/hamburguesa.jpg",
+            time : "20", 
+            image: "burger.svg",
             categoryId: 1,
             stock: 50
         },
@@ -27,7 +29,8 @@ export const getProducts = async (): Promise<Product[]> => {
             name: "Bebida",
             description: "La bebida mas rica de todo el condado esta aca en nuestro buen sabor",
             price: 5,
-            image: "https://example.com/bebida.jpg",
+            time : "30", 
+            image: "burger.svg",
             categoryId: 2,
             stock: 200
         },
@@ -36,7 +39,8 @@ export const getProducts = async (): Promise<Product[]> => {
             name: "Postre",
             description: "El postre mas rico de todo el condado esta aca en nuestro buen sabor",
             price: 7,
-            image: "https://example.com/postre.jpg",
+            time : "20", 
+            image: "burger.svg",
             categoryId: 3,
             stock: 30
         },
@@ -45,10 +49,53 @@ export const getProducts = async (): Promise<Product[]> => {
             name: "Ensalada",
             description: "La ensalada mas rica de todo el condado esta aca en nuestro buen sabor",
             price: 8,
-            image: "https://example.com/ensalada.jpg",
+            time : "10", 
+            image: "burger.svg",
             categoryId: 4,
             stock: 20
-        }]
+        
+        },
+        {
+            id: 6,
+            name: "Ensalada",
+            description: "La ensalada mas rica de todo el condado esta aca en nuestro buen sabor",
+            price: 8,
+            time : "20", 
+            image: "burger.svg",
+            categoryId: 4,
+            stock: 20
+        },
+        {
+            id: 7,
+            name: "Ensalada",
+            description: "La ensalada mas rica de todo el condado esta aca en nuestro buen sabor",
+            price: 8,
+            time : "30", 
+            image: "burger.svg",
+            categoryId: 4,
+            stock: 20
+        },
+        {
+            id: 8,
+            name: "Ensalada",
+            description: "La ensalada mas rica de todo el condado esta aca en nuestro buen sabor",
+            price: 8,
+            time : "20", 
+            image: "burger.svg",
+            categoryId: 4,
+            stock: 20
+        },
+        {
+            id: 9,
+            name: "Ensalada",
+            description: "La ensalada mas rica de todo el condado esta aca en nuestro buen sabor",
+            price: 8,
+            time : "10", 
+            image: "burger.svg",
+            categoryId: 4,
+            stock: 20
+        }
+    ]
         return data;
     } catch (error) {
         throw new Error("Error fetching products: " + error);
@@ -63,6 +110,7 @@ export const getProductById = async (id: number): Promise<Product> => {
             id: 1,
             name: "Pizza",
             description: "Comida",
+            time : "20",
             price: 10,
             image: "https://example.com/pizza.jpg",
             categoryId: 1,
