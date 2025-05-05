@@ -4,7 +4,7 @@ import {UserCircleIcon , ChevronDownIcon , ShoppingBagIcon} from "@heroicons/rea
 import { memo } from "react";
 
 export default  memo(function Navbar()  {
-  const [userAuth, setUserAuth] = useState<boolean>(true);
+  const [userAuth, setUserAuth] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

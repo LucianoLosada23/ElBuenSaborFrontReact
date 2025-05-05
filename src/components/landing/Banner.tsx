@@ -1,3 +1,4 @@
+import Button from "../ui/Button";
 
 
 export default function Banner() {
@@ -15,10 +16,13 @@ export default function Banner() {
             className="absolute bottom-[-70px] right-[100px]"
           />
         </h1>
-        <a href={"/"}>
-          <button className="font-display px-6 py-4 w-70 text-white cursor-pointer text-[12px] bg-principal rounded-[10px] font-semibold uppercase tracking-widest hover:text-white hover:bg-secundario">
-          Catálogo
-          </button>
+        <a href={"/catalogo"}>
+         <Button
+         text={"Catálogo"}
+         width={6}
+         height={1}
+         size={14}
+         />
         </a>
         
       </div>
