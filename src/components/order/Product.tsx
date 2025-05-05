@@ -67,11 +67,14 @@ export default function Product() {
                                     >
                                         {`${product.time}min`}
                                     </button>
-                                    <PlusCircleIcon
-                                        width={38}
-                                        height={38}
-                                        className="cursor-pointer text-gris-oscuro"
-                                    />
+                                    <button onClick={() => handleViewMore(product)}>
+                                        <PlusCircleIcon
+                                            width={38}
+                                            height={38}
+                                            className="cursor-pointer text-gris-oscuro"
+                                        />
+                                    </button>
+                                 
                                 </div>
                             </div>
                         </div>
