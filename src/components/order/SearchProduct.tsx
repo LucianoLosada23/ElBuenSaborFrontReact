@@ -1,7 +1,7 @@
 
 export default function SearchProduct() {
   return (
-    <div className='max-w-7xl mx-auto'>
+    <div className='max-w-7xl mx-auto mt-8'>
         <div className=''>
             <h1 className='text-5xl font-bold font-display'>Encuentra Las Mejores Ofertas</h1>
             <p className='mt-4 font-display'>Lista de los mejores platos, postres, desayunos, bebidas...</p>
