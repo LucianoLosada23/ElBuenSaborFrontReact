@@ -1,3 +1,4 @@
+import Carrito from "../components/order/Carrito";
 import Category from "../components/order/Category";
 import Product from "../components/order/Product";
 import SearchProduct from "../components/order/SearchProduct";
@@ -13,6 +14,9 @@ export default function Order() {
       </section>
       <section>
         <Product/>
+      </section>
+      <section>
+        <Carrito />
       </section>
     </>
   )
