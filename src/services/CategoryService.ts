@@ -1,4 +1,4 @@
-import type { Category } from "../models/Category";
+import type { Category } from "../types/Category";
 
 export const getCategories = async (): Promise<Category[]> => {
     try {

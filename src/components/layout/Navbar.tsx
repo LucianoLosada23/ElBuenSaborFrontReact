@@ -1,15 +1,23 @@
 import { useState, useRef, useEffect } from "react";
 import { UserCircleIcon, ChevronDownIcon, ShoppingBagIcon } from "@heroicons/react/24/solid";
-import { memo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleCart } from "../../features/cartSlice";
+import type { RootState } from "../../store/store";
 
-export default memo(function Navbar() {
+export default function Navbar() {
   const [userAuth, setUserAuth] = useState<boolean>(true);
   const [open, setOpen] = useState<boolean>(false);
   const [isSticky, setIsSticky] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const dispatch = useDispatch();
+  const product = useSelector((state : RootState) => state.product.product)
+
+  const cart = useSelector((state: RootState) => state.cart.cart);
+  const totalItems = cart.reduce((sum, item) => sum + item.cantidad, 0);
+
   const handleScroll = () => {
-    setIsSticky(window.scrollY > 0); // Si hizo scroll, activar sticky
+    setIsSticky(window.scrollY > 0);
   };
 
   useEffect(() => {
@@ -37,14 +45,14 @@ export default memo(function Navbar() {
   }, []);
 
   return (
-    <nav
-    className={`bg-bg-light w-full z-50 transition-all duration-300 ease-in-out transform ${
-      isSticky ? "fixed top-0 left-0 shadow-md translate-y-0" : "translate-y-[-5px]"
+    <nav 
+    className={`bg-bg-light w-full z-50 transition-all duration-300 ease-in-out transform py-4 ${
+    !product && isSticky ? "fixed top-0 left-0 shadow-md translate-y-0" : "translate-y-[-5px]"
     }`}
     >
-      <div className="flex justify-between items-center w-full max-w-8xl mx-auto px-4 ">
+      <div className="flex justify-between items-center w-full max-w-8xl mx-auto px-4">
         <a href="/">
-          <img src="/logo3.svg" alt="logo" width={160} height={1} />
+          <img src="/logo1.png" alt="logo" width={160} height={1} />
         </a>
 
         {userAuth ? (
@@ -79,7 +87,17 @@ export default memo(function Navbar() {
                 </div>
               )}
             </div>
-            <ShoppingBagIcon width={24} height={24} />
+
+            <div className="relative">
+              <button onClick={() => dispatch(toggleCart())} className="cursor-pointer relative">
+                <ShoppingBagIcon width={24} height={24} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-x-6">
@@ -98,4 +116,4 @@ export default memo(function Navbar() {
       </div>
     </nav>
   );
-});
+}
