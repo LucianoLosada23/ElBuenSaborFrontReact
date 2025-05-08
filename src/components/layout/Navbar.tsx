@@ -11,7 +11,6 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useDispatch();
-  const product = useSelector((state : RootState) => state.product.product)
 
   const cart = useSelector((state: RootState) => state.cart.cart);
   const totalItems = cart.reduce((sum, item) => sum + item.cantidad, 0);
@@ -46,8 +45,8 @@ export default function Navbar() {
 
   return (
     <nav 
-    className={`bg-bg-light w-full z-50 transition-all duration-300 ease-in-out transform py-4 ${
-    !product && isSticky ? "fixed top-0 left-0 shadow-md translate-y-0" : "translate-y-[-5px]"
+    className={`bg-white w-full z-40 transition-all duration-300 ease-in-out transform py-4 ${
+     isSticky && "fixed top-0 left-0 shadow-md translate-y-0" 
     }`}
     >
       <div className="flex justify-between items-center w-full max-w-8xl mx-auto px-4">

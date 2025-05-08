@@ -14,7 +14,7 @@ export default function Carrito() {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
+      className={`fixed top-0 right-0 h-full w-86 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
         isCartOpen ? 'translate-x-0' : 'translate-x-full'
       }`}
     >

@@ -1,7 +1,6 @@
 import { useEffect, type FC } from "react";
 import type { Product } from "../../types/Product";
-import Button from "../ui/Button";
-import { MinusIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { MinusIcon, PlusIcon, ShoppingCartIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../features/cartSlice";
 import { removeFromCart } from "../../features/productSlice";
@@ -25,7 +24,7 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-20">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/20 backdrop-blur-xs z-50">
       <div className="bg-white rounded shadow-lg w-[500px] h-[90vh] relative flex flex-col overflow-hidden">
         
         {/* Botón de cierre */}
@@ -56,12 +55,12 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
           <div className="border flex justify-between items-center rounded p-4">
             <h4 className="font-medium">Tiempo</h4>
             <div
-            className={`text-white text-sm px-3 py-1 rounded-full mt-2 inline-block ${
+            className={` text-sm font-bold px-3 py-1 rounded-full mt-2 inline-block ${
               Number(product.time) > 20
-                ? "bg-amarillo"
+                ? "bg-amarillo-pastel text-amarillo"
                 : Number(product.time) > 10
-                ? "bg-principal"
-                : "bg-verde"
+                ? "bg-rojo-pastel text-principal"
+                : "bg-verde-pastel text-verde"
             }`}
           >
             {`${product.time} min`}
@@ -89,14 +88,16 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
         </div>
 
         {/* Botón fijo al fondo */}
-        <div className="p-4 shadow">
-          <button onClick={() => dispatch(addToCart(product))}>
-            <Button
-              text="Agregar a mi pedido"
-              width={9}
-              height={1}
-              size={12}
-            />
+        <div className="p-4">
+          <button
+            onClick={() => {
+              dispatch(addToCart(product));
+              dispatch(removeFromCart())
+            }}
+            className="w-full bg-principal text-white cursor-pointer py-3 rounded-full flex items-center justify-center gap-2 text-sm font-semibold uppercase hover:bg-terciario transition"
+          >
+            <ShoppingCartIcon className="h-5 w-5" />
+            Agregar a mi pedido
           </button>
         </div>
       </div>

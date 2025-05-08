@@ -13,15 +13,15 @@ export default function Banner() {
             alt="flecha"
             width={100}
             height={40}
-            className="absolute bottom-[-70px] right-[100px]"
+            className="absolute bottom-[-70px] right-[90px]"
           />
         </h1>
         <a href={"/catalogo"}>
          <Button
-         text={"Ordena Ahora!"}
-         width={5}
+         text={"!Ordena Ahora!"}
+         width={6}
          height={1}
-         size={14}
+         size={12}
          />
         </a>
         
