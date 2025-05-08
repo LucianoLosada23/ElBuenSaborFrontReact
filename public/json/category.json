@@ -1,0 +1,51 @@
+[
+    {
+      "id": 1,
+      "name": "Pizza",
+      "description": "Comida",
+      "image": "category1.svg"
+    },
+    {
+      "id": 2,
+      "name": "Hamburguesa",
+      "description": "Comida",
+      "image": "category2.svg"
+    },
+    {
+      "id": 3,
+      "name": "Bebida",
+      "description": "Comida",
+      "image": "category3.svg"
+    },
+    {
+      "id": 4,
+      "name": "Postre",
+      "description": "Comida",
+      "image": "category4.svg"
+    },
+    {
+      "id": 5,
+      "name": "Ensalada",
+      "description": "Comida",
+      "image": "category5.svg"
+    },
+    {
+      "id": 6,
+      "name": "Sopa",
+      "description": "Comida",
+      "image": "category6.svg"
+    },
+    {
+      "id": 7,
+      "name": "Pasta",
+      "description": "Comida",
+      "image": "https://example.com/pasta.jpg"
+    },
+    {
+      "id": 8,
+      "name": "Mariscos",
+      "description": "Comida",
+      "image": "https://example.com/mariscos.jpg"
+    }
+  ]
+  

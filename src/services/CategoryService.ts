@@ -1,11 +1,23 @@
-import type { Category } from "../types/Category";
+import axios from "axios";
+import { CategoriesSchema} from "../types/Category";
+import { safeParse } from "valibot";
 
-export const getCategories = async (): Promise<Category[]> => {
+// Obtener categorías
+export const getCategories = async () => {
     try {
-        const response = await fetch("http://localhost:3000/api/categories");
-        const data:Category[] = await response.json();
-        return data;
+        const url = "/public/json/category.json";
+        const { data } = await axios.get(url);
+        
+        // Validar los datos con Valibot
+        const result = safeParse(CategoriesSchema, data);
+        
+        if (result.success) {
+            return result.output;
+        } else {
+            throw new Error("Los datos de categorías no son válidos.");
+        }
     } catch (error) {
-        throw new Error("Error fetching categories: " + error);
+        console.error("Error al obtener las categorías:", error);
+        throw error; 
     }
-}
+};
