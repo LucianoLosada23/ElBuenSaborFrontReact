@@ -18,8 +18,8 @@ export default function Banner() {
         </h1>
         <a href={"/catalogo"}>
          <Button
-         text={"Catálogo"}
-         width={6}
+         text={"Ordena Ahora!"}
+         width={5}
          height={1}
          size={14}
          />

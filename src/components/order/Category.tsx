@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Category } from "../../models/Category";
+import type { Category } from "../../types/Category";
 //import { getCategories } from "../../services/CategoryService";
 
 export default function Category() {
