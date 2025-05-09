@@ -54,9 +54,9 @@ export default function Product() {
                         <div
                             key={product.id}
                             onClick={() => dispatch(addToProduct(product))}
-                            className=" shadow-md cursor-pointer bg-white"
+                            className="shadow-md cursor-pointer bg-gray-50"
                         >
-                            <img src={product.image} className="w-full h-56 p-2" />
+                            <img src={product.image} className="w-full h-56" />
                             <div className="p-4 flex items-center justify-between">
                                 <div className="flex flex-col items-start ">
                                     <h2 className="text-lg font-bold">{product.name}</h2>

@@ -3,49 +3,50 @@
       "id": 1,
       "name": "Pizza",
       "description": "Comida",
-      "image": "category1.svg"
+      "image": "category1.png"
     },
     {
       "id": 2,
       "name": "Hamburguesa",
       "description": "Comida",
-      "image": "category2.svg"
+      "image": "category12.png"
     },
     {
       "id": 3,
       "name": "Bebida",
       "description": "Comida",
-      "image": "category3.svg"
+      "image": "category13.png"
     },
     {
       "id": 4,
       "name": "Postre",
       "description": "Comida",
-      "image": "category4.svg"
+      "image": "category10.png"
     },
     {
       "id": 5,
       "name": "Ensalada",
       "description": "Comida",
-      "image": "category5.svg"
+      "image": "category5.png"
     },
     {
       "id": 6,
       "name": "Sopa",
       "description": "Comida",
-      "image": "category6.svg"
+      "image": "category8.png"
     },
     {
       "id": 7,
       "name": "Pasta",
       "description": "Comida",
-      "image": "https://example.com/pasta.jpg"
+      "image": "category7.png"
+
     },
     {
       "id": 8,
       "name": "Mariscos",
       "description": "Comida",
-      "image": "https://example.com/mariscos.jpg"
+      "image": "category14.png"
     }
   ]
   

@@ -3,6 +3,7 @@ import { UserCircleIcon, ChevronDownIcon, ShoppingBagIcon } from "@heroicons/rea
 import { useDispatch, useSelector } from "react-redux";
 import { toggleCart } from "../../features/cartSlice";
 import type { RootState } from "../../store/store";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export default function Navbar() {
   const [userAuth, setUserAuth] = useState<boolean>(true);
@@ -44,15 +45,34 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav 
-    className={`bg-white w-full z-40 transition-all duration-300 ease-in-out transform py-4 ${
-     isSticky && "fixed top-0 left-0 shadow-md translate-y-0" 
-    }`}
+    <nav
+      className={`bg-white w-full z-40 transition-all duration-300 ease-in-out transform py-4 ${
+        isSticky && "fixed top-0 left-0 shadow-md translate-y-0"
+      }`}
     >
       <div className="flex justify-between items-center w-full max-w-8xl mx-auto px-4">
         <a href="/">
           <img src="/logo1.png" alt="logo" width={160} height={1} />
         </a>
+
+        {/* Mostrar buscador solo en /catalogo */}
+        {window.location.pathname === "/catalogo" && (
+          <div className="flex-1 flex justify-center">
+            <div className="flex items-center max-w-3xl w-full bg-gray-50 rounded-full p-2 ">
+              <div className="relative w-full">
+                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Pizza, hamburguesa, bebidas..."
+                  className="w-full pl-10 pr-2 py-2 focus:outline-none focus:ring-0 focus:border-transparent"
+                />
+              </div>
+              <button className="py-2 px-8 cursor-pointer text-white bg-principal rounded-full hover:bg-terciario font-semibold text-[14px]">
+                Buscar
+              </button>
+            </div>
+          </div>
+        )}
 
         {userAuth ? (
           <div className="space-x-10 flex items-center">

@@ -25,7 +25,7 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/20 backdrop-blur-xs z-50">
-      <div className="bg-white rounded shadow-lg w-[500px] h-[90vh] relative flex flex-col overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg w-[500px] h-[90vh] relative flex flex-col overflow-hidden">
         
         {/* Botón de cierre */}
         <button
