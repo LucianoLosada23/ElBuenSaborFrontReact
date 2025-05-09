@@ -20,5 +20,5 @@
 
 
 body{
-    background: white;
+    background: var(--color-bg-light);
 }

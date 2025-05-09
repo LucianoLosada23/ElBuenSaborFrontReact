@@ -2,12 +2,10 @@ import { useEffect, useState } from "react";
 import type { Product } from "../../types/Product";
 import { getProducts } from "../../services/ProductService";
 import { ProductPopup } from "./ProductPopUp";
-import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useDispatch, useSelector} from "react-redux";
 import type { RootState } from "../../store/store";
 import { addToProduct } from "../../features/productSlice";
-import { addToCart } from "../../features/cartSlice";
 
 export default function Product() {
 
@@ -48,36 +46,23 @@ export default function Product() {
 
     return (
         <>
-            <div className="max-w-7xl mx-auto mt-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="max-w-7xl mx-auto mt-6 py-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {currentItems.map((product) => (
                         <div
                             key={product.id}
                             onClick={() => dispatch(addToProduct(product))}
-                            className="shadow-md cursor-pointer bg-gray-50"
+                            className="shadow-md cursor-pointer flex justify-between items-center hover:border hover:border-black rounded-md gap-6 px-3 bg-white"
                         >
-                            <img src={product.image} className="w-full h-56" />
-                            <div className="p-4 flex items-center justify-between">
                                 <div className="flex flex-col items-start ">
-                                    <h2 className="text-lg font-bold">{product.name}</h2>
-                                    <p className="text-gray-700">${product.price.toFixed(2)}</p>
+                                    <h2 className="text-[14px] font-medium text-gray-700">{product.name}</h2>
+                                    <p className="text-[12px] text-gray-600">{product.description}</p>
+                                    <p className="text-[12px] text-gray-600 underline">ver mas..</p>
+                                    <h3 className="font-bold mt-2">${product.price.toFixed(2)}</h3>
                                 </div>
 
-                                <div className="items-end flex flex-col gap-4">
-                                  
+                                <img src={product.image} className="w-32 h-32" />
 
-                                    <button  className="bg-gray-900 hover:bg-gray-700 p-1" onClick={(e) => {
-                                        e.stopPropagation(); // <- Esto evita que se abra el modal
-                                        dispatch(addToCart(product));
-                                    }}>
-                                        <ShoppingCartIcon
-                                            width={24}
-                                            height={24}
-                                            className="cursor-pointer text-white"
-                                        />
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                     ))}
                 </div>
