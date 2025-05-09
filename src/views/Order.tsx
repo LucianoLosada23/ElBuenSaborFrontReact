@@ -10,12 +10,15 @@ export default function Order() {
       <section>
         <BannerProduct/>
       </section>
+      <div className="bg-white">
       <section>
         <Offer/>
       </section>
       <section>
         <Category/>
       </section>
+      </div>
+     
       <section>
         <Product/>
       </section>
