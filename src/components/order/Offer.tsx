@@ -23,7 +23,7 @@ export default function Offer() {
           {offers.map((offer, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-md p-6 flex flex-col items-center text-center"
+              className="bg-gray-50 rounded-xl shadow-md p-6 flex flex-col items-center text-center"
             >
               <img
                 src={offer.icon}
