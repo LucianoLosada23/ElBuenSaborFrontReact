@@ -4,9 +4,20 @@ import './index.css'
 
 import {  RouterProvider } from 'react-router-dom'
 import { router } from './router'
+import { Provider } from 'react-redux'
+import { store } from './app/store'
+import { ToastContainer } from 'react-toastify'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}> {/* Agregamos el Provider aquí */}
+      <RouterProvider router={router} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={2000}
+        toastClassName="!bg-white !text-black !rounded-xl !shadow-lg"
+        closeButton={false}
+      />
+    </Provider>
   </StrictMode>,
 )

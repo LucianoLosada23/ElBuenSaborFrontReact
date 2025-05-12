@@ -4,16 +4,20 @@
     --font-display: "Barlow", sans-serif;
 
     --color-bg-light: #f8f7f7; /* Gris claro */
-    --color-principal: #ff3333;
+    --color-principal: #FF3333;
     --color-secundario: #ff9c9c;
     --color-terciario: #ff6464;
     --color-gris: #D1D1D1;
     --color-gris-claro: #E5E5E5;
     --color-gris-oscuro: #333333;
-    --color-amarillo : #FFA920;
+    --color-amarillo : #D18C00;
+    --color-amarillo-pastel : #FFE8C2;
     --color-verde : #34A853;
+    --color-verde-pastel : #A8E6CF;
+    --color-rojo-pastel : #FFB3B3;
     --container-8xl: 1400px;
 }
+
 
 body{
     background: var(--color-bg-light);

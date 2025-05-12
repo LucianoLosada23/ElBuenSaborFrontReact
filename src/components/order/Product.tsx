@@ -1,93 +1,90 @@
 import { useEffect, useState } from "react";
-import type { Product } from "../../models/Product";
+import type { Product } from "../../types/Product";
 import { getProducts } from "../../services/ProductService";
 import { ProductPopup } from "./ProductPopUp";
-import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { useAppDispatch , useAppSelector} from "../../app/hooks";
+import { addToProduct } from "../../features/productSlice";
 
 export default function Product() {
     const [products, setProducts] = useState<Product[]>([]);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 6;
+    const [isPageChangeTriggered, setIsPageChangeTriggered] = useState(false);
 
-    const callproducts = async () => {
-        const data = await getProducts();
-        setProducts(data);
-    }
+    const product = useAppSelector(state => state.product.product);
+    const dispatch = useAppDispatch();
+
+    const itemsPerPage = 7;
 
     useEffect(() => {
+        const callproducts = async () => {
+            const data = await getProducts();
+            setProducts(data);
+        };
         callproducts();
     }, []);
 
-    const handleViewMore = (product: Product) => {
-        setSelectedProduct(product);
-    };
+    // Scroll solo si se hizo clic en paginación
+    useEffect(() => {
+        if (!isPageChangeTriggered) return;
 
-    const handleClosePopup = () => {
-        setSelectedProduct(null);
-    };
+        const element = document.getElementById("product");
+        if (element) {
+            const yOffset = -100; // ajustá según tu navbar
+            const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+            window.scrollTo({ top: y, behavior: "smooth" });
+        }
 
-    // Lógica de paginación
+        setIsPageChangeTriggered(false);
+    }, [currentPage, isPageChangeTriggered]);
+
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(products.length / itemsPerPage);
 
     const handleNextPage = () => {
-        if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+        if (currentPage < totalPages) {
+            setCurrentPage((prev) => prev + 1);
+            setIsPageChangeTriggered(true);
+        }
     };
 
     const handlePrevPage = () => {
-        if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+        if (currentPage > 1) {
+            setCurrentPage((prev) => prev - 1);
+            setIsPageChangeTriggered(true);
+        }
     };
 
     return (
         <>
-            <div className="max-w-7xl mx-auto pt-10">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="max-w-7xl mx-auto mt-6 py-8" id="product">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {currentItems.map((product) => (
-                        <div key={product.id} className="rounded-2xl overflow-hidden shadow-2xl">
-                            <img src={product.image} className="w-full h-48 object-cover" />
-                            <div className="p-4 flex justify-between">
-                                <div className="flex flex-col items-start gap-4">
-                                    <h2 className="text-lg font-bold">{product.name}</h2>
-                                    <p className="text-gray-700">${product.price.toFixed(2)}</p>
-                                </div>
-
-                                <div className="items-end flex flex-col gap-4">
-                                    <button
-                                        className={
-                                            Number(product.time) > 20
-                                                ? "text-white bg-amarillo px-3 rounded-full"
-                                                : Number(product.time) > 10
-                                                ? "text-white bg-principal px-3 rounded-full"
-                                                : "text-white bg-verde px-3 rounded-full"
-                                        }
-                                    >
-                                        {`${product.time}min`}
-                                    </button>
-                                    <button onClick={() => handleViewMore(product)}>
-                                        <PlusCircleIcon
-                                            width={38}
-                                            height={38}
-                                            className="cursor-pointer text-gris-oscuro"
-                                        />
-                                    </button>
-                                 
-                                </div>
+                        <div
+                            key={product.id}
+                            onClick={() => dispatch(addToProduct(product))}
+                            className="shadow-md cursor-pointer flex justify-between items-center hover:border hover:border-black rounded-md gap-6 px-3 bg-white"
+                        >
+                            <div className="flex flex-col items-start">
+                                <h2 className="text-[14px] font-medium text-gray-700">{product.name}</h2>
+                                <p className="text-[12px] text-gray-600">{product.description}</p>
+                                <p className="text-[12px] text-gray-600 underline">ver más...</p>
+                                <h3 className="font-bold mt-2">${product.price.toFixed(2)}</h3>
                             </div>
+                            <img src={product.image} className="w-32 h-32" />
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Controles de paginación centrados al fondo */}
+            {/* Controles de paginación */}
             <div className="flex justify-center items-center gap-4 mt-8 mb-4">
                 <button
                     onClick={handlePrevPage}
                     disabled={currentPage === 1}
-                    className="p-2 bg-gray-300 rounded disabled:opacity-50 cursor-pointer"
+                    className="p-2 bg-principal text-white rounded disabled:opacity-50 cursor-pointer"
                 >
                     <ChevronLeftIcon className="h-6 w-6" />
                 </button>
@@ -97,13 +94,13 @@ export default function Product() {
                 <button
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    className="p-2 bg-gray-300 rounded disabled:opacity-50 cursor-pointer"
+                    className="p-2 bg-principal text-white rounded disabled:opacity-50 cursor-pointer"
                 >
                     <ChevronRightIcon className="h-6 w-6" />
                 </button>
             </div>
 
-            {selectedProduct && <ProductPopup product={selectedProduct} onClose={handleClosePopup} />}
+            {product && <ProductPopup product={product} />}
         </>
     );
 }

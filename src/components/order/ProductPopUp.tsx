@@ -1,32 +1,105 @@
-import type { FC } from "react";
-import type { Product } from "../../models/Product";
-import Button from "../ui/Button";
+import { useEffect, type FC } from "react";
+import type { Product } from "../../types/Product";
+import { MinusIcon, PlusIcon, ShoppingCartIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../features/cartSlice";
+import { removeFromCart } from "../../features/productSlice";
 
 interface ProductPopupProps {
-  product: Product;
-  onClose: () => void;
+  product: Product ;
 }
 
-export const ProductPopup: FC<ProductPopupProps> = ({ product, onClose }) => {
+export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
+  const dispatch = useDispatch();
+
+
+  useEffect(() => { //Desactivar scroll externo
+    // Al montar: bloquear scroll
+    document.body.style.overflow = "hidden";
+
+    // Al desmontar: restaurar scroll
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/5 backdrop-blur-[2px] z-20">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/20  z-50">
+      <div className="bg-white rounded-xl shadow-lg w-[500px] h-[90vh] relative flex flex-col overflow-hidden">
+        
+        {/* Botón de cierre */}
         <button
-          onClick={onClose}
-          className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+          onClick={() => dispatch(removeFromCart())}
+          className="absolute top-2 right-2 hover:text-gray-500 text-black text-xl font-bold cursor-pointer z-10"
         >
-          &times;
+          <XMarkIcon width={24} height={24} />
         </button>
-        <img src={product.image} className="w-full h-48 object-cover mb-4 rounded-lg" />
-        <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
-        <p className="text-gray-700 mb-4">${product.price.toFixed(2)}</p>
-        <p className="text-gray-600 pb-2">{product.description}</p>
-        <Button
-            text="Agregar al carrito"
-            width={0.5}
-            height={0.5}
-            size={11}
-        />
+
+        {/* Header fijo */}
+        <div className="p-4 pt-10 shadow-lg">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-46 object-cover rounded mb-4"
+          />
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold mb-1">{product.name}</h2>
+            <p className="text-gray-700 font-semibold">${product.price.toFixed(2)}</p>
+          </div>
+          <p className="text-gray-600 text-sm mb-2">{product.description}</p>
+         
+        </div>
+
+        {/* Contenido con scroll */}
+        <div className="p-4 overflow-y-auto  flex flex-col gap-6">
+          <div className="border border-gray-300   flex justify-between items-center rounded p-4">
+            <h4 className="font-medium">Tiempo</h4>
+            <div
+            className={` text-sm font-bold px-3 py-1 rounded-full mt-2 inline-block ${
+              Number(product.time) > 20
+                ? "bg-amarillo-pastel text-amarillo"
+                : Number(product.time) > 10
+                ? "bg-rojo-pastel text-principal"
+                : "bg-verde-pastel text-verde"
+            }`}
+          >
+            {`${product.time} min`}
+          </div>
+          </div>
+
+          <div className="border border-gray-300 flex justify-between items-center rounded p-4">
+            <h4 className="font-medium">Unidades</h4>
+            <div className="flex gap-2 bg-gray-100  px-2 rounded-full items-center">
+              <MinusIcon width={20} height={20} className="cursor-pointer" />
+              <span>1</span>
+              <PlusIcon width={20} height={20} className="cursor-pointer" />
+            </div>
+          </div>
+
+          <div className="border border-gray-300   rounded p-4 flex flex-col gap-2">
+            <label htmlFor="aclaraciones" className="font-medium">¿Aclaraciones?</label>
+            <textarea
+              id="aclaraciones"
+              className="border border-gray-300 rounded p-2 resize-none focus:outline-none"
+              rows={4}
+              placeholder="Escribí alguna instrucción especial si lo necesitás..."
+            ></textarea>
+          </div>
+        </div>
+
+        {/* Botón fijo al fondo */}
+        <div className="p-4">
+          <button
+            onClick={() => {
+              dispatch(addToCart(product));
+              dispatch(removeFromCart())
+            }}
+            className="w-full bg-principal text-white cursor-pointer py-4 rounded-full flex items-center justify-center gap-2 text-sm font-semibold uppercase hover:bg-terciario transition"
+          >
+            <ShoppingCartIcon className="h-5 w-5" />
+            Agregar a mi pedido
+          </button>
+        </div>
       </div>
     </div>
   );

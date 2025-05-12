@@ -1,19 +1,26 @@
+import BannerProduct from "../components/order/BannerProduct";
 import Category from "../components/order/Category";
+import Offer from "../components/order/Offer";
 import Product from "../components/order/Product";
-import SearchProduct from "../components/order/SearchProduct";
 
 export default function Order() {
   return (
     <>
       <section>
-        <SearchProduct/>
+        <BannerProduct/>
       </section>
-      <section>
-        <Category/>
-      </section>
+      <div className="bg-white">
+        <section>
+          <Offer/>
+        </section>
+        <section>
+          <Category/>
+        </section>
+      </div>
       <section>
         <Product/>
       </section>
+ 
     </>
   )
 }
