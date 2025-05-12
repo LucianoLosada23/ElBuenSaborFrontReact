@@ -1,5 +1,4 @@
 import BannerProduct from "../components/order/BannerProduct";
-import Carrito from "../components/order/Carrito";
 import Category from "../components/order/Category";
 import Offer from "../components/order/Offer";
 import Product from "../components/order/Product";
@@ -11,20 +10,17 @@ export default function Order() {
         <BannerProduct/>
       </section>
       <div className="bg-white">
-      <section>
-        <Offer/>
-      </section>
-      <section>
-        <Category/>
-      </section>
+        <section>
+          <Offer/>
+        </section>
+        <section>
+          <Category/>
+        </section>
       </div>
-     
       <section>
         <Product/>
       </section>
-      <section>
-        <Carrito />
-      </section>
+ 
     </>
   )
 }
