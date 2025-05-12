@@ -3,50 +3,63 @@ import type { Product } from "../../types/Product";
 import { getProducts } from "../../services/ProductService";
 import { ProductPopup } from "./ProductPopUp";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
-import { useDispatch, useSelector} from "react-redux";
-import type { RootState } from "../../store/store";
+import { useAppDispatch , useAppSelector} from "../../app/hooks";
 import { addToProduct } from "../../features/productSlice";
 
 export default function Product() {
-
-    //State
     const [products, setProducts] = useState<Product[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-   
+    const [isPageChangeTriggered, setIsPageChangeTriggered] = useState(false);
 
-    //Redux
-    const product = useSelector((state : RootState) => state.product.product)
-    const dispatch = useDispatch()
-      
-    const itemsPerPage = 8;
+    const product = useAppSelector(state => state.product.product);
+    const dispatch = useAppDispatch();
 
-    const callproducts = async () => {
-        const data = await getProducts();
-        setProducts(data);
-    }
+    const itemsPerPage = 7;
 
     useEffect(() => {
+        const callproducts = async () => {
+            const data = await getProducts();
+            setProducts(data);
+        };
         callproducts();
     }, []);
 
-  
-    // Paginación
+    // Scroll solo si se hizo clic en paginación
+    useEffect(() => {
+        if (!isPageChangeTriggered) return;
+
+        const element = document.getElementById("product");
+        if (element) {
+            const yOffset = -100; // ajustá según tu navbar
+            const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+            window.scrollTo({ top: y, behavior: "smooth" });
+        }
+
+        setIsPageChangeTriggered(false);
+    }, [currentPage, isPageChangeTriggered]);
+
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(products.length / itemsPerPage);
 
     const handleNextPage = () => {
-        if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+        if (currentPage < totalPages) {
+            setCurrentPage((prev) => prev + 1);
+            setIsPageChangeTriggered(true);
+        }
     };
 
     const handlePrevPage = () => {
-        if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+        if (currentPage > 1) {
+            setCurrentPage((prev) => prev - 1);
+            setIsPageChangeTriggered(true);
+        }
     };
 
     return (
         <>
-            <div className="max-w-7xl mx-auto mt-6 py-8">
+            <div className="max-w-7xl mx-auto mt-6 py-8" id="product">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {currentItems.map((product) => (
                         <div
@@ -54,15 +67,13 @@ export default function Product() {
                             onClick={() => dispatch(addToProduct(product))}
                             className="shadow-md cursor-pointer flex justify-between items-center hover:border hover:border-black rounded-md gap-6 px-3 bg-white"
                         >
-                                <div className="flex flex-col items-start ">
-                                    <h2 className="text-[14px] font-medium text-gray-700">{product.name}</h2>
-                                    <p className="text-[12px] text-gray-600">{product.description}</p>
-                                    <p className="text-[12px] text-gray-600 underline">ver mas..</p>
-                                    <h3 className="font-bold mt-2">${product.price.toFixed(2)}</h3>
-                                </div>
-
-                                <img src={product.image} className="w-32 h-32" />
-
+                            <div className="flex flex-col items-start">
+                                <h2 className="text-[14px] font-medium text-gray-700">{product.name}</h2>
+                                <p className="text-[12px] text-gray-600">{product.description}</p>
+                                <p className="text-[12px] text-gray-600 underline">ver más...</p>
+                                <h3 className="font-bold mt-2">${product.price.toFixed(2)}</h3>
+                            </div>
+                            <img src={product.image} className="w-32 h-32" />
                         </div>
                     ))}
                 </div>

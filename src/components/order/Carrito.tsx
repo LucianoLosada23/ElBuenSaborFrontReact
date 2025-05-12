@@ -1,6 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '../../store/store';
+import type { RootState } from '../../app/store';
 import { toggleCart } from '../../features/cartSlice';
 
 export default function Carrito() {

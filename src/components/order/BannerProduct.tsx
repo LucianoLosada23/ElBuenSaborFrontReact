@@ -10,7 +10,7 @@ export default function BannerProduct() {
             <p className="mt-4 text-lg text-green-700 font-display">
               Platos irresistibles, postres deliciosos, desayunos nutritivos y bebidas refrescantes — todo al mejor precio.
             </p>
-            <button className="mt-6 px-6 py-3 bg-green-700 text-white rounded-full hover:bg-green-800 transition font-semibold">
+            <button className="mt-6 px-6 py-3 cursor-pointer bg-green-700 text-white rounded-full hover:bg-green-800 transition font-semibold">
               Ver productos
             </button>
           </div>

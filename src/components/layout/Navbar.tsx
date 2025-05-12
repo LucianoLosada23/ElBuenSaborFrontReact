@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { UserCircleIcon, ChevronDownIcon, ShoppingBagIcon } from "@heroicons/react/24/solid";
-import { useDispatch, useSelector } from "react-redux";
 import { toggleCart } from "../../features/cartSlice";
-import type { RootState } from "../../store/store";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Link } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 export default function Navbar() {
   const [userAuth, setUserAuth] = useState<boolean>(true);
@@ -11,9 +11,9 @@ export default function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const cart = useSelector((state: RootState) => state.cart.cart);
+  const cart = useAppSelector(state => state.cart.cart);
   const totalItems = cart.reduce((sum, item) => sum + item.cantidad, 0);
 
   const handleScroll = () => {
@@ -51,9 +51,9 @@ export default function Navbar() {
       }`}
     >
       <div className="flex justify-between items-center w-full max-w-8xl mx-auto px-4">
-        <a href="/">
+        <Link to="/">
           <img src="/logo1.png" alt="logo" width={160} height={1} />
-        </a>
+        </Link>
 
         {/* Mostrar buscador solo en /catalogo */}
         {window.location.pathname === "/catalogo" && (

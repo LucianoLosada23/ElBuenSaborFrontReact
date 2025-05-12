@@ -24,7 +24,7 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/20 backdrop-blur-xs z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/20  z-50">
       <div className="bg-white rounded-xl shadow-lg w-[500px] h-[90vh] relative flex flex-col overflow-hidden">
         
         {/* Botón de cierre */}
@@ -36,7 +36,7 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
         </button>
 
         {/* Header fijo */}
-        <div className="p-4 pt-10">
+        <div className="p-4 pt-10 shadow-lg">
           <img
             src={product.image}
             alt={product.name}
@@ -51,8 +51,8 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
         </div>
 
         {/* Contenido con scroll */}
-        <div className="p-4 pt-0 overflow-y-auto  flex flex-col gap-4">
-          <div className="border flex justify-between items-center rounded p-4">
+        <div className="p-4 overflow-y-auto  flex flex-col gap-6">
+          <div className="border border-gray-300   flex justify-between items-center rounded p-4">
             <h4 className="font-medium">Tiempo</h4>
             <div
             className={` text-sm font-bold px-3 py-1 rounded-full mt-2 inline-block ${
@@ -67,20 +67,20 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
           </div>
           </div>
 
-          <div className="border flex justify-between items-center rounded p-4">
+          <div className="border border-gray-300 flex justify-between items-center rounded p-4">
             <h4 className="font-medium">Unidades</h4>
-            <div className="flex gap-2 bg-gray-200 py-1 px-2 rounded-full items-center">
+            <div className="flex gap-2 bg-gray-100  px-2 rounded-full items-center">
               <MinusIcon width={20} height={20} className="cursor-pointer" />
               <span>1</span>
               <PlusIcon width={20} height={20} className="cursor-pointer" />
             </div>
           </div>
 
-          <div className="border rounded p-4 flex flex-col gap-2">
+          <div className="border border-gray-300   rounded p-4 flex flex-col gap-2">
             <label htmlFor="aclaraciones" className="font-medium">¿Aclaraciones?</label>
             <textarea
               id="aclaraciones"
-              className="border border-gray-300 rounded p-2 resize-none focus:outline-none focus:ring-2 focus:ring-principal"
+              className="border border-gray-300 rounded p-2 resize-none focus:outline-none"
               rows={4}
               placeholder="Escribí alguna instrucción especial si lo necesitás..."
             ></textarea>
@@ -94,7 +94,7 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product} ) => {
               dispatch(addToCart(product));
               dispatch(removeFromCart())
             }}
-            className="w-full bg-principal text-white cursor-pointer py-3 rounded-full flex items-center justify-center gap-2 text-sm font-semibold uppercase hover:bg-terciario transition"
+            className="w-full bg-principal text-white cursor-pointer py-4 rounded-full flex items-center justify-center gap-2 text-sm font-semibold uppercase hover:bg-terciario transition"
           >
             <ShoppingCartIcon className="h-5 w-5" />
             Agregar a mi pedido
