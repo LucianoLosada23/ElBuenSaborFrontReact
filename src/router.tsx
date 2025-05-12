@@ -20,19 +20,6 @@ export const router = createBrowserRouter ([
                 path : "catalogo",
                 element : <Order/>,
             },
-            /*{
-                path : "clientes",
-                element : <Clients/>,
-
-            },
-            {
-                path : "vehiculos",
-                element : <Vehicle/>,
-            },
-            {
-                path : "citas",
-                element : <Appointments/>,
-            },*/
           
         ]
     }

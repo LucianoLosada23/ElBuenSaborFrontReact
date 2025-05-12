@@ -20,9 +20,9 @@ export default function Category() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Categorías Populares</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Categorías Populares</h1>
 
-      <div className="flex overflow-x-auto gap-4 pb-2">
+      <div className="flex justify-center overflow-x-auto gap-4 pb-2">
         {categories.length === 0 ? (
           <p className="text-gray-500">No hay categorías disponibles.</p>
         ) : (
