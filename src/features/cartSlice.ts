@@ -9,11 +9,13 @@ interface CartProduct {
 
 interface CartItem {
     isCartOpen: boolean;
+    isFacturacionOpen: boolean;
     cart : CartProduct[]
 }
 
 const initialState: CartItem = {
   isCartOpen: false,
+  isFacturacionOpen: false,
   cart : []
 };
 
@@ -35,10 +37,14 @@ const cartSlice = createSlice({
           state.cart.push({ product: action.payload, cantidad: 1 });
           toast.success("Agregado al carrito con éxito")
         }
-    }
+    },
+
+    toggleFacturacion: (state) => {   //Abrir o Cerrar facturacion
+      state.isFacturacionOpen = !state.isFacturacionOpen;
+    },
 
   },
 });
 
-export const {toggleCart , addToCart} = cartSlice.actions;
+export const {toggleCart , addToCart, toggleFacturacion} = cartSlice.actions;
 export default cartSlice.reducer;
