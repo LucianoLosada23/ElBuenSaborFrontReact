@@ -1,7 +1,9 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../../app/store';
-import { toggleCart } from '../../features/cartSlice';
+import { toggleCart, toggleFacturacion } from '../../features/cartSlice';
+import FacturacionPopUp from "./FacturacionPopUp";
+import { useAppSelector } from "../../app/hooks";
 
 export default function Carrito() {
   const isCartOpen = useSelector((state: RootState) => state.cart.isCartOpen);
@@ -11,6 +13,8 @@ export default function Carrito() {
   const subtotal = cart.reduce((acc, item) => acc + item.product.price * (item.cantidad ?? 1), 0);
   const descuento = subtotal * 0.1;
   const total = subtotal - descuento;
+
+  const facturacion = useAppSelector(state => state.cart.isFacturacionOpen);
 
   return (
     <div
@@ -57,12 +61,14 @@ export default function Carrito() {
           <span>Total</span>
           <span>${total.toFixed(2)}</span>
         </div>
-        <button className="bg-principal w-full py-2 mt-4 rounded text-white font-bold">
+        <button onClick={() => dispatch(toggleFacturacion())} className="bg-principal w-full py-2 mt-4 rounded text-white font-bold cursor-pointer">
           Continuar compra
         </button>
       </div>
       </>
       )}
+
+      {facturacion && <FacturacionPopUp/>}  
 
     </div>
   );
