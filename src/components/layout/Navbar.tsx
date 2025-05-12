@@ -4,6 +4,7 @@ import { toggleCart } from "../../features/cartSlice";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const [userAuth, setUserAuth] = useState<boolean>(true);
@@ -11,9 +12,10 @@ export default function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const dispatch = useAppDispatch();
+  const location = useLocation()
 
-  const cart = useAppSelector(state => state.cart.cart);
+  const dispatch = useAppDispatch();
+  const cart = useAppSelector(state => state.cart.cart); 
   const totalItems = cart.reduce((sum, item) => sum + item.cantidad, 0);
 
   const handleScroll = () => {
@@ -56,7 +58,7 @@ export default function Navbar() {
         </Link>
 
         {/* Mostrar buscador solo en /catalogo */}
-        {window.location.pathname === "/catalogo" && (
+        {location.pathname === "/catalogo" && (
           <div className="flex-1 flex justify-center">
             <div className="flex items-center max-w-3xl w-full bg-gray-50 rounded-full p-2 ">
               <div className="relative w-full">
