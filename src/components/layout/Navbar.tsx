@@ -1,10 +1,19 @@
 import { useState, useRef, useEffect } from "react";
-import { UserCircleIcon, ChevronDownIcon, ShoppingBagIcon } from "@heroicons/react/24/solid";
+import {
+  UserCircleIcon,
+  ChevronDownIcon,
+  ShoppingBagIcon,
+  MapPinIcon,
+  ArrowLeftEndOnRectangleIcon,
+  UserIcon,
+  ClipboardDocumentListIcon,
+} from "@heroicons/react/24/solid";
 import { toggleCart } from "../../features/cartSlice";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { useLocation } from "react-router-dom";
+import Button from "../ui/Button";
 
 export default function Navbar() {
   const [userAuth, setUserAuth] = useState<boolean>(true);
@@ -12,11 +21,11 @@ export default function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const location = useLocation()
+  const location = useLocation();
 
   const dispatch = useAppDispatch();
-  const cart = useAppSelector(state => state.cart.cart); 
-  const totalItems = cart.reduce((sum, item) => sum + item.cantidad, 0);
+  const cart = useAppSelector((state) => state.cart.cart);
+  const totalItems = cart.reduce((sum, item) => sum + item.amount, 0);
 
   const handleScroll = () => {
     setIsSticky(window.scrollY > 0);
@@ -27,16 +36,35 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const dropdown = [
-    { name: "Mis Direcciones", icon: "/location.svg" },
-    { name: "Mis Órdenes", icon: "/order.svg" },
-    { name: "Mi Perfil", icon: "/profile.svg" },
-    { name: "Cerrar Sesión", icon: "/logout.svg" },
+  const dropdownItems = [
+    {
+      name: "Mis Direcciones",
+      icon: <MapPinIcon width={18} height={18} />,
+      link: "/usuario/direcciones",
+    },
+    {
+      name: "Mis Órdenes",
+      icon: <ClipboardDocumentListIcon width={18} height={18} />,
+      link: "/usuario/ordenes",
+    },
+    {
+      name: "Mi Perfil",
+      icon: <UserIcon width={18} height={18} />,
+      link: "/usuario/perfil",
+    },
+    {
+      name: "Cerrar Sesión",
+      icon: <ArrowLeftEndOnRectangleIcon width={18} height={18} />,
+      link: "#",
+    },
   ];
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -54,7 +82,7 @@ export default function Navbar() {
     >
       <div className="flex justify-between items-center w-full max-w-8xl mx-auto px-4">
         <Link to="/">
-          <img src="/logo1.png" alt="logo" width={160} height={1} />
+          <img src="/logo1.png" alt="logo" width={160} loading="lazy" height={1} />
         </Link>
 
         {/* Mostrar buscador solo en /catalogo */}
@@ -69,9 +97,7 @@ export default function Navbar() {
                   className="w-full pl-10 pr-2 py-2 focus:outline-none focus:ring-0 focus:border-transparent"
                 />
               </div>
-              <button className="py-2 px-8 cursor-pointer text-white bg-principal rounded-full hover:bg-terciario font-semibold text-[14px]">
-                Buscar
-              </button>
+              <Button height={0.5} width={2} text={"Buscar"} size={14} />
             </div>
           </div>
         )}
@@ -93,16 +119,15 @@ export default function Navbar() {
               {open && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gris rounded-lg shadow-lg z-10">
                   <ul className="text-gray-700">
-                    {dropdown.map((drop, index) => (
-                      <div
-                        className="flex px-4 space-x-1 hover:bg-gray-100 py-2 cursor-pointer"
-                        key={index}
-                      >
-                        <img src={drop.icon} alt="icono" width={18} height={18} />
-                        <li className="font-display text-gris-oscuro text-[14px]">
-                          {drop.name === "Mis Órdenes" ? <a href="#">{drop.name}</a> : drop.name}
+                    {dropdownItems.map((drop, index) => (
+                      <Link to={drop.link} key={index}>
+                        <li className="px-4 py-2 cursor-pointer flex items-center space-x-2 hover:bg-gray-100">
+                          {drop.icon}
+                          <span className="font-display text-gris-oscuro text-[14px]">
+                            {drop.name}
+                          </span>
                         </li>
-                      </div>
+                      </Link>
                     ))}
                   </ul>
                 </div>
@@ -110,7 +135,10 @@ export default function Navbar() {
             </div>
 
             <div className="relative">
-              <button onClick={() => dispatch(toggleCart())} className="cursor-pointer relative">
+              <button
+                onClick={() => dispatch(toggleCart())}
+                className="cursor-pointer relative"
+              >
                 <ShoppingBagIcon width={24} height={24} />
                 {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">

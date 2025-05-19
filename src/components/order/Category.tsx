@@ -31,6 +31,7 @@ export default function Category() {
               <img
                 src={category.image || "/placeholder.png"}
                 alt={category.name || "Categoría"}
+                loading="lazy"
                 title={category.name}
                 className="w-32 h-36 rounded-xl object-cover cursor-pointer mx-auto transition-transform duration-300 ease-in-out group-hover:scale-105"
               />
