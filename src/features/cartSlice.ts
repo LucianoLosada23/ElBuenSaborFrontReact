@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import type { Carrito } from "../types/Carrito";
 
 interface CartItem {
+
   isCartOpen: boolean;
   isFacturacion: boolean;
   cart: Carrito[];
@@ -10,6 +11,7 @@ interface CartItem {
 
 const initialState: CartItem = {
   isCartOpen: false,
+
   isFacturacion: false,
   cart: [],
 };
@@ -69,6 +71,7 @@ const cartSlice = createSlice({
           state.cart.splice(index, 1);
           toast.info("Producto eliminado del carrito");
         }
+
       }
     },
   },
