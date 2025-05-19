@@ -23,11 +23,12 @@ export default function Offer() {
                 {offers.map((offer, index) => (
                     <div
                         key={index}
-                        className="bg-bg-light rounded-md shadow-md p-4 flex flex-col items-center text-center"
+                        className="bg-bg-light rounded-md shadow-xs p-4 flex flex-col items-center text-center"
                     >
                         <img
                             src={offer.icon}
                             alt={offer.title}
+                            loading="lazy"
                             className="w-8 h-8 mb-3" // Imagen más pequeña
                         />
                         <h3 className="text-lg font-semibold mb-1">{offer.title}</h3> {/* Tamaño de texto reducido */}

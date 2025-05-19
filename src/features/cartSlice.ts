@@ -1,44 +1,85 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { Product } from '../types/Product';
-import {toast} from "react-toastify"
-
-interface CartProduct {
-    product : Product
-    cantidad : number
-}
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
+import type { Carrito } from "../types/Carrito";
 
 interface CartItem {
-    isCartOpen: boolean;
-    cart : CartProduct[]
+  isCartOpen: boolean;
+  isFacturacion: boolean;
+  cart: Carrito[];
 }
 
 const initialState: CartItem = {
   isCartOpen: false,
-  cart : []
+  isFacturacion: false,
+  cart: [],
 };
 
+
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
-
-    toggleCart: (state) => {   //Abrir o Cerrar Carrito
+    toggleCart: (state) => {
       state.isCartOpen = !state.isCartOpen;
     },
 
-    addToCart: (state, action: PayloadAction<Product>) => { //Agregar al carrito , si ya existe el producto aumentar cantidad
-        const existingItem = state.cart.find(item => item.product.id === action.payload.id);
-        
-        if (existingItem) {
-          existingItem.cantidad += 1;
-        } else {
-          state.cart.push({ product: action.payload, cantidad: 1 });
-          toast.success("Agregado al carrito con éxito")
-        }
-    }
+    toggleFacturacion: (state) => {
+      state.isFacturacion = !state.isFacturacion;
+    },
 
+    addToCart: (state, action: PayloadAction<Carrito>) => {
+      const { product, amount, clarifications } = action.payload;
+
+      const existingItem = state.cart.find(
+        (item) => item.product.id === product.id
+      );
+
+      if (existingItem) {
+        existingItem.amount += amount;
+      } else {
+        state.cart.push({
+          product,
+          amount: amount,
+          clarifications: clarifications,
+        });
+        toast.success("Agregado al carrito con éxito");
+      }
+    },
+
+    // Aumentar cantidad
+    incrementAmount: (state, action: PayloadAction<{ productId: number }>) => {
+      const item = state.cart.find(
+        (item) => item.product.id === action.payload.productId
+      );
+      if (item) {
+        item.amount += 1;
+      }
+    },
+
+    // Disminuir cantidad (y eliminar si llega a 1 y presionan menos)
+    decrementAmount: (state, action: PayloadAction<{ productId: number }>) => {
+      const index = state.cart.findIndex(
+        (item) => item.product.id === action.payload.productId
+      );
+      if (index !== -1) {
+        const item = state.cart[index];
+        if (item.amount > 1) {
+          item.amount -= 1;
+        } else {
+          state.cart.splice(index, 1);
+          toast.info("Producto eliminado del carrito");
+        }
+      }
+    },
   },
 });
 
-export const {toggleCart , addToCart} = cartSlice.actions;
+export const {
+  toggleCart,
+  toggleFacturacion,
+  addToCart,
+  incrementAmount,
+  decrementAmount,
+} = cartSlice.actions;
+
 export default cartSlice.reducer;

@@ -20,6 +20,7 @@ export default function BannerProduct() {
             <img
               src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=800&q=80"
               alt="Producto destacado"
+              loading="lazy"
               className="rounded-2xl shadow-lg w-full"
             />
           </div>

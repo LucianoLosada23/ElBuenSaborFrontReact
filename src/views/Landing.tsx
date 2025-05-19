@@ -7,17 +7,17 @@ export default function Landing() {
   return (
     <>
       <section>
-        <Banner/>
+        <Banner />
       </section>
       <section>
-        <Operation/>
+        <Operation />
       </section>
       <section>
-        <Aboutus/>
+        <Aboutus />
       </section>
       <section>
-        <Contact/>
+        <Contact />
       </section>
     </>
-  )
+  );
 }

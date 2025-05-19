@@ -13,7 +13,7 @@ createRoot(document.getElementById('root')!).render(
     <Provider store={store}> {/* Agregamos el Provider aquí */}
       <RouterProvider router={router} />
       <ToastContainer
-        position="bottom-right"
+        position="bottom-left"
         autoClose={2000}
         toastClassName="!bg-white !text-black !rounded-xl !shadow-lg"
         closeButton={false}

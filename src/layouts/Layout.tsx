@@ -6,22 +6,20 @@ import Carrito from "../components/order/Carrito";
 export default function Layout() {
   return (
     <>
-     
-        <div>
-            <header>
-                <Navbar/>
-            </header>
-                <section>
-                      <Carrito />
-                  </section>
-            <main>
-                <Outlet />
-            </main>
-            <footer>
-                <Footer/>
-            </footer>
-        </div>
-     
+      <div>
+        <header>
+          <Navbar />
+        </header>
+        <section>
+          <Carrito />
+        </section>
+        <main>
+          <Outlet />
+        </main>
+        <footer>
+          <Footer />
+        </footer>
+      </div>
     </>
-  )
+  );
 }
