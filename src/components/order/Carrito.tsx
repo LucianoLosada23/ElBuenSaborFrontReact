@@ -1,6 +1,7 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 import { useCart } from "../../hooks/useCart";
+import { useAppSelector } from "../../app/hooks";
 
 export default function Carrito() {
   const { isCartOpen, cart, toggleCart, decrementAmount, incrementAmount , toggleFacturacion} = useCart();
