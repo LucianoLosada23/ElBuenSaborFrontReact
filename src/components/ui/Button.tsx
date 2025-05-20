@@ -8,7 +8,7 @@ type ButtonProps = {
 
 export default function Button({text , width , height , size} : ButtonProps) {
   return (
-    <button className="font-display text-white cursor-pointer bg-principal rounded-full font-semibold uppercase tracking-widest hover:text-white hover:bg-secundario"
+    <button className=" text-white cursor-pointer bg-principal rounded-full font-semibold  hover:text-white hover:bg-secundario"
      style={{
         padding: `${height}rem ${width}rem`,
         fontSize: `${size}px`

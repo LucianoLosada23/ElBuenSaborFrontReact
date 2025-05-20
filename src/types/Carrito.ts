@@ -1,6 +1,7 @@
 import type { Product } from "./Product";
 
-export type Carrito = {
+export interface Carrito {
     product: Product,
-    cantidad: number
+    amount: number,
+    clarifications?: string
 }

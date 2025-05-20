@@ -3,17 +3,15 @@ import type { Product } from "../../types/Product";
 import { getProducts } from "../../services/ProductService";
 import { ProductPopup } from "./ProductPopUp";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
-import { useAppDispatch , useAppSelector} from "../../app/hooks";
-import { addToProduct } from "../../features/productSlice";
+import { useProduct } from "../../hooks/useProduct";
 
 export default function Product() {
     const [products, setProducts] = useState<Product[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isPageChangeTriggered, setIsPageChangeTriggered] = useState(false);
 
-    const product = useAppSelector(state => state.product.product);
-    const dispatch = useAppDispatch();
-
+    const {setProduct , product} = useProduct()
+   
     const itemsPerPage = 7;
 
     useEffect(() => {
@@ -30,7 +28,7 @@ export default function Product() {
 
         const element = document.getElementById("product");
         if (element) {
-            const yOffset = -100; // ajustá según tu navbar
+            const yOffset = -0; // ajustá según tu navbar
             const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
             window.scrollTo({ top: y, behavior: "smooth" });
         }
@@ -64,8 +62,8 @@ export default function Product() {
                     {currentItems.map((product) => (
                         <div
                             key={product.id}
-                            onClick={() => dispatch(addToProduct(product))}
-                            className="shadow-md cursor-pointer flex justify-between items-center hover:border hover:border-black rounded-md gap-6 px-3 bg-white"
+                            onClick={() => setProduct(product)}
+                            className="shadow-xs cursor-pointer flex justify-between items-center hover:border hover:border-black rounded-md gap-6 px-3 bg-white"
                         >
                             <div className="flex flex-col items-start">
                                 <h2 className="text-[14px] font-medium text-gray-700">{product.name}</h2>
@@ -73,7 +71,7 @@ export default function Product() {
                                 <p className="text-[12px] text-gray-600 underline">ver más...</p>
                                 <h3 className="font-bold mt-2">${product.price.toFixed(2)}</h3>
                             </div>
-                            <img src={product.image} className="w-32 h-32" />
+                            <img src={product.image} loading="lazy" className="w-32 h-32" />
                         </div>
                     ))}
                 </div>
@@ -95,7 +93,7 @@ export default function Product() {
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
                     className="p-2 bg-principal text-white rounded disabled:opacity-50 cursor-pointer"
-                >
+                > 
                     <ChevronRightIcon className="h-6 w-6" />
                 </button>
             </div>
