@@ -7,6 +7,8 @@ import {
   ArrowLeftEndOnRectangleIcon,
   UserIcon,
   ClipboardDocumentListIcon,
+  HomeModernIcon,
+  HomeIcon,
 } from "@heroicons/react/24/solid";
 import { toggleCart } from "../../features/cartSlice";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -30,6 +32,10 @@ export default function Navbar() {
   const handleScroll = () => {
     setIsSticky(window.scrollY > 0);
   };
+
+  const isStickyEnabled =
+  isSticky &&
+  !["/usuario/perfil", "/usuario/ordenes"].includes(location.pathname);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -76,13 +82,19 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`bg-white w-full z-40 transition-all duration-300 ease-in-out transform py-4 ${
-        isSticky && "fixed top-0 left-0 shadow-md translate-y-0"
-      }`}
-    >
+  className={`bg-white w-full z-40 transition-all duration-300 ease-in-out transform py-4 ${
+    isStickyEnabled ? "fixed top-0 left-0 shadow-md translate-y-0" : ""
+  }`}
+>
       <div className="flex justify-between items-center w-full max-w-8xl mx-auto px-4">
         <Link to="/">
-          <img src="/logo1.png" alt="logo" width={160} loading="lazy" height={1} />
+          <img
+            src="/logo1.png"
+            alt="logo"
+            width={160}
+            loading="lazy"
+            height={1}
+          />
         </Link>
 
         {/* Mostrar buscador solo en /catalogo */}
@@ -104,6 +116,12 @@ export default function Navbar() {
 
         {userAuth ? (
           <div className="space-x-10 flex items-center">
+            <Link to="/catalogo">
+              <div className="bg-gray-50 rounded-full p-3 cursor-pointer hover:bg-gray-100">
+                <HomeIcon width={24} height={24} />
+              </div>
+            </Link>
+
             <div className="relative" ref={dropdownRef}>
               <div
                 className="flex items-center space-x-3 border-x border-gris px-2 cursor-pointer py-2"

@@ -14,7 +14,7 @@ createRoot(document.getElementById('root')!).render(
       <RouterProvider router={router} />
       <ToastContainer
         position="bottom-left"
-        autoClose={2000}
+        autoClose={4000}
         toastClassName="!bg-white !text-black !rounded-xl !shadow-lg"
         closeButton={false}
       />
