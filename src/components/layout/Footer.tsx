@@ -15,7 +15,7 @@ export default function Footer() {
   ];
 
   return (
-    <div className="bg-principal mt-20 py-12">
+    <div className="bg-principal mt-10 py-12">
       <div className="max-w-8xl mx-auto grid grid-cols-2 justify-between items-center">
         <a href={"/"}>
           <img
