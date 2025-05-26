@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import type { Carrito } from "../types/Carrito";
+import type { Carrito } from "../types/shop/carrito/Carrito";
 
 interface CartItem {
   isCartOpen: boolean;

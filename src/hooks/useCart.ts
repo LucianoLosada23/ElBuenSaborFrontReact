@@ -6,7 +6,7 @@ import {
   incrementAmount,
   decrementAmount,
 } from "../features/cartSlice";
-import type { Carrito } from "../types/Carrito";
+import type { Carrito } from "../types/shop/carrito/Carrito";
 
 export function useCart() {
   const dispatch = useAppDispatch();

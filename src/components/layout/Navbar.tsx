@@ -7,8 +7,6 @@ import {
   ArrowLeftEndOnRectangleIcon,
   UserIcon,
   ClipboardDocumentListIcon,
-  HomeModernIcon,
-  HomeIcon,
 } from "@heroicons/react/24/solid";
 import { toggleCart } from "../../features/cartSlice";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -116,11 +114,6 @@ export default function Navbar() {
 
         {userAuth ? (
           <div className="space-x-10 flex items-center">
-            <Link to="/catalogo">
-              <div className="bg-gray-50 rounded-full p-3 cursor-pointer hover:bg-gray-100">
-                <HomeIcon width={24} height={24} />
-              </div>
-            </Link>
 
             <div className="relative" ref={dropdownRef}>
               <div

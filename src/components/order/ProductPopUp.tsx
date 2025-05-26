@@ -1,5 +1,5 @@
 import { useEffect, useState, type FC } from "react";
-import type { Product } from "../../types/Product";
+import type { Product } from "../../types/shop/product/Product";
 import {
   ShoppingCartIcon,
   XMarkIcon,

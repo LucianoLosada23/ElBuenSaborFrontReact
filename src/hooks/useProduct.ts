@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { addToProduct, removeFromProduct } from "../features/productSlice";
-import type { Product } from "../types/Product";
+import type { Product } from "../types/shop/product/Product";
 
 export function useProduct() {
   const dispatch = useAppDispatch();

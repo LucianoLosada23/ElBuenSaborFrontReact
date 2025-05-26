@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CategoriesSchema} from "../types/Category";
+import { CategoriesSchema} from "../../types/shop/productosCategory/Category";
 import { safeParse } from "valibot";
 
 // Obtener categorías
