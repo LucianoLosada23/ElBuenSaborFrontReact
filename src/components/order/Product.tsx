@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { Product } from "../../types/Product";
-import { getProducts } from "../../services/ProductService";
+import type { Product } from "../../types/shop/product/Product";
+import { getProducts } from "../../services/shop/ProductService";
 import { ProductPopup } from "./ProductPopUp";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useProduct } from "../../hooks/useProduct";

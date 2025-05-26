@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { Product } from "../types/Product";
+import type { Product } from "../types/shop/product/Product";
 
 interface ProductType {
   product: Product | null;

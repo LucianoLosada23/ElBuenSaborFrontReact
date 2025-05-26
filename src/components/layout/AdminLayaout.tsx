@@ -9,6 +9,7 @@ import {
   InboxArrowDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  UserGroupIcon
 } from "@heroicons/react/24/solid";
 import { useState } from "react";
 
@@ -33,11 +34,16 @@ export default function AdminLayout() {
     {
       label: "Insumos",
       icon: <ClipboardIcon className="w-6 h-6" />,
-      path: "#",
+      path: "/admin/insumos",
     },
     {
       label: "Órdenes",
       icon: <ClipboardDocumentListIcon className="w-6 h-6" />,
+      path: "#",
+    },
+    {
+      label: "Clientes",
+      icon: <UserGroupIcon className="w-6 h-6" />,
       path: "#",
     },
     {

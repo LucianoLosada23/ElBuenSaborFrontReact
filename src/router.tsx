@@ -1,12 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 
-import Landing from "./views/Landing";
-import Layout from "./layouts/Layout";
-import Order from "./views/Order";
+import Landing from "./views/landing/Landing";
+import Layout from "./views/layouts/Layout";
+import Order from "./views/shop/Order";
 import UserAddresses from "./components/user/UserAddresses";
 import UserProfile from "./components/user/UserProfile";
 import UserOrders from "./components/user/UserOrders";
 import AdminLayaout from "./components/layout/AdminLayaout";
+import Insumos from "./views/admin/Insumos";
 
 export const router = createBrowserRouter([
   // Layout general para usuarios
@@ -42,7 +43,10 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <AdminLayaout />,
     children: [
-      
+      {
+        path: "insumos",
+        element: <Insumos />,
+      },
     ],
   },
 ]);

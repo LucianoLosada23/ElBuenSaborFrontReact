@@ -37,7 +37,10 @@
     },
     {
       "id": 7,
-      "name": "Cafe",
+
+      "name": "Coffe",
+
+
       "description": "Comida",
       "image": "category7.png"
 
