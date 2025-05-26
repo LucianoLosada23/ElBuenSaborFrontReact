@@ -1,5 +1,7 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
+
 import { useCart } from "../../hooks/useCart";
+import { useAppSelector } from "../../app/hooks";
 
 export default function Carrito() {
   const { isCartOpen, cart, toggleCart, decrementAmount, incrementAmount , toggleFacturacion} = useCart();
@@ -10,6 +12,8 @@ export default function Carrito() {
   );
   const descuento = subtotal * 0.1;
   const total = subtotal - descuento;
+
+  const facturacion = useAppSelector(state => state.cart.isFacturacionOpen);
 
   return (
     <div
@@ -96,7 +100,6 @@ export default function Carrito() {
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
-
             <button
               className="bg-principal w-full py-3 cursor-pointer mt-4 rounded-full text-white font-medium hover:bg-terciario transition"
               onClick={() => toggleFacturacion()}
@@ -106,6 +109,7 @@ export default function Carrito() {
           </div>
         </>
       )}
+
     </div>
   );
 }

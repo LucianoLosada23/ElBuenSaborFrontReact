@@ -13,13 +13,13 @@
     },
     {
       "id": 3,
-      "name": "Bebida",
+      "name": "Postre",
       "description": "Comida",
       "image": "category13.png"
     },
     {
       "id": 4,
-      "name": "Postre",
+      "name": "Sushi",
       "description": "Comida",
       "image": "category10.png"
     },
@@ -31,20 +31,23 @@
     },
     {
       "id": 6,
-      "name": "Sopa",
+      "name": "Bebidas",
       "description": "Comida",
       "image": "category8.png"
     },
     {
       "id": 7,
+
       "name": "Coffe",
+
+
       "description": "Comida",
       "image": "category7.png"
 
     },
     {
       "id": 8,
-      "name": "Mariscos",
+      "name": "Pasta",
       "description": "Comida",
       "image": "category14.png"
     }
