@@ -6,10 +6,13 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useProduct } from "../../hooks/useProduct";
 
 export default function Product() {
+
+    // State
     const [products, setProducts] = useState<Product[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isPageChangeTriggered, setIsPageChangeTriggered] = useState(false);
 
+    // Redux hooks
     const {setProduct , product} = useProduct()
    
     const itemsPerPage = 7;

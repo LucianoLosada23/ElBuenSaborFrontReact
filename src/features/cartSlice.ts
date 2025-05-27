@@ -4,15 +4,11 @@ import type { Carrito } from "../types/shop/carrito/Carrito";
 
 interface CartItem {
 
-  isCartOpen: boolean;
-  isFacturacion: boolean;
   cart: Carrito[];
 }
 
 const initialState: CartItem = {
-  isCartOpen: false,
 
-  isFacturacion: false,
   cart: [],
 };
 
@@ -21,14 +17,7 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    toggleCart: (state) => {
-      state.isCartOpen = !state.isCartOpen;
-    },
-
-    toggleFacturacion: (state) => {
-      state.isFacturacion = !state.isFacturacion;
-    },
-
+  
     addToCart: (state, action: PayloadAction<Carrito>) => {
       const { product, amount, clarifications } = action.payload;
 
@@ -78,8 +67,6 @@ const cartSlice = createSlice({
 });
 
 export const {
-  toggleCart,
-  toggleFacturacion,
   addToCart,
   incrementAmount,
   decrementAmount,

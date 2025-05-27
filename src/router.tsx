@@ -8,8 +8,20 @@ import UserProfile from "./components/user/UserProfile";
 import UserOrders from "./components/user/UserOrders";
 import AdminLayaout from "./components/layout/AdminLayaout";
 import Insumos from "./views/admin/Insumos";
+import Productos from "./views/admin/Productos";
+import Login from "./views/auth/login/Login";
+import Register from "./views/auth/register/Register";
 
 export const router = createBrowserRouter([
+
+   {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
   // Layout general para usuarios
   {
     path: "/",
@@ -46,6 +58,10 @@ export const router = createBrowserRouter([
       {
         path: "insumos",
         element: <Insumos />,
+      },
+      {
+        path: "productos",
+        element: <Productos />,
       },
     ],
   },

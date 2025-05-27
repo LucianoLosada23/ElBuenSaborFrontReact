@@ -14,9 +14,11 @@ interface ProductPopupProps {
 
 export const ProductPopup: FC<ProductPopupProps> = ({ product }) => {
 
+  // Redux hooks
   const {addToCart} = useCart()
   const {clearProduct} = useProduct()
 
+  // State
   const [amount, setamount] = useState<number>(1);
   const [clarifications, setclarifications] = useState<string>("");
 

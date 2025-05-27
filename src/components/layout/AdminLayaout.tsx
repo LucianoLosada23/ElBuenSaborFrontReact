@@ -14,8 +14,12 @@ import {
 import { useState } from "react";
 
 export default function AdminLayout() {
+
+  // Routers
   const navigate = useNavigate();
   const location = useLocation();
+
+  // State
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleSidebar = () => setCollapsed(!collapsed);
@@ -29,7 +33,7 @@ export default function AdminLayout() {
     {
       label: "Productos",
       icon: <ArchiveBoxIcon className="w-6 h-6" />,
-      path: "#",
+      path: "/admin/productos",
     },
     {
       label: "Insumos",
@@ -110,10 +114,10 @@ export default function AdminLayout() {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`flex items-center cursor-pointer gap-3 px-3 py-2 w-full rounded-md transition-all duration-200
+              className={`flex items-center cursor-pointer gap-3 px-3 py-3 w-full rounded-md transition-all duration-200
                 ${
                   location.pathname === item.path
-                    ? "bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white"
+                    ? "bg-admin-principal text-white"
                     : "hover:bg-gray-100"
                 }`}
               title={collapsed ? item.label : undefined} // tooltip en modo colapsado
