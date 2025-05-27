@@ -3,6 +3,8 @@ import type { Categories } from "../../types/shop/productosCategory/Category";
 import { getCategories } from "../../services/shop/CategoryService";
 
 export default function Category() {
+
+  // State
   const [categories, setCategories] = useState<Categories>([]);
 
   useEffect(() => {

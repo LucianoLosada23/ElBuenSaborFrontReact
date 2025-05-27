@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { getAllIngredients } from "../../services/admin/Ingredients";
 import type { Ingredient } from "../../types/Ingredients/Ingredient";
 import type { MRT_ColumnDef } from "material-react-table";
+import InsumosModal from "../../components/admin/insumos/insumosModal/InsumosModal";
+import { useUIState } from "../../hooks/ui/useUIState";
 
 const columns: MRT_ColumnDef<Ingredient>[] = [
   { accessorKey: "name", header: "Nombre" },
@@ -14,7 +16,12 @@ const columns: MRT_ColumnDef<Ingredient>[] = [
 
 
 export default function Insumos() {
+  // State
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+
+  //Redux hooks
+
+  const {toggle} = useUIState()
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -29,12 +36,16 @@ export default function Insumos() {
     fetchIngredients();
   }, []);
   return (
-    <GenericTable
-      title="Insumos"
-      columns={columns}
-      data={ingredients}
-      addButtonText="Agregar Insumo"
-      onAddClick={() => console.log("Agregar insumo")}
-    />
+    <>
+      <GenericTable
+        title="Insumos"
+        columns={columns}
+        data={ingredients}
+        addButtonText="Añadir"
+        onAddClick={() => toggle("isInsumosOpen")}
+      />
+      <InsumosModal/>
+    </>
+    
   );
 }

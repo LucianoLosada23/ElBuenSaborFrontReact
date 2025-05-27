@@ -1,9 +1,14 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useCart } from "../../hooks/useCart";
+import { useUIState } from "../../hooks/ui/useUIState";
 
 export default function Carrito() {
-  const { isCartOpen, cart, toggleCart, decrementAmount, incrementAmount , toggleFacturacion} = useCart();
 
+  // Redux hooks
+  const { cart, decrementAmount, incrementAmount} = useCart();
+  const { isCartOpen, toggle } = useUIState();
+
+  // Funciones
   const subtotal = cart.reduce(
     (acc, item) => acc + item.product.price * (item.amount ?? 1),
     0
@@ -20,7 +25,7 @@ export default function Carrito() {
       {/* Header */}
       <div className="p-4 flex justify-between items-center border-b">
         <h1 className="text-xl font-bold">Mi Orden</h1>
-        <button onClick={() => toggleCart()} className="cursor-pointer">
+        <button onClick={() => toggle('isCartOpen')} className="cursor-pointer">
           <XMarkIcon className="w-6 h-6" />
         </button>
       </div>
@@ -99,7 +104,7 @@ export default function Carrito() {
 
             <button
               className="bg-principal w-full py-3 cursor-pointer mt-4 rounded-full text-white font-medium hover:bg-terciario transition"
-              onClick={() => toggleFacturacion()}
+              onClick={() => toggle('isFacturacionOpen')}
             >
               Continuar
             </button>

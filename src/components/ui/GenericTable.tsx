@@ -5,6 +5,7 @@ import {
   MRT_ToolbarAlertBanner,
   flexRender,
   type MRT_ColumnDef,
+  type MRT_Row,
   useMaterialReactTable,
 } from "material-react-table";
 import {
@@ -19,6 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { ArchiveBoxXMarkIcon, PencilIcon } from "@heroicons/react/24/solid";
 
 type Props<T extends object> = {
   title?: string;
@@ -26,6 +28,8 @@ type Props<T extends object> = {
   data: T[];
   onAddClick?: () => void;
   addButtonText?: string;
+  onEdit?: (row: T) => void;
+  onDelete?: (row: T) => void;
 };
 
 const GenericTable = <T extends object>({
@@ -34,9 +38,41 @@ const GenericTable = <T extends object>({
   data,
   onAddClick,
   addButtonText = "Agregar",
+  onEdit,
+  onDelete,
 }: Props<T>) => {
+  // Agregamos la columna de acciones al final
+  const columnsWithActions = [
+    ...columns,
+    {
+      id: "actions",
+      header: "Acciones",
+      enableSorting: false,
+      enableColumnFilter: false,
+      size: 100,
+      Cell: ({ row }: { row: MRT_Row<T> }) => (
+        <div className="flex justify-center gap-2">
+          <button
+            onClick={() => onEdit?.(row.original)}
+            className="text-white bg-admin-principal hover:bg-admin-secundario p-2 rounded-full cursor-pointer"
+            aria-label="Editar"
+          >
+            <PencilIcon width={16} height={16} />
+          </button>
+          <button
+            onClick={() => onDelete?.(row.original)}
+            className="text-white bg-admin-principal hover:bg-admin-secundario p-2 rounded-full cursor-pointer"
+            aria-label="Eliminar"
+          >
+            <ArchiveBoxXMarkIcon width={16} height={16} />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   const table = useMaterialReactTable({
-    columns,
+    columns: columnsWithActions,
     data,
     enableRowSelection: false,
     initialState: {
@@ -53,23 +89,33 @@ const GenericTable = <T extends object>({
   return (
     <Stack sx={{ m: "2rem 0", bgcolor: "white", p: 6 }} spacing={2}>
       <Box
-        sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
       >
-        <Typography variant="h4" fontWeight={500}>
+        <Typography variant="h4" fontWeight={600}>
           {title}
         </Typography>
         {onAddClick && (
           <button
-            className="bg-principal flex text-white px-4 py-2 rounded-lg hover:bg-secundario transition-colors cursor-pointer"
+            className="bg-admin-principal flex text-white items-center text-center gap-2 px-4 py-2 font-medium rounded-lg hover:bg-admin-secundario transition-colors cursor-pointer"
             onClick={onAddClick}
           >
-            {addButtonText}
             <PlusIcon className="w-6 h-6 text-white ml-2" />
+            {addButtonText}
           </button>
         )}
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <MRT_GlobalFilterTextField table={table} />
         <MRT_TablePagination table={table} />
       </Box>
@@ -84,7 +130,8 @@ const GenericTable = <T extends object>({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.Header ?? header.column.columnDef.header,
+                          header.column.columnDef.Header ??
+                            header.column.columnDef.header,
                           header.getContext()
                         )}
                   </TableCell>

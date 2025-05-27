@@ -1,11 +1,14 @@
-import { useCart } from "../../hooks/useCart";
+import { useUIState } from "../../hooks/ui/useUIState";
 import Modal from "../ui/Modal";
 
 export default function FacturacionPopUp() {
-  const {isFacturacion , toggleFacturacion} = useCart()
+
+  // Redux hooks
+  const {isFacturacionOpen , toggle} = useUIState()
+  
   return (
     <>
-      <Modal isOpen={isFacturacion} onClose={() => toggleFacturacion()} title={"Detalle De Facturación"}>
+      <Modal isOpen={isFacturacionOpen} onClose={() => toggle("isFacturacionOpen")} title={"Detalle De Facturación"}>
         <div>
           <h3 className="font-semibold text-lg">Su Orden</h3>
         </div>

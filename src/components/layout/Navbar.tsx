@@ -8,23 +8,26 @@ import {
   UserIcon,
   ClipboardDocumentListIcon,
 } from "@heroicons/react/24/solid";
-import { toggleCart } from "../../features/cartSlice";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { useLocation } from "react-router-dom";
 import Button from "../ui/Button";
+import { useUIState } from "../../hooks/ui/useUIState";
+import { useCart } from "../../hooks/useCart";
 
 export default function Navbar() {
+  // State
   const [userAuth, setUserAuth] = useState<boolean>(true);
   const [open, setOpen] = useState<boolean>(false);
   const [isSticky, setIsSticky] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
+  // Redux hooks
+  const {toggle} = useUIState()
+  const {cart} = useCart()
 
-  const dispatch = useAppDispatch();
-  const cart = useAppSelector((state) => state.cart.cart);
+  // Funciones
   const totalItems = cart.reduce((sum, item) => sum + item.amount, 0);
 
   const handleScroll = () => {
@@ -147,7 +150,7 @@ export default function Navbar() {
 
             <div className="relative">
               <button
-                onClick={() => dispatch(toggleCart())}
+                onClick={() => toggle('isCartOpen')}
                 className="cursor-pointer relative"
               >
                 <ShoppingBagIcon width={24} height={24} />
