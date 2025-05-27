@@ -3,10 +3,12 @@ import { toast } from "react-toastify";
 import type { Carrito } from "../types/shop/carrito/Carrito";
 
 interface CartItem {
+
   cart: Carrito[];
 }
 
 const initialState: CartItem = {
+
   cart: [],
 };
 
@@ -58,6 +60,7 @@ const cartSlice = createSlice({
           state.cart.splice(index, 1);
           toast.info("Producto eliminado del carrito");
         }
+
       }
     },
   },
