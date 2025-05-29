@@ -3,30 +3,22 @@ import { useEffect, useState } from "react";
 import { getAllIngredients } from "../../../services/admin/insumos/Ingredients";
 import type { Ingredient } from "../../../types/Ingredients/Ingredient";
 import type { MRT_ColumnDef } from "material-react-table";
-import InsumosModal from "../../../components/admin/insumos/insumosModal/InsumosModal";
 import { useUIState } from "../../../hooks/ui/useUIState";
 
 const columns: MRT_ColumnDef<Ingredient>[] = [
   { accessorKey: "name", header: "Nombre" },
-  { accessorKey: "price", header: "Precio Costo" },
-  { accessorKey: "status", header: "Disponibilidad" ,  Cell: ({ cell }) => (cell.getValue<boolean>() ? "Disponible" : "No disponible"),},
-  { accessorKey: "unitMeasure", header: "Unidad de Medida" },
-  { accessorKey: "currentStock", header: "Stock" },
-  {
-    header: "Categoría",
-    accessorFn: (row) =>
-    row.categoryIngredient?.parent?.name ?? row.categoryIngredient?.name ?? "Sin categoría",
-  }
+  { accessorKey: "unit_measure", header: "Unidad de medida" },
+  { accessorKey: "min_stock", header: "Stock mínimo" },
+  { accessorKey: "current_stock", header: "Stock actual" },
+  { accessorKey: "max_stock", header: "Stock máximo" },
 ];
-
-
-export default function Insumos() {
+export default function Product() {
   // State
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
   //Redux hooks
 
-  const {toggle} = useUIState()
+  const { toggle } = useUIState();
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -43,14 +35,12 @@ export default function Insumos() {
   return (
     <>
       <GenericTable
-        title="Insumos"
+        title="Productos"
         columns={columns}
         data={ingredients}
         addButtonText="Añadir"
         onAddClick={() => toggle("isInsumosOpen")}
       />
-      <InsumosModal/>
     </>
-    
   );
 }

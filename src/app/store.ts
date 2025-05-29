@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import uiReducer from '../features/ui/uiSlice';
 import cartReducers from "../features/cartSlice"
 import productReducers from "../features/productSlice"
+import insumosCategoryReducer from '../features/insumosCategory/insumosCategorySlice';
 
 export const store = configureStore({
   reducer: {
     ui: uiReducer,
     cart: cartReducers,
-    product : productReducers
+    product : productReducers,
+    insumosCategory: insumosCategoryReducer,
   },
 });
 

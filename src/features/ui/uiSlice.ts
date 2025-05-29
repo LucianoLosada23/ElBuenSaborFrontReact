@@ -3,6 +3,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 export interface UIState {
   isCartOpen: boolean;
   isInsumosCategoryOpen : boolean,
+  isInsumosSubCategoryOpen : boolean
   isFacturacionOpen: boolean;
   isInsumosOpen : boolean
   // Agrega aquí más propiedades booleanas si quieres reutilizar la función
@@ -11,6 +12,7 @@ export interface UIState {
 const initialState: UIState = {
   isInsumosOpen : false,
   isInsumosCategoryOpen : false,
+  isInsumosSubCategoryOpen : false,
   isCartOpen: false,
   isFacturacionOpen: false,
 };

@@ -1,26 +1,37 @@
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import {
-  Squares2X2Icon,
-  Cog8ToothIcon,
-  IdentificationIcon,
-  ArchiveBoxIcon,
-  ClipboardDocumentListIcon,
-  ClipboardIcon,
-  InboxArrowDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  UserGroupIcon,
-  ListBulletIcon
-} from "@heroicons/react/24/outline";
 import { useState } from "react";
 
-export default function AdminLayout() {
+// Outline Icons
+import {
+  Squares2X2Icon as Squares2X2IconOutline,
+  Cog8ToothIcon as Cog8ToothIconOutline,
+  IdentificationIcon as IdentificationIconOutline,
+  ArchiveBoxIcon as ArchiveBoxIconOutline,
+  ClipboardDocumentListIcon as ClipboardDocumentListIconOutline,
+  ClipboardIcon as ClipboardIconOutline,
+  InboxArrowDownIcon as InboxArrowDownIconOutline,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  UserGroupIcon as UserGroupIconOutline,
+  ListBulletIcon as ListBulletIconOutline,
+} from "@heroicons/react/24/outline";
 
-  // Routers
+// Solid Icons
+import {
+  Squares2X2Icon as Squares2X2IconSolid,
+  Cog8ToothIcon as Cog8ToothIconSolid,
+  IdentificationIcon as IdentificationIconSolid,
+  ArchiveBoxIcon as ArchiveBoxIconSolid,
+  ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
+  ClipboardIcon as ClipboardIconSolid,
+  InboxArrowDownIcon as InboxArrowDownIconSolid,
+  UserGroupIcon as UserGroupIconSolid,
+  ListBulletIcon as ListBulletIconSolid,
+} from "@heroicons/react/24/solid";
+
+export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // State
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleSidebar = () => setCollapsed(!collapsed);
@@ -28,50 +39,72 @@ export default function AdminLayout() {
   const menuItems = [
     {
       label: "Dashboard",
-      icon: <Squares2X2Icon className="w-6 h-6 text-admin-principal"/>,
       path: "/admin",
+      icon: Squares2X2IconOutline,
+      iconSolid: Squares2X2IconSolid,
     },
-     {
+    {
       label: "Categorías",
-      icon: <ListBulletIcon className="w-6 h-6 text-admin-principal" />,
-      path: "#",
+      path: "/admin/productos-categorias",
+      icon: ListBulletIconOutline,
+      iconSolid: ListBulletIconSolid,
     },
     {
       label: "Productos",
-      icon: <ArchiveBoxIcon className="w-6 h-6 text-admin-principal" />,
       path: "/admin/productos",
+      icon: ArchiveBoxIconOutline,
+      iconSolid: ArchiveBoxIconSolid,
     },
     {
       label: "Insumos",
-      icon: <ClipboardIcon className="w-6 h-6 text-admin-principal"  />,
       path: "/admin/insumos",
+      icon: ClipboardIconOutline,
+      iconSolid: ClipboardIconSolid,
     },
     {
       label: "Órdenes",
-      icon: <ClipboardDocumentListIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
+      icon: ClipboardDocumentListIconOutline,
+      iconSolid: ClipboardDocumentListIconSolid,
     },
     {
       label: "Clientes",
-      icon: <UserGroupIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
+      icon: UserGroupIconOutline,
+      iconSolid: UserGroupIconSolid,
     },
     {
       label: "Compras",
-      icon: <InboxArrowDownIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
+      icon: InboxArrowDownIconOutline,
+      iconSolid: InboxArrowDownIconSolid,
     },
     {
       label: "Empleados",
-      icon: <IdentificationIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
+      icon: IdentificationIconOutline,
+      iconSolid: IdentificationIconSolid,
     },
     {
       label: "Configuración",
-      icon: <Cog8ToothIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
+      icon: Cog8ToothIconOutline,
+      iconSolid: Cog8ToothIconSolid,
     },
   ];
+
+  const isActive = (path: string, label?: string) => {
+    if (label === "Insumos") {
+      return (
+        location.pathname === "/admin/insumos" ||
+        location.pathname === "/admin/insumos-categorias"
+      );
+    }
+
+    if (path === "/admin") return location.pathname === "/admin";
+
+    return location.pathname === path || location.pathname.startsWith(path + "/");
+  };
 
   return (
     <div className="flex">
@@ -116,24 +149,29 @@ export default function AdminLayout() {
 
         {/* Navigation */}
         <nav className="flex flex-col gap-4 items-start">
-          {menuItems.map((item) => (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`flex items-center cursor-pointer gap-3 px-3 py-2 w-full  transition-all duration-200
-                ${
-                  location.pathname === item.path
-                    ? "border-l-4 border-l-admin-principal text-admin-principal "
-                    : "hover:bg-gray-100 text-gray-800"
-                }`}
-              title={collapsed ? item.label : undefined} // tooltip en modo colapsado
-            >
-              <span>{item.icon}</span>
-              {!collapsed && (
-                <span className="whitespace-nowrap">{item.label}</span>
-              )}
-            </button>
-          ))}
+          {menuItems.map((item) => {
+            const active = isActive(item.path, item.label);
+            const Icon = active ? item.iconSolid : item.icon;
+
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`flex items-center cursor-pointer gap-3 px-3 py-2 w-full transition-all duration-200
+                  ${
+                    active
+                      ? "border-l-4 border-l-admin-principal text-admin-principal"
+                      : "hover:bg-gray-100 text-gray-800"
+                  }`}
+                title={collapsed ? item.label : undefined}
+              >
+                <Icon className="w-6 h-6 text-admin-principal" />
+                {!collapsed && (
+                  <span className="whitespace-nowrap">{item.label}</span>
+                )}
+              </button>
+            );
+          })}
         </nav>
       </div>
 

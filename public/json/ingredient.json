@@ -11,6 +11,7 @@
     "current_stock": 25,
     "max_stock": 100,
     "category_ingredient_id": {
+      "company_id": {"id": 1},
       "id": 5,
       "name": "Cereales",
       "category_parent_id": {
@@ -31,6 +32,7 @@
     "current_stock": 12,
     "max_stock": 50,
     "category_ingredient_id": {
+      "company_id": {"id": 1},
       "id": 6,
       "name": "Líquidos",
       "category_parent_id": null
@@ -48,6 +50,7 @@
     "current_stock": 8,
     "max_stock": 20,
     "category_ingredient_id": {
+      "company_id": {"id": 1},
       "id": 7,
       "name": "Condimentos",
       "category_parent_id": null
@@ -65,6 +68,7 @@
     "current_stock": 15,
     "max_stock": 30,
     "category_ingredient_id": {
+      "company_id": {"id": 1},
       "id": 8,
       "name": "Endulzantes",
       "category_parent_id": null
@@ -82,6 +86,7 @@
     "current_stock": 5,
     "max_stock": 10,
     "category_ingredient_id": {
+      "company_id": {"id": 1},
       "id": 9,
       "name": "Fermentos",
       "category_parent_id": null
@@ -99,6 +104,7 @@
     "current_stock": 20,
     "max_stock": 60,
     "category_ingredient_id": {
+      "company_id": {"id": 1},
       "id": 10,
       "name": "Lácteos",
       "category_parent_id": null
@@ -116,6 +122,7 @@
     "current_stock": 10,
     "max_stock": 25,
     "category_ingredient_id": {
+      "company_id": {"id": 1},
       "id": 11,
       "name": "Grasas",
       "category_parent_id": null
