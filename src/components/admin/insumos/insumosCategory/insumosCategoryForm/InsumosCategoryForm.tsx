@@ -1,21 +1,25 @@
 import React from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { postInsumosCategory } from "../../../../../services/admin/insumos/insumosCategory/InsumosCategory";
 import { useUIState } from "../../../../../hooks/ui/useUIState";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
+import { postInsumosCategory } from "../../../../../services/admin/insumos/insumosCategory/InsumosCategory";
+import { postProductCategory } from "../../../../../services/admin/product/category/category";
 
 interface CategoryFormData {
   name: string;
 }
 
 const InsumosCategoryForm: React.FC = () => {
+  const location = useLocation();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<CategoryFormData>();
 
-  const {toggle} = useUIState()
+  const { toggle } = useUIState();
+
   const onSubmit: SubmitHandler<CategoryFormData> = async (data) => {
     const categoryToSend = {
       name: data.name,
@@ -25,14 +29,23 @@ const InsumosCategoryForm: React.FC = () => {
     };
 
     try {
-      const result = await postInsumosCategory(categoryToSend);
+      // Determinar cuál service usar según la ruta
+      let result;
+
+      if (location.pathname === "/admin/insumos-categorias") {
+        result = await postInsumosCategory(categoryToSend);
+        toggle("isInsumosCategoryOpen");
+      } else if (location.pathname === "/admin/productos-categorias") {
+        result = await postProductCategory(categoryToSend);
+        toggle("isProductCategoryOpen");
+      }
 
       if (result) {
-        toggle("isInsumosCategoryOpen");
         toast.success("Categoría creada con éxito");
       }
     } catch (error) {
       console.error("Error al crear la categoría:", error);
+      toast.error("Hubo un error al crear la categoría");
     }
   };
 

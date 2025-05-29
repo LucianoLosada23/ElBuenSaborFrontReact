@@ -4,7 +4,8 @@ import { toast } from "react-toastify";
 import { useUIState } from "../../../../../../hooks/ui/useUIState";
 import { useInsumosCategory } from "../../../../../../hooks/insumosCategory/useInsumosCategory";
 import { postInsumosSubCategory } from "../../../../../../services/admin/insumos/insumosCategory/insumosSubCategory/insumosSubCategory";
-
+import { postProductSubCategory } from "../../../../../../services/admin/product/category/subcategory/subCategory";
+import { useLocation } from "react-router-dom";
 
 interface SubcategoryFormData {
   name: string;
@@ -18,8 +19,8 @@ const InsumosSubCategoryForm: React.FC = () => {
   } = useForm<SubcategoryFormData>();
 
   const { toggle } = useUIState();
-  const {selectedParentId} = useInsumosCategory()
-
+  const { selectedParentId } = useInsumosCategory();
+  const location = useLocation();
   const onSubmit: SubmitHandler<SubcategoryFormData> = async (data) => {
     if (!selectedParentId) {
       toast.error("No hay una categoría padre seleccionada");
@@ -35,17 +36,26 @@ const InsumosSubCategoryForm: React.FC = () => {
         id: 1,
       },
     };
-    console.log("Subcategoría a enviar:", subcategoryToSend);   
+    console.log("Subcategoría a enviar:", subcategoryToSend);
 
     try {
-      const result = await postInsumosSubCategory(subcategoryToSend);
-      if (result) {
+      // Determinar cuál service usar según la ruta
+      let result;
+
+      if (location.pathname === "/admin/insumos-categorias") {
+        result = await postInsumosSubCategory(subcategoryToSend);
         toggle("isInsumosSubCategoryOpen");
-        toast.success("Subcategoría creada con éxito");
+      } else if (location.pathname === "/admin/productos-categorias") {
+        result = await postProductSubCategory(subcategoryToSend);
+        toggle("isProductSubCategoryOpen");
+      }
+
+      if (result) {
+        toast.success("Categoría creada con éxito");
       }
     } catch (error) {
-      console.error("Error al crear la subcategoría:", error);
-      toast.error("Error al crear la subcategoría");
+      console.error("Error al crear la categoría:", error);
+      toast.error("Hubo un error al crear la categoría");
     }
   };
 

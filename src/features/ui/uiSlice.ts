@@ -4,6 +4,8 @@ export interface UIState {
   isCartOpen: boolean;
   isInsumosCategoryOpen : boolean,
   isInsumosSubCategoryOpen : boolean
+  isProductCategoryOpen : boolean,
+  isProductSubCategoryOpen : boolean,
   isFacturacionOpen: boolean;
   isInsumosOpen : boolean
   // Agrega aquí más propiedades booleanas si quieres reutilizar la función
@@ -13,6 +15,8 @@ const initialState: UIState = {
   isInsumosOpen : false,
   isInsumosCategoryOpen : false,
   isInsumosSubCategoryOpen : false,
+  isProductCategoryOpen : false,
+  isProductSubCategoryOpen : false,
   isCartOpen: false,
   isFacturacionOpen: false,
 };

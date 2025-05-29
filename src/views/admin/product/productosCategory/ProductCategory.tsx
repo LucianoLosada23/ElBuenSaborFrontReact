@@ -2,12 +2,15 @@ import type { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useState } from "react";
 import { useUIState } from "../../../../hooks/ui/useUIState";
 import GenericTable from "../../../../components/ui/GenericTable";
-import { getAllInsumosCategory } from "../../../../services/admin/insumos/insumosCategory/InsumosCategory";
 import type {
   IngredientCategory,
   IngredientCategoryList,
 } from "../../../../types/Ingredients/IngredientCategory";
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
+import { getAllProductCategory } from "../../../../services/admin/product/category/category";
+import ProductCategoryModal from "../../../../components/admin/product/productCategory/productCategoryModal/ProductCategoryModal";
+import ProductSubCategoryModal from "../../../../components/admin/product/productCategory/productSubCategory/ProductSubCategoryModal";
+import { useInsumosCategory } from "../../../../hooks/insumosCategory/useInsumosCategory";
 
 export default function ProductCategory() {
   const [ingredientCategory, setIngredientCategory] =
@@ -18,17 +21,19 @@ export default function ProductCategory() {
   const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
     []
   );
-  const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
+
 
   const { toggle } = useUIState();
+    const { selectedParentId, selectParentCategory } = useInsumosCategory();
+  
 
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const data = await getAllInsumosCategory();
+        const data = await getAllProductCategory();
         if (data) {
           setIngredientCategory(data);
-          const parents = data.filter((cat) => cat.category_parent_id === null);
+          const parents = data.filter((cat) => cat.parent === null);
           setParentCategories(parents);
         }
       } catch (error) {
@@ -58,10 +63,10 @@ export default function ProductCategory() {
             onClick={() => {
               const parentId = row.original.id;
               const children = ingredientCategory.filter(
-                (cat) => cat.category_parent_id?.id === parentId
+                (cat) => cat.parent?.id === parentId
               );
               setChildCategories(children);
-              setSelectedParentId(parentId);
+              selectParentCategory(parentId);
             }}
           >
             Ver subcategorías
@@ -91,10 +96,10 @@ export default function ProductCategory() {
           columns={childColumns}
           data={childCategories}
           addButtonText="Añadir Subcategoría"
-          onAddClick={() => toggle("isInsumosCategoryOpen")}
+          onAddClick={() => toggle("isProductSubCategoryOpen")}
           extraHeaderButton={
             <button
-              onClick={() => setSelectedParentId(null)}
+              onClick={() => selectParentCategory(null)}
               className="flex gap-2 mr-4 text-sm cursor-pointer hover:text-admin-principal"
             >
               <ArrowLeftStartOnRectangleIcon width={20} height={20} />
@@ -108,9 +113,11 @@ export default function ProductCategory() {
           columns={parentColumns}
           data={parentCategories}
           addButtonText="Añadir Categoría"
-          onAddClick={() => toggle("isInsumosCategoryOpen")}
+          onAddClick={() => toggle("isProductCategoryOpen")}
         />
       )}
+      <ProductCategoryModal/>
+      <ProductSubCategoryModal/>
     </>
   );
 }
