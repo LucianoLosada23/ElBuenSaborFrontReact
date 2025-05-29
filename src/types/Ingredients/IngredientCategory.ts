@@ -1,13 +1,16 @@
-import { number, object, string, union, null_ } from 'valibot';
+import { number, object, string, union, null_, type InferOutput, array } from 'valibot';
+
+export const CategoryParentSchema = object({
+  id: number(),
+  name: string()
+});
 
 export const IngredientCategorySchema = object({
   id: number(),
   name: string(),
-  parentCategory: union([
-    object({
-      id: number(),
-      name: string(),
-    }),
-    null_(),
-  ]),
+  category_parent_id: union([CategoryParentSchema, null_()])
 });
+export type IngredientCategory = InferOutput<typeof IngredientCategorySchema>;
+
+export const ingredientCategoryListSchema = array(IngredientCategorySchema);
+export type IngredientCategoryList = InferOutput<typeof ingredientCategoryListSchema>;

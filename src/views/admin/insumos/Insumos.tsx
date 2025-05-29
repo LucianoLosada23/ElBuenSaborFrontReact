@@ -1,10 +1,10 @@
-import GenericTable from "../../components/ui/GenericTable";
+import GenericTable from "../../../components/ui/GenericTable";
 import { useEffect, useState } from "react";
-import { getAllIngredients } from "../../services/admin/Ingredients";
-import type { Ingredient } from "../../types/Ingredients/Ingredient";
+import { getAllIngredients } from "../../../services/admin/insumos/Ingredients";
+import type { Ingredient } from "../../../types/Ingredients/Ingredient";
 import type { MRT_ColumnDef } from "material-react-table";
-import InsumosModal from "../../components/admin/insumos/insumosModal/InsumosModal";
-import { useUIState } from "../../hooks/ui/useUIState";
+import InsumosModal from "../../../components/admin/insumos/insumosModal/InsumosModal";
+import { useUIState } from "../../../hooks/ui/useUIState";
 
 const columns: MRT_ColumnDef<Ingredient>[] = [
   { accessorKey: "name", header: "Nombre" },

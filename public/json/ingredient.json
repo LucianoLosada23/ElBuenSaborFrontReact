@@ -13,7 +13,7 @@
     "category_ingredient_id": {
       "id": 5,
       "name": "Cereales",
-      "parentCategory": {
+      "category_parent_id": {
         "id": 1,
         "name": "Ingredientes Secos"
       }
@@ -33,7 +33,7 @@
     "category_ingredient_id": {
       "id": 6,
       "name": "Líquidos",
-      "parentCategory": null
+      "category_parent_id": null
     }
   },
   {
@@ -50,7 +50,7 @@
     "category_ingredient_id": {
       "id": 7,
       "name": "Condimentos",
-      "parentCategory": null
+      "category_parent_id": null
     }
   },
   {
@@ -67,7 +67,7 @@
     "category_ingredient_id": {
       "id": 8,
       "name": "Endulzantes",
-      "parentCategory": null
+      "category_parent_id": null
     }
   },
   {
@@ -84,7 +84,7 @@
     "category_ingredient_id": {
       "id": 9,
       "name": "Fermentos",
-      "parentCategory": null
+      "category_parent_id": null
     }
   },
   {
@@ -101,7 +101,7 @@
     "category_ingredient_id": {
       "id": 10,
       "name": "Lácteos",
-      "parentCategory": null
+      "category_parent_id": null
     }
   },
   {
@@ -118,7 +118,7 @@
     "category_ingredient_id": {
       "id": 11,
       "name": "Grasas",
-      "parentCategory": null
+      "category_parent_id": null
     }
   }
 ]

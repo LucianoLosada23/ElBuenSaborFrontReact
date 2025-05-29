@@ -1,5 +1,5 @@
 import { safeParse } from "valibot";
-import { ingredientListSchema } from "../../types/Ingredients/Ingredient";
+import { ingredientListSchema } from "../../../types/Ingredients/Ingredient";
 import axios from "axios";
 
 export const getAllIngredients = async () => {
@@ -10,11 +10,9 @@ export const getAllIngredients = async () => {
     if (result.success) {
       return result.output;
     } else {
-      console.warn("Falló el parseo del schema:", result.issues);
-      return []; 
+     throw new Error("Falló el parseo del schema:");
     }
   } catch (error) {
     console.error("Error al obtener los ingredientes:", error);
-    return []; 
   }
 };

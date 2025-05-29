@@ -1,5 +1,6 @@
 import { useUIState } from "../../../../hooks/ui/useUIState";
 import Modal from "../../../ui/Modal";
+import InsumosForm from "../InsumosForm/InsumosForm";
 
 export default function InsumosModal() {
 
@@ -9,9 +10,7 @@ export default function InsumosModal() {
   return (
    <>
       <Modal isOpen={isInsumosOpen} onClose={() => toggle("isInsumosOpen")} title="Añadir Insumos">
-        <div>
-
-        </div>
+       <InsumosForm/>
       </Modal>
    </>
   )
