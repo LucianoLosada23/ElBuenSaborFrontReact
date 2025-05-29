@@ -1,3 +1,4 @@
+import type { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useState } from "react";
 import { useUIState } from "../../../../hooks/ui/useUIState";
 import GenericTable from "../../../../components/ui/GenericTable";
@@ -7,55 +8,36 @@ import type {
   IngredientCategoryList,
 } from "../../../../types/Ingredients/IngredientCategory";
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
-import InsumosSubCategoryModal from "../../../../components/admin/insumos/insumosCategory/insumosSubCategory/insumosSubCategoryModal/InsumosSubCategoryModal";
-import InsumosCategoryModal from "../../../../components/admin/insumos/insumosCategory/insumosCategoryModal/InsumosCategoryModal";
-import { useInsumosCategory } from "../../../../hooks/insumosCategory/useInsumosCategory";
-import type { MRT_ColumnDef } from "material-react-table";
 
+export default function ProductCategory() {
+  const [ingredientCategory, setIngredientCategory] =
+    useState<IngredientCategoryList>([]);
+  const [parentCategories, setParentCategories] = useState<
+    IngredientCategory[]
+  >([]);
+  const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
+    []
+  );
+  const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
 
-export default function InsumosCategory() {
-  const [ingredientCategory, setIngredientCategory] = useState<IngredientCategoryList>([]);
-  const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
-  const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
-  
   const { toggle } = useUIState();
-  const { selectedParentId, selectParentCategory } = useInsumosCategory();
 
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
         const data = await getAllInsumosCategory();
-        if (Array.isArray(data)) {
+        if (data) {
           setIngredientCategory(data);
-          const parents = data.filter((cat) => cat.parent === null);
+          const parents = data.filter((cat) => cat.category_parent_id === null);
           setParentCategories(parents);
-        } else {
-          setIngredientCategory([]);
-          setParentCategories([]);
         }
       } catch (error) {
         console.error("Error fetching ingredients:", error);
-        setIngredientCategory([]);
-        setParentCategories([]);
       }
     };
 
     fetchIngredients();
   }, []);
-
-  useEffect(() => {
-    if (selectedParentId !== null) {
-      const children = ingredientCategory.filter(
-        (cat) => cat.parent?.id === selectedParentId
-      );
-      setChildCategories(children);
-    } else {
-      setChildCategories([]);
-    }
-  }, [selectedParentId, ingredientCategory]);
-
-  const selectedParentName =
-    parentCategories.find((p) => p.id === selectedParentId)?.name ?? "";
 
   const parentColumns: MRT_ColumnDef<IngredientCategory>[] = [
     {
@@ -67,13 +49,20 @@ export default function InsumosCategory() {
       header: "Nombre de la Categoría",
     },
     {
-      id: "subcategorias",
+      id: "subcategorías",
       header: "Subcategorías",
       Cell: ({ row }) => (
-        <div className="flex justify-center">
+        <div style={{ display: "flex", justifyContent: "center" }}>
           <button
             className="flex gap-2 cursor-pointer hover:text-admin-principal"
-            onClick={() => selectParentCategory(row.original.id)}
+            onClick={() => {
+              const parentId = row.original.id;
+              const children = ingredientCategory.filter(
+                (cat) => cat.category_parent_id?.id === parentId
+              );
+              setChildCategories(children);
+              setSelectedParentId(parentId);
+            }}
           >
             Ver subcategorías
           </button>
@@ -92,19 +81,20 @@ export default function InsumosCategory() {
       header: "Nombre de la Subcategoría",
     },
   ];
-
   return (
     <>
       {selectedParentId !== null ? (
         <GenericTable
-          title={`Subcategorías de ${selectedParentName}`}
+          title={`Subcategorías de ${
+            parentCategories.find((p) => p.id === selectedParentId)?.name
+          }`}
           columns={childColumns}
           data={childCategories}
           addButtonText="Añadir Subcategoría"
-          onAddClick={() => toggle("isInsumosSubCategoryOpen")}
+          onAddClick={() => toggle("isInsumosCategoryOpen")}
           extraHeaderButton={
             <button
-              onClick={() => selectParentCategory(null)}
+              onClick={() => setSelectedParentId(null)}
               className="flex gap-2 mr-4 text-sm cursor-pointer hover:text-admin-principal"
             >
               <ArrowLeftStartOnRectangleIcon width={20} height={20} />
@@ -121,9 +111,6 @@ export default function InsumosCategory() {
           onAddClick={() => toggle("isInsumosCategoryOpen")}
         />
       )}
-
-      <InsumosCategoryModal />
-      <InsumosSubCategoryModal />
     </>
   );
 }

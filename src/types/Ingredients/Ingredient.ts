@@ -1,17 +1,41 @@
-import { object, number, string, boolean, type InferOutput, array} from 'valibot';
-import { IngredientCategorySchema } from './IngredientCategory';
-import { companySchema } from '../Company/Company';
+import {
+  object,
+  number,
+  string,
+  boolean,
+  type InferOutput,
+  array,
+} from "valibot";
+import { IngredientCategorySchema } from "./IngredientCategory";
+import { companySchema } from "../Company/Company";
+
+export const ingredientSchemaCreate = object({
+  company: companySchema,
+  name: string(),
+  price: number(),
+  unitMeasure: string(),
+  status: boolean(),
+  minStock: number(),
+  currentStock: number(),
+  maxStock: number(),
+  categoryIngredient : object({
+    id : number()
+  })
+});
+export type IngredientCreate = InferOutput<typeof ingredientSchemaCreate>;
+
 
 export const ingredientSchema = object({
   id: number(),
-  company_id: companySchema,
+  company: companySchema,
   name: string(),
-  unit_measure: string(), 
+  price: number(),
+  unitMeasure: string(),
   status: boolean(),
-  min_stock: number(),
-  current_stock: number(),
-  max_stock: number(),
-  category_ingredient_id: IngredientCategorySchema
+  minStock: number(),
+  currentStock: number(),
+  maxStock: number(),
+  categoryIngredient: IngredientCategorySchema,
 });
 export type Ingredient = InferOutput<typeof ingredientSchema>;
 
