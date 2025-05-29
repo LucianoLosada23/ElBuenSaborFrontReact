@@ -1,0 +1,22 @@
+[
+  { "id": 1, "name": "Frutas", "category_parent_id": null },
+  { "id": 2, "name": "Cítricos", "category_parent_id": { "id": 1, "name": "Frutas" } },
+  { "id": 3, "name": "Manzanas", "category_parent_id": { "id": 1, "name": "Frutas" } },
+  { "id": 4, "name": "Verduras", "category_parent_id": null },
+  { "id": 5, "name": "Hojas verdes", "category_parent_id": { "id": 4, "name": "Verduras" } },
+  { "id": 6, "name": "Tubérculos", "category_parent_id": { "id": 4, "name": "Verduras" } },
+  { "id": 7, "name": "Carnes", "category_parent_id": null },
+  { "id": 8, "name": "Res", "category_parent_id": { "id": 7, "name": "Carnes" } },
+  { "id": 9, "name": "Pollo", "category_parent_id": { "id": 7, "name": "Carnes" } },
+  { "id": 10, "name": "Pescado", "category_parent_id": { "id": 7, "name": "Carnes" } },
+  { "id": 11, "name": "Lácteos", "category_parent_id": null },
+  { "id": 12, "name": "Leche", "category_parent_id": { "id": 11, "name": "Lácteos" } },
+  { "id": 13, "name": "Quesos", "category_parent_id": { "id": 11, "name": "Lácteos" } },
+  { "id": 14, "name": "Panadería", "category_parent_id": null },
+  { "id": 15, "name": "Pan", "category_parent_id": { "id": 14, "name": "Panadería" } },
+  { "id": 16, "name": "Tortas", "category_parent_id": { "id": 14, "name": "Panadería" } },
+  { "id": 17, "name": "Bebidas", "category_parent_id": null },
+  { "id": 18, "name": "Jugos", "category_parent_id": { "id": 17, "name": "Bebidas" } },
+  { "id": 19, "name": "Gaseosas", "category_parent_id": { "id": 17, "name": "Bebidas" } },
+  { "id": 20, "name": "Agua", "category_parent_id": { "id": 17, "name": "Bebidas" } }
+]

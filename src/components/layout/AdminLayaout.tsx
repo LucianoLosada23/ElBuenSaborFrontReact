@@ -9,8 +9,9 @@ import {
   InboxArrowDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  UserGroupIcon
-} from "@heroicons/react/24/solid";
+  UserGroupIcon,
+  ListBulletIcon
+} from "@heroicons/react/24/outline";
 import { useState } from "react";
 
 export default function AdminLayout() {
@@ -27,42 +28,47 @@ export default function AdminLayout() {
   const menuItems = [
     {
       label: "Dashboard",
-      icon: <Squares2X2Icon className="w-6 h-6" />,
+      icon: <Squares2X2Icon className="w-6 h-6 text-admin-principal"/>,
       path: "/admin",
+    },
+     {
+      label: "Categorías",
+      icon: <ListBulletIcon className="w-6 h-6 text-admin-principal" />,
+      path: "#",
     },
     {
       label: "Productos",
-      icon: <ArchiveBoxIcon className="w-6 h-6" />,
+      icon: <ArchiveBoxIcon className="w-6 h-6 text-admin-principal" />,
       path: "/admin/productos",
     },
     {
       label: "Insumos",
-      icon: <ClipboardIcon className="w-6 h-6" />,
+      icon: <ClipboardIcon className="w-6 h-6 text-admin-principal"  />,
       path: "/admin/insumos",
     },
     {
       label: "Órdenes",
-      icon: <ClipboardDocumentListIcon className="w-6 h-6" />,
+      icon: <ClipboardDocumentListIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
     },
     {
       label: "Clientes",
-      icon: <UserGroupIcon className="w-6 h-6" />,
+      icon: <UserGroupIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
     },
     {
       label: "Compras",
-      icon: <InboxArrowDownIcon className="w-6 h-6" />,
+      icon: <InboxArrowDownIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
     },
     {
       label: "Empleados",
-      icon: <IdentificationIcon className="w-6 h-6" />,
+      icon: <IdentificationIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
     },
     {
       label: "Configuración",
-      icon: <Cog8ToothIcon className="w-6 h-6" />,
+      icon: <Cog8ToothIcon className="w-6 h-6 text-admin-principal"  />,
       path: "#",
     },
   ];
@@ -71,7 +77,7 @@ export default function AdminLayout() {
     <div className="flex">
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-white text-black px-3 py-4 transition-all duration-300 shadow-md
+        className={`fixed top-0 left-0 h-full bg-white text-black px-2 py-4 transition-all duration-300 shadow-md
           ${collapsed ? "w-20" : "w-64"}
         `}
       >
@@ -109,16 +115,16 @@ export default function AdminLayout() {
         )}
 
         {/* Navigation */}
-        <nav className="flex flex-col gap-2 items-start">
+        <nav className="flex flex-col gap-4 items-start">
           {menuItems.map((item) => (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`flex items-center cursor-pointer gap-3 px-3 py-3 w-full rounded-md transition-all duration-200
+              className={`flex items-center cursor-pointer gap-3 px-3 py-2 w-full  transition-all duration-200
                 ${
                   location.pathname === item.path
-                    ? "bg-admin-principal text-white"
-                    : "hover:bg-gray-100"
+                    ? "border-l-4 border-l-admin-principal text-admin-principal "
+                    : "hover:bg-gray-100 text-gray-800"
                 }`}
               title={collapsed ? item.label : undefined} // tooltip en modo colapsado
             >

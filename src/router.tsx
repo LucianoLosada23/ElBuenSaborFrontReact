@@ -7,10 +7,11 @@ import UserAddresses from "./components/user/UserAddresses";
 import UserProfile from "./components/user/UserProfile";
 import UserOrders from "./components/user/UserOrders";
 import AdminLayaout from "./components/layout/AdminLayaout";
-import Insumos from "./views/admin/Insumos";
+import Insumos from "./views/admin/insumos/Insumos";
 import Productos from "./views/admin/Productos";
 import Login from "./views/auth/login/Login";
 import Register from "./views/auth/register/Register";
+import InsumosCategory from "./views/admin/insumos/insumosCategory/InsumosCategory";
 
 export const router = createBrowserRouter([
 
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
       {
         path: "insumos",
         element: <Insumos />,
+      },
+      {
+        path: "insumos-categorias",
+        element: <InsumosCategory/>,
       },
       {
         path: "productos",

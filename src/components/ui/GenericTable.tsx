@@ -19,8 +19,16 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { PlusIcon } from "@heroicons/react/24/outline";
-import { ArchiveBoxXMarkIcon, PencilIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowRightStartOnRectangleIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
+import {
+  ArchiveBoxXMarkIcon,
+  ArrowLeftStartOnRectangleIcon,
+  PencilIcon,
+} from "@heroicons/react/24/solid";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props<T extends object> = {
   title?: string;
@@ -30,6 +38,7 @@ type Props<T extends object> = {
   addButtonText?: string;
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
+  extraHeaderButton?: React.ReactNode;
 };
 
 const GenericTable = <T extends object>({
@@ -40,6 +49,7 @@ const GenericTable = <T extends object>({
   addButtonText = "Agregar",
   onEdit,
   onDelete,
+  extraHeaderButton,
 }: Props<T>) => {
   // Agregamos la columna de acciones al final
   const columnsWithActions = [
@@ -54,14 +64,14 @@ const GenericTable = <T extends object>({
         <div className="flex justify-center gap-2">
           <button
             onClick={() => onEdit?.(row.original)}
-            className="text-white bg-admin-principal hover:bg-admin-secundario p-2 rounded-full cursor-pointer"
+            className=" border border-admin-principal text-admin-principal hover:bg-gray-100 p-2 rounded-full cursor-pointer"
             aria-label="Editar"
           >
             <PencilIcon width={16} height={16} />
           </button>
           <button
             onClick={() => onDelete?.(row.original)}
-            className="text-white bg-admin-principal hover:bg-admin-secundario p-2 rounded-full cursor-pointer"
+            className="border border-admin-principal text-admin-principal hover:bg-gray-100 p-2 rounded-full cursor-pointer"
             aria-label="Eliminar"
           >
             <ArchiveBoxXMarkIcon width={16} height={16} />
@@ -85,6 +95,9 @@ const GenericTable = <T extends object>({
     },
     paginationDisplayMode: "pages",
   });
+  // location
+  const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <Stack sx={{ m: "2rem 0", bgcolor: "white", p: 6 }} spacing={2}>
@@ -95,18 +108,45 @@ const GenericTable = <T extends object>({
           alignItems: "center",
         }}
       >
-        <Typography variant="h4" fontWeight={600}>
+        <Typography variant="h4" fontWeight={500}>
           {title}
         </Typography>
-        {onAddClick && (
-          <button
-            className="bg-admin-principal flex text-white items-center text-center gap-2 px-4 py-2 font-medium rounded-lg hover:bg-admin-secundario transition-colors cursor-pointer"
-            onClick={onAddClick}
-          >
-            <PlusIcon className="w-6 h-6 text-white ml-2" />
-            {addButtonText}
-          </button>
-        )}
+
+        <div className="flex items-center gap-8">
+          {extraHeaderButton && extraHeaderButton}
+          {!extraHeaderButton && (location.pathname === "/admin/insumos" ||
+            location.pathname === "/admin/insumos-categorias") && (
+            <button
+              onClick={() =>
+                navigate(
+                  location.pathname === "/admin/insumos"
+                    ? "/admin/insumos-categorias"
+                    : "/admin/insumos"
+                )
+              }
+              className="flex gap-2 cursor-pointer text-sm hover:text-admin-principal items-center"
+            >
+              {location.pathname === "/admin/insumos-categorias" && (
+                <ArrowLeftStartOnRectangleIcon width={20} height={20} />
+              )}
+              {location.pathname === "/admin/insumos-categorias"
+                ? "volver"
+                : "Ir a Categorías"}
+              {location.pathname === "/admin/insumos" && (
+                <ArrowRightStartOnRectangleIcon width={20} height={20} />
+              )}
+            </button>
+          )}
+          {onAddClick && (
+            <button
+              className="bg-admin-principal flex text-white items-center text-center gap-1 px-4 py-2 rounded-full hover:bg-admin-principal/50 hover:text-white transition-colors cursor-pointer"
+              onClick={onAddClick}
+            >
+              <PlusIcon className="w-5 h-5 ml-2" />
+              {addButtonText}
+            </button>
+          )}
+        </div>
       </Box>
 
       <Box

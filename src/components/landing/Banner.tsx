@@ -18,7 +18,7 @@ export default function Banner() {
           />
         </h1>
         <Link to={"/catalogo"}>
-          <Button text={"Ordenar Ahora !"} width={6} height={1} size={16} />
+          <Button text={"Ordenar Ahora !"} width={6} height={0.8} size={16} />
         </Link>
       </div>
 
