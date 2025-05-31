@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useUIState } from "../../../../../hooks/ui/useUIState";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
-import { postInsumosCategory } from "../../../../../services/admin/insumos/insumosCategory/InsumosCategory";
-import { postProductCategory } from "../../../../../services/admin/product/category/category";
+import {
+  postInsumosCategory,
+  putInsumosCategory,
+} from "../../../../../services/admin/insumos/insumosCategory/InsumosCategory";
+import { postProductCategory, putProductCategory} from "../../../../../services/admin/product/category/category";
+import { useCategorias } from "../../../../../hooks/useCategorias"; // Asumo que acá tienes el selector global
+
 
 interface CategoryFormData {
   name: string;
@@ -12,46 +17,83 @@ interface CategoryFormData {
 
 const InsumosCategoryForm: React.FC = () => {
   const location = useLocation();
+  const { selectedCategory } = useCategorias(); // Obtener categoría seleccionada del estado global
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<CategoryFormData>();
+  } = useForm<CategoryFormData>({
+    defaultValues: {
+      name: "",
+    },
+  });
 
   const { toggle } = useUIState();
+
+  // Cuando cambia la categoría seleccionada, seteamos el formulario con sus datos
+  useEffect(() => {
+    if (selectedCategory) {
+      reset({ name: selectedCategory.name });
+    } else {
+      reset({ name: "" }); // Limpia formulario si no hay categoría seleccionada
+    }
+  }, [selectedCategory, reset]);
 
   const onSubmit: SubmitHandler<CategoryFormData> = async (data) => {
     const categoryToSend = {
       name: data.name,
       company: {
-        id: 1, // hardcodeado
+        id: 1, // hardcodeado, cambiar si necesario
       },
     };
 
     try {
-      // Determinar cuál service usar según la ruta
       let result;
 
-      if (location.pathname === "/admin/insumos-categorias") {
-        result = await postInsumosCategory(categoryToSend);
-        toggle("isInsumosCategoryOpen");
-      } else if (location.pathname === "/admin/productos-categorias") {
-        result = await postProductCategory(categoryToSend);
-        toggle("isProductCategoryOpen");
-      }
-
-      if (result) {
-        toast.success("Categoría creada con éxito");
+      if (selectedCategory) {
+        // EDITAR
+        if (location.pathname === "/admin/insumos-categorias") {
+          if (selectedCategory && selectedCategory.id !== undefined) {
+            result = await putInsumosCategory(
+              selectedCategory.id,
+              categoryToSend
+            );
+          }
+          toggle("isInsumosCategoryOpen");
+        } else if (location.pathname === "/admin/productos-categorias") {
+          if (selectedCategory && selectedCategory.id !== undefined) {
+            result = await putProductCategory(
+              selectedCategory.id,
+              categoryToSend
+            );
+          }
+          toggle("isProductCategoryOpen");
+        }
+        if (result) {
+          toast.success("Categoría actualizada con éxito");
+        }
+      } else {
+        // CREAR
+        if (location.pathname === "/admin/insumos-categorias") {
+          result = await postInsumosCategory(categoryToSend);
+          toggle("isInsumosCategoryOpen");
+        } else if (location.pathname === "/admin/productos-categorias") {
+          result = await postProductCategory(categoryToSend);
+          toggle("isProductCategoryOpen");
+        }
+        if (result) {
+          toast.success("Categoría creada con éxito");
+        }
       }
     } catch (error) {
-      console.error("Error al crear la categoría:", error);
-      toast.error("Hubo un error al crear la categoría");
+      console.error("Error al guardar la categoría:", error);
+      toast.error("Hubo un error al guardar la categoría");
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Campo Nombre */}
       <div>
         <input
           {...register("name", { required: "El nombre es obligatorio" })}
@@ -63,12 +105,11 @@ const InsumosCategoryForm: React.FC = () => {
         )}
       </div>
 
-      {/* Botón */}
       <button
         type="submit"
         className="w-full border border-admin-principal py-3 cursor-pointer rounded-md hover:bg-gray-100 text-admin-principal transition"
       >
-        Crear Categoría
+        {selectedCategory ? "Actualizar Categoría" : "Crear Categoría"}
       </button>
     </form>
   );

@@ -1,26 +1,48 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useUIState } from "../../../../../../hooks/ui/useUIState";
 import { useInsumosCategory } from "../../../../../../hooks/insumosCategory/useInsumosCategory";
-import { postInsumosSubCategory } from "../../../../../../services/admin/insumos/insumosCategory/insumosSubCategory/insumosSubCategory";
-import { postProductSubCategory } from "../../../../../../services/admin/product/category/subcategory/subCategory";
+import {
+  postInsumosSubCategory,
+} from "../../../../../../services/admin/insumos/insumosCategory/insumosSubCategory/insumosSubCategory";
+import {
+  postProductSubCategory
+} from "../../../../../../services/admin/product/category/subcategory/subCategory";
 import { useLocation } from "react-router-dom";
+import { useCategorias } from "../../../../../../hooks/useCategorias";
+import { putInsumosCategory } from "../../../../../../services/admin/insumos/insumosCategory/InsumosCategory";
+import { putProductCategory } from "../../../../../../services/admin/product/category/category";
 
 interface SubcategoryFormData {
   name: string;
 }
 
 const InsumosSubCategoryForm: React.FC = () => {
+  const location = useLocation();
+  const { selectedCategory } = useCategorias(); // Subcategoría seleccionada
+  const { selectedParentId } = useInsumosCategory();
+  const { toggle } = useUIState();
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<SubcategoryFormData>();
+  } = useForm<SubcategoryFormData>({
+    defaultValues: {
+      name: "",
+    },
+  });
 
-  const { toggle } = useUIState();
-  const { selectedParentId } = useInsumosCategory();
-  const location = useLocation();
+  useEffect(() => {
+    if (selectedCategory) {
+      reset({ name: selectedCategory.name });
+    } else {
+      reset({ name: "" });
+    }
+  }, [selectedCategory, reset]);
+
   const onSubmit: SubmitHandler<SubcategoryFormData> = async (data) => {
     if (!selectedParentId) {
       toast.error("No hay una categoría padre seleccionada");
@@ -36,26 +58,40 @@ const InsumosSubCategoryForm: React.FC = () => {
         id: 1,
       },
     };
-    console.log("Subcategoría a enviar:", subcategoryToSend);
 
     try {
-      // Determinar cuál service usar según la ruta
       let result;
 
-      if (location.pathname === "/admin/insumos-categorias") {
-        result = await postInsumosSubCategory(subcategoryToSend);
-        toggle("isInsumosSubCategoryOpen");
-      } else if (location.pathname === "/admin/productos-categorias") {
-        result = await postProductSubCategory(subcategoryToSend);
-        toggle("isProductSubCategoryOpen");
-      }
+      if (selectedCategory && selectedCategory.id !== undefined) {
+        // EDITAR
+        if (location.pathname === "/admin/insumos-categorias") {
+          result = await putInsumosCategory(selectedCategory.id, subcategoryToSend);
+          toggle("isInsumosSubCategoryOpen");
+        } else if (location.pathname === "/admin/productos-categorias") {
+          result = await putProductCategory(selectedCategory.id, subcategoryToSend);
+          toggle("isProductSubCategoryOpen");
+        }
 
-      if (result) {
-        toast.success("Categoría creada con éxito");
+        if (result) {
+          toast.success("Subcategoría actualizada con éxito");
+        }
+      } else {
+        // CREAR
+        if (location.pathname === "/admin/insumos-categorias") {
+          result = await postInsumosSubCategory(subcategoryToSend);
+          toggle("isInsumosSubCategoryOpen");
+        } else if (location.pathname === "/admin/productos-categorias") {
+          result = await postProductSubCategory(subcategoryToSend);
+          toggle("isProductSubCategoryOpen");
+        }
+
+        if (result) {
+          toast.success("Subcategoría creada con éxito");
+        }
       }
     } catch (error) {
-      console.error("Error al crear la categoría:", error);
-      toast.error("Hubo un error al crear la categoría");
+      console.error("Error al guardar la subcategoría:", error);
+      toast.error("Hubo un error al guardar la subcategoría");
     }
   };
 
@@ -76,7 +112,7 @@ const InsumosSubCategoryForm: React.FC = () => {
         type="submit"
         className="w-full border border-admin-principal py-3 cursor-pointer rounded-md hover:bg-gray-100 text-admin-principal transition"
       >
-        Crear Subcategoría
+        {selectedCategory ? "Actualizar Subcategoría" : "Crear Subcategoría"}
       </button>
     </form>
   );
