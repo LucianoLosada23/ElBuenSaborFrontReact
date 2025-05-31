@@ -16,3 +16,6 @@ export const postProductSubCategory = async (subCategoryData : IngredientSubCate
     console.error("Error al crear la subcategoría de insumos:", error);
   }
 };
+
+
+

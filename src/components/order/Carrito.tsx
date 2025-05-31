@@ -19,8 +19,6 @@ export default function Carrito() {
   const descuento = subtotal * 0.1;
   const total = subtotal - descuento;
 
-  const facturacion = useAppSelector(state => state.cart.isFacturacionOpen);
-
   return (
     <div
       className={`fixed top-0 right-0 h-full w-86 bg-white py-2 shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${

@@ -34,3 +34,23 @@ export const postProductCategory = async (category: IngredientCategoryCreate) =>
     console.error("Error al crear la categoría de insumos:", error);
   }
 };
+
+
+export const putProductCategory = async (
+  id: number,
+  category: IngredientCategoryCreate
+ 
+) => {
+  const url = `http://localhost:8080/api/v1/category/${id}`;
+  const { data } = await axios.put(url, category);
+  const result = safeParse(IngredientCategoryCreate, data);
+  if (result.success) {
+    return result.output;
+  } else {
+    console.error("Error en la validación de la categoría de insumos:");
+  }
+  try {
+  } catch (error) {
+    console.error("Error al actualizar la categoría de insumos:", error);
+  }
+};

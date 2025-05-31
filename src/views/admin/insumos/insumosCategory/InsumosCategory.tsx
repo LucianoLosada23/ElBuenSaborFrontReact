@@ -11,13 +11,18 @@ import InsumosSubCategoryModal from "../../../../components/admin/insumos/insumo
 import InsumosCategoryModal from "../../../../components/admin/insumos/insumosCategory/insumosCategoryModal/InsumosCategoryModal";
 import { useInsumosCategory } from "../../../../hooks/insumosCategory/useInsumosCategory";
 import type { MRT_ColumnDef } from "material-react-table";
-
+import { useCategorias } from "../../../../hooks/useCategorias";
 
 export default function InsumosCategory() {
-  const [ingredientCategory, setIngredientCategory] = useState<IngredientCategoryList>([]);
-  const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
-  const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
-  
+  const [ingredientCategory, setIngredientCategory] =
+    useState<IngredientCategoryList>([]);
+  const [parentCategories, setParentCategories] = useState<
+    IngredientCategory[]
+  >([]);
+  const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
+    []
+  );
+
   const { toggle } = useUIState();
   const { selectedParentId, selectParentCategory } = useInsumosCategory();
 
@@ -92,6 +97,23 @@ export default function InsumosCategory() {
       header: "Nombre de la Subcategoría",
     },
   ];
+  const { seleccionarCategoria } = useCategorias();
+  const handleEdit = (categoria: {
+    id: number;
+    name: string;
+    company: { id: number };
+    parent?: { id: number } | null;
+  }) => {
+    seleccionarCategoria(categoria);
+
+    if (categoria.parent === null || categoria.parent === undefined) {
+      // Es categoría padre
+      toggle("isInsumosCategoryOpen");
+    } else {
+      // Es subcategoría
+      toggle("isInsumosSubCategoryOpen");
+    }
+  };
 
   return (
     <>
@@ -102,6 +124,7 @@ export default function InsumosCategory() {
           data={childCategories}
           addButtonText="Añadir Subcategoría"
           onAddClick={() => toggle("isInsumosSubCategoryOpen")}
+          onEdit={handleEdit}
           extraHeaderButton={
             <button
               onClick={() => selectParentCategory(null)}
@@ -119,6 +142,7 @@ export default function InsumosCategory() {
           data={parentCategories}
           addButtonText="Añadir Categoría"
           onAddClick={() => toggle("isInsumosCategoryOpen")}
+          onEdit={handleEdit}
         />
       )}
 

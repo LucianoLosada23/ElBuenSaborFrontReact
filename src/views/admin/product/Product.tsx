@@ -1,21 +1,26 @@
 import GenericTable from "../../../components/ui/GenericTable";
 import { useEffect, useState } from "react";
-import { getAllIngredients } from "../../../services/admin/insumos/Ingredients";
 import type { Ingredient } from "../../../types/Ingredients/Ingredient";
 import type { MRT_ColumnDef } from "material-react-table";
 import { useUIState } from "../../../hooks/ui/useUIState";
+import ProductModal from "../../../components/admin/product/productoModal/ProductModal";
+import { getAllProduct } from "../../../services/admin/product/product";
+import type { Product } from "../../../types/product/product";
 
-const columns: MRT_ColumnDef<Ingredient>[] = [
-  { accessorKey: "name", header: "Nombre" },
-  { accessorKey: "unit_measure", header: "Unidad de medida" },
-  { accessorKey: "min_stock", header: "Stock mínimo" },
-  { accessorKey: "current_stock", header: "Stock actual" },
-  { accessorKey: "max_stock", header: "Stock máximo" },
+const columns: MRT_ColumnDef<Product>[] = [
+  { accessorKey: "id", header: "ID" },
+  { accessorKey: "title", header: "Nombre" },
+  { accessorKey: "description", header: "Descripción" },
+  { accessorKey: "price", header: "Precio" },
+  { accessorKey: "estimatedTime", header: "Tiempo estimado" },
+  { accessorKey: "category.name", header: "Categoría" },
+  { accessorKey: "company.id", header: "ID Empresa" },
 ];
 export default function Product() {
   // State
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-
+  const [ingredients, setIngredients] = useState<Product[]>([]);
+  console.log(ingredients);
+  
   //Redux hooks
 
   const { toggle } = useUIState();
@@ -23,7 +28,7 @@ export default function Product() {
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const data = await getAllIngredients();
+        const data = await getAllProduct();
         setIngredients(data ?? []);
       } catch (error) {
         console.error("Error fetching ingredients:", error);
@@ -39,8 +44,9 @@ export default function Product() {
         columns={columns}
         data={ingredients}
         addButtonText="Añadir"
-        onAddClick={() => toggle("isInsumosOpen")}
+        onAddClick={() => toggle("isProductOpen")}
       />
+      <ProductModal/>
     </>
   );
 }
