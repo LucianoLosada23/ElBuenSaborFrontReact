@@ -1,9 +1,8 @@
 import GenericTable from "../../../components/ui/GenericTable";
 import { useEffect, useState } from "react";
-import type { Ingredient } from "../../../types/Ingredients/Ingredient";
 import type { MRT_ColumnDef } from "material-react-table";
 import { useUIState } from "../../../hooks/ui/useUIState";
-import ProductModal from "../../../components/admin/product/productoModal/ProductModal";
+import ProductModal from "../../../components/admin/product/ProductModal";
 import { getAllProduct } from "../../../services/admin/product/product";
 import type { Product } from "../../../types/product/product";
 
@@ -18,31 +17,30 @@ const columns: MRT_ColumnDef<Product>[] = [
 ];
 export default function Product() {
   // State
-  const [ingredients, setIngredients] = useState<Product[]>([]);
-  console.log(ingredients);
+  const [products, setProducts] = useState<Product[]>([]);
   
   //Redux hooks
 
   const { toggle } = useUIState();
 
   useEffect(() => {
-    const fetchIngredients = async () => {
+    const fetchProducts = async () => {
       try {
         const data = await getAllProduct();
-        setIngredients(data ?? []);
+        setProducts(data ?? []);
       } catch (error) {
         console.error("Error fetching ingredients:", error);
       }
     };
 
-    fetchIngredients();
+    fetchProducts();
   }, []);
   return (
     <>
       <GenericTable
         title="Productos"
         columns={columns}
-        data={ingredients}
+        data={products}
         addButtonText="Añadir"
         onAddClick={() => toggle("isProductOpen")}
       />

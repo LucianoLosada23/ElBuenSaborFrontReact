@@ -139,7 +139,7 @@ const GenericTable = <T extends object>({
           )}
           {onAddClick && (
             <button
-              className="bg-admin-principal flex text-white items-center text-center gap-1 px-4 py-2 rounded-full hover:bg-admin-principal/50 hover:text-white transition-colors cursor-pointer"
+              className="bg-admin-principal flex text-white items-center text-center gap-1 px-4 py-3 rounded-full hover:bg-admin-principal/50 hover:text-white transition-colors cursor-pointer"
               onClick={onAddClick}
             >
               <PlusIcon className="w-5 h-5 ml-2" />
