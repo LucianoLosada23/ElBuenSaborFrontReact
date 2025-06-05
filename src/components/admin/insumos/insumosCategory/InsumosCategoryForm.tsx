@@ -1,15 +1,17 @@
 import React, { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { useUIState } from "../../../../../hooks/ui/useUIState";
+import { useUIState } from "../../../../hooks/ui/useUIState";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
 import {
   postInsumosCategory,
   putInsumosCategory,
-} from "../../../../../services/admin/insumos/insumosCategory/InsumosCategory";
-import { postProductCategory, putProductCategory} from "../../../../../services/admin/product/category/category";
-import { useCategorias } from "../../../../../hooks/useCategorias"; // Asumo que acá tienes el selector global
-
+} from "../../../../services/admin/insumos/insumosCategory/InsumosCategory";
+import {
+  postProductCategory,
+  putProductCategory,
+} from "../../../../services/admin/product/category/category";
+import { useCategorias } from "../../../../hooks/useCategorias"; // Asumo que acá tienes el selector global
 
 interface CategoryFormData {
   name: string;
@@ -94,22 +96,24 @@ const InsumosCategoryForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="" className="text-gray-700 text-sm">
+          Denominación <span className="text-orange-500 text-lg">*</span>
+        </label>
         <input
           {...register("name", { required: "El nombre es obligatorio" })}
-          placeholder="Nombre de la categoría"
+          placeholder="Denominación de la categoría"
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
         />
         {errors.name && (
           <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
         )}
       </div>
-
       <button
         type="submit"
-        className="w-full border border-admin-principal py-3 cursor-pointer rounded-md hover:bg-gray-100 text-admin-principal transition"
+        className="bg-admin-principal w-full flex justify-center gap-2 py-3 px-6 cursor-pointer rounded-full hover:bg-admin-principal/50 text-white transition"
       >
-        {selectedCategory ? "Actualizar Categoría" : "Crear Categoría"}
+        {selectedCategory ? "Actualizar Categoría" : "Añadir Categoría"}
       </button>
     </form>
   );

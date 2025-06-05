@@ -8,7 +8,8 @@ interface ModalProps {
   children: ReactNode;
   title?: string;
 }
-export default function Modal({
+
+export default function NewView({
   isOpen,
   onClose,
   children,
@@ -17,20 +18,23 @@ export default function Modal({
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-      <div className="fixed inset-0 flex items-center justify-center p-2">
-        <DialogPanel className="w-full max-w-6xl rounded-md bg-white p-22 shadow-xl">
-          <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-3xl font-semibold text-black">
+      <div className="fixed inset-0 flex">
+        <DialogPanel className="w-full h-full bg-white p-6 flex flex-col">
+          <div className="flex justify-between items-center mb-6 ">
+            <DialogTitle className="text-2xl font-bold text-black">
               {title}
             </DialogTitle>
-            <XMarkIcon 
+            <XMarkIcon
               width={24}
               height={24}
-              className="cursor-pointer"
+              className="cursor-pointer text-gray-600 hover:text-black transition"
               onClick={onClose}
             />
           </div>
-          {children}
+          {/* Contenido centrado */}
+          <div className="flex flex-1 items-center justify-center overflow-auto">
+            <div className="w-full max-w-7xl">{children}</div>
+          </div>
         </DialogPanel>
       </div>
     </Dialog>

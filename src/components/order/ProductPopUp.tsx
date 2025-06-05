@@ -1,128 +1,113 @@
-import { useEffect, useState, type FC } from "react";
+import {useState, type FC } from "react";
 import type { Product } from "../../types/shop/product/Product";
-import {
-  ShoppingCartIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 
 import { useCart } from "../../hooks/useCart";
 import { useProduct } from "../../hooks/useProduct";
+import Modal from "../ui/Modal";
+import { useUIState } from "../../hooks/ui/useUIState";
 
 interface ProductPopupProps {
   product: Product;
 }
 
 export const ProductPopup: FC<ProductPopupProps> = ({ product }) => {
-
   // Redux hooks
-  const {addToCart} = useCart()
-  const {clearProduct} = useProduct()
+  const { addToCart } = useCart();
+  const { clearProduct } = useProduct();
+  const { isProductModal, toggle } = useUIState();
 
   // State
   const [amount, setamount] = useState<number>(1);
   const [clarifications, setclarifications] = useState<string>("");
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
-
   const handleAddToCart = () => {
     addToCart({ product, amount, clarifications });
-    clearProduct()
+    clearProduct();
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/20 z-50">
-      <div className="bg-white rounded-xl shadow-lg w-[500px] h-[90vh] relative flex flex-col overflow-hidden">
-        {/* Botón de cierre */}
-        <button
-          onClick={() =>  clearProduct()}
-          className="absolute top-2 right-2 hover:text-gray-500 text-black text-xl font-bold cursor-pointer z-10"
-        >
-          <XMarkIcon width={24} height={24} />
-        </button>
-
-        {/* Header */}
-        <div className="p-4 pt-10 shadow-lg">
+    <Modal
+      isOpen={isProductModal}
+      onClose={() => toggle("isProductModal")}
+      title={product.name}
+    >
+      <div className="mt-8 border-t border-gray-200 p-4 flex gap-6 max-h-[600px]">
+        {/* Imagen centrada */}
+        <div className="flex-shrink-0 flex items-center justify-center w-[400px] h-[400px] border border-gray-200 rounded overflow-hidden">
           <img
             src={product.image}
             alt={product.name}
             loading="lazy"
-            className="w-full h-46 object-cover rounded mb-4"
+            className="object-cover w-full h-full"
           />
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold mb-1">{product.name}</h2>
-            <p className="text-gray-700 font-semibold">
-              ${product.price.toFixed(2)}
-            </p>
-          </div>
-          <p className="text-gray-600 text-sm mb-2">{product.description}</p>
         </div>
 
-        {/* Contenido con scroll */}
-        <div className="p-4 overflow-y-auto flex flex-col gap-6">
-          <div className="border border-gray-300 flex justify-between items-center rounded p-4">
-            <h4 className="font-medium">Tiempo</h4>
-            <div
-              className={"text-sm font-medium px-3 py-1 rounded-full mt-2 inline-block"}
+        {/* Contenido y controles */}
+        <div className="flex flex-col flex-grow max-h-[400px]">
+          {/* Contenido con scroll */}
+          <div className="overflow-y-auto flex-grow pr-2">
+            <p className="font-bold mb-6">$ {product.price}</p>
+            <p className="text-gray-600 mb-6">{product.description}</p>
+
+            <div className="border border-gray-200 flex justify-between items-center rounded p-4 mb-4">
+              <h4 className="font-medium">Tiempo</h4>
+              <div className="text-sm font-medium px-3 py-1 rounded-full inline-block">
+                {product.time} min
+              </div>
+            </div>
+
+            <div className="border border-gray-200 rounded p-4 mb-4">
+              <label htmlFor="aclaraciones" className="font-medium block mb-2">
+                ¿Aclaraciones?
+              </label>
+              <textarea
+                id="aclaraciones"
+                className="w-full border border-gray-200 rounded p-2 resize-none focus:outline-none"
+                rows={4}
+                placeholder="Escribí alguna instrucción especial si lo necesitás..."
+                value={clarifications}
+                onChange={(e) => setclarifications(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Control de unidades y botón */}
+          <div className="flex items-center gap-4 mt-4">
+            <div className="border border-gray-200 flex items-center rounded p-4 gap-4">
+              <h4 className="font-medium">Unidades</h4>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setamount((prev) => Math.max(1, prev - 1))
+                  }
+                  disabled={amount === 1}
+                  className={`px-3 py-1 bg-gray-200 rounded text-sm font-medium cursor-pointer hover:bg-gray-300 ${
+                    amount === 1 ? "opacity-30 cursor-not-allowed" : ""
+                  }`}
+                >
+                  −
+                </button>
+                <span className="font-semibold text-lg">{amount}</span>
+                <button
+                  onClick={() => setamount((prev) => prev + 1)}
+                  className="px-3 py-1 bg-gray-200 rounded text-sm font-medium cursor-pointer hover:bg-gray-300"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={handleAddToCart}
+              className="flex-grow bg-principal text-white py-4 cursor-pointer rounded-full flex items-center justify-center gap-2 text-sm font-semibold uppercase hover:bg-terciario transition"
             >
-              {`${product.time} min`}
-            </div>
+              <ShoppingCartIcon className="h-5 w-5" />
+              Agregar a mi pedido
+            </button>
           </div>
-
-          <div className="border border-gray-300 flex justify-between items-center rounded p-4">
-            <h4 className="font-medium">Unidades</h4>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() =>
-                  setamount((prevCantidad) => Math.max(1, prevCantidad - 1))
-                }
-                disabled={amount === 1}
-                className={`px-2 py-1 bg-gray-200 rounded text-sm font-medium cursor-pointer hover:bg-gray-300 ${
-                  amount === 1 ? "opacity-30 cursor-not-allowed" : ""
-                }`}
-              >
-                −
-              </button>
-              <span className="font-semibold text-sm">{amount}</span>
-              <button
-                onClick={() => setamount((prevCantidad) => prevCantidad + 1)}
-                className="px-2 py-1 bg-gray-200 rounded text-sm font-medium cursor-pointer hover:bg-gray-300"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          <div className="border border-gray-300 rounded p-4 flex flex-col gap-2">
-            <label htmlFor="aclaraciones" className="font-medium">
-              ¿Aclaraciones?
-            </label>
-            <textarea
-              id="aclaraciones"
-              className="border border-gray-300 rounded p-2 resize-none focus:outline-none"
-              rows={4}
-              placeholder="Escribí alguna instrucción especial si lo necesitás..."
-              value={clarifications}
-              onChange={(e) => setclarifications(e.target.value)}
-            ></textarea>
-          </div>
-        </div>
-
-        {/* Botón al fondo */}
-        <div className="p-4">
-          <button
-            onClick={handleAddToCart}
-            className="w-full bg-principal text-white cursor-pointer py-4 rounded-full flex items-center justify-center gap-2 text-sm font-semibold uppercase hover:bg-terciario transition"
-          >
-            <ShoppingCartIcon className="h-5 w-5" />
-            Agregar a mi pedido
-          </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };

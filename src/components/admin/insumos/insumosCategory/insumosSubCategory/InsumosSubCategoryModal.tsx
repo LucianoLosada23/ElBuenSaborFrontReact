@@ -1,6 +1,6 @@
-import { useUIState } from "../../../../../../hooks/ui/useUIState";
-import Modal from "../../../../../ui/Modal";
-import InsumosSubCategoryForm from "../insumosSubCategoryForm/InsumosSubCategoryForm";
+import { useUIState } from "../../../../../hooks/ui/useUIState";
+import Modal from "../../../../ui/Modal";
+import InsumosSubCategoryForm from "./InsumosSubCategoryForm";
 
 export default function InsumosSubCategoryModal() {
   const { isInsumosSubCategoryOpen, toggle } = useUIState();

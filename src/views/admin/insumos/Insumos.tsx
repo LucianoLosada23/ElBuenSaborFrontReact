@@ -4,10 +4,11 @@ import {
   deleteIngredient,
   getAllIngredients,
 } from "../../../services/admin/insumos/Ingredients";
-import type { Ingredient } from "../../../types/Ingredients/Ingredient";
 import type { MRT_ColumnDef } from "material-react-table";
-import InsumosModal from "../../../components/admin/insumos/insumosModal/InsumosModal";
+import InsumosModal from "../../../components/admin/insumos/InsumosModal";
 import { useUIState } from "../../../hooks/ui/useUIState";
+import type {Ingredient} from "../../../types/Insumos/Ingredient";
+import { useInsumoEdit } from "../../../hooks/insumos/useInsumoEdit";
 
 const columns: MRT_ColumnDef<Ingredient>[] = [
   { accessorKey: "name", header: "Nombre" },
@@ -34,7 +35,7 @@ export default function Insumos() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
   //Redux hooks
-
+  const {setEdit} = useInsumoEdit()
   const { toggle } = useUIState();
 
   useEffect(() => {
@@ -49,6 +50,11 @@ export default function Insumos() {
 
     fetchIngredients();
   }, []);
+
+  const handleEdit = (insumo : Ingredient) => {
+    toggle("isInsumosOpen");
+    setEdit(insumo)
+  };
 
   const handleDelete = async (ingredient: Ingredient) => {
     try {
@@ -67,6 +73,7 @@ export default function Insumos() {
         data={ingredients}
         addButtonText="Añadir"
         onAddClick={() => toggle("isInsumosOpen")}
+        onEdit={handleEdit}
         onDelete={handleDelete}
       />
       <InsumosModal />

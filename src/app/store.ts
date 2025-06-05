@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import uiReducer from '../features/ui/uiSlice';
 import cartReducers from "../features/cartSlice"
-import productReducers from "../features/productSlice"
+import productReducers from "../features/product/productSlice"
 import insumosCategoryReducer from '../features/insumosCategory/insumosCategorySlice';
 import categoriasReducer from '../features/categoriasSlice';
+import insumosReducer from  '../features/insumos/insumosSlice';
+
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +14,7 @@ export const store = configureStore({
     cart: cartReducers,
     product : productReducers,
     insumosCategory: insumosCategoryReducer,
+    insumos: insumosReducer,
   },
 });
 

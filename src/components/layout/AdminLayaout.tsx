@@ -165,7 +165,7 @@ export default function AdminLayout() {
                   }`}
                 title={collapsed ? item.label : undefined}
               >
-                <Icon className="w-6 h-6 text-admin-principal" />
+                <Icon className="w-5 h-5 text-admin-principal" />
                 {!collapsed && (
                   <span className="whitespace-nowrap">{item.label}</span>
                 )}

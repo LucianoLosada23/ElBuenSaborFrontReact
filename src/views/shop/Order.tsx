@@ -18,7 +18,7 @@ export default function Order() {
           <Category />
         </section>
       </div>
-      <section>
+      <section className="bg-white">
         <Product />
       </section>
       <FacturacionPopUp />

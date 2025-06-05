@@ -8,10 +8,9 @@ import {
   UserIcon,
   ClipboardDocumentListIcon,
 } from "@heroicons/react/24/solid";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassCircleIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import Button from "../ui/Button";
 import { useUIState } from "../../hooks/ui/useUIState";
 import { useCart } from "../../hooks/useCart";
 
@@ -24,8 +23,8 @@ export default function Navbar() {
 
   const location = useLocation();
   // Redux hooks
-  const {toggle} = useUIState()
-  const {cart} = useCart()
+  const { toggle } = useUIState();
+  const { cart } = useCart();
 
   // Funciones
   const totalItems = cart.reduce((sum, item) => sum + item.amount, 0);
@@ -35,8 +34,8 @@ export default function Navbar() {
   };
 
   const isStickyEnabled =
-  isSticky &&
-  !["/usuario/perfil", "/usuario/ordenes"].includes(location.pathname);
+    isSticky &&
+    !["/usuario/perfil", "/usuario/ordenes"].includes(location.pathname);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -83,10 +82,10 @@ export default function Navbar() {
 
   return (
     <nav
-  className={`bg-white w-full z-40 transition-all duration-300 ease-in-out transform py-4 ${
-    isStickyEnabled ? "fixed top-0 left-0 shadow-md translate-y-0" : ""
-  }`}
->
+      className={`bg-white w-full z-40 transition-all duration-300 ease-in-out transform py-4 ${
+        isStickyEnabled ? "fixed top-0 left-0 shadow-md translate-y-0" : ""
+      }`}
+    >
       <div className="flex justify-between items-center w-full max-w-8xl mx-auto px-4">
         <Link to="/">
           <img
@@ -100,82 +99,82 @@ export default function Navbar() {
 
         {/* Mostrar buscador solo en /catalogo */}
         {location.pathname === "/catalogo" && (
-          <div className="flex-1 flex justify-center">
-            <div className="flex items-center max-w-3xl w-full bg-gray-50 rounded-full p-2 ">
-              <div className="relative w-full">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Pizza, hamburguesa, bebidas..."
-                  className="w-full pl-10 pr-2 py-2 focus:outline-none focus:ring-0 focus:border-transparent"
-                />
-              </div>
-              <Button height={0.5} width={2} text={"Buscar"} size={14} />
+          <div className="flex items-center max-w-3xl w-full bg-white border border-gray-300 rounded-full p-2 hover:border-black">
+            <div className="relative w-full">
+              <input
+                type="text"
+                placeholder="Buscar..."
+                className="w-full pr-10 pl-4 py-2 focus:outline-none focus:ring-0 focus:border-transparent"
+              />
+              <MagnifyingGlassCircleIcon
+                width={38}
+                height={38}
+                className="text-principal cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2"
+              />
             </div>
           </div>
         )}
-
-        {userAuth ? (
-          <div className="space-x-10 flex items-center">
-
-            <div className="relative" ref={dropdownRef}>
-              <div
-                className="flex items-center space-x-3 border-x border-gris px-2 cursor-pointer py-2"
-                onClick={() => setOpen(!open)}
-              >
-                <UserCircleIcon width={24} height={24} />
-                <div className="flex items-center space-x-1">
-                  <p className="font-display">Nombre Apellido</p>
-                  <ChevronDownIcon width={24} height={24} />
+        <div className=" flex items-center gap-6">
+          {userAuth ? (
+            <div className="space-x-10 flex items-center">
+              <div className="relative" ref={dropdownRef}>
+                <div
+                  className="flex items-center space-x-3 border-x border-gris px-2 cursor-pointer py-2"
+                  onClick={() => setOpen(!open)}
+                >
+                  <UserCircleIcon width={24} height={24} />
+                  <div className="flex items-center space-x-1">
+                    <p className="font-display">Nombre Apellido</p>
+                    <ChevronDownIcon width={24} height={24} />
+                  </div>
                 </div>
-              </div>
 
-              {open && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gris rounded-lg shadow-lg z-10">
-                  <ul className="text-gray-700">
-                    {dropdownItems.map((drop, index) => (
-                      <Link to={drop.link} key={index}>
-                        <li className="px-4 py-2 cursor-pointer flex items-center space-x-2 hover:bg-gray-100">
-                          {drop.icon}
-                          <span className="font-display text-gris-oscuro text-[14px]">
-                            {drop.name}
-                          </span>
-                        </li>
-                      </Link>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="relative">
-              <button
-                onClick={() => toggle('isCartOpen')}
-                className="cursor-pointer relative"
-              >
-                <ShoppingBagIcon width={24} height={24} />
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
-                    {totalItems}
-                  </span>
+                {open && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gris rounded-lg shadow-lg z-50">
+                    <ul className="text-gray-700">
+                      {dropdownItems.map((drop, index) => (
+                        <Link to={drop.link} key={index}>
+                          <li className="px-4 py-2 cursor-pointer flex items-center space-x-2 hover:bg-gray-100">
+                            {drop.icon}
+                            <span className="font-display text-gris-oscuro text-[14px]">
+                              {drop.name}
+                            </span>
+                          </li>
+                        </Link>
+                      ))}
+                    </ul>
+                  </div>
                 )}
-              </button>
+              </div>
             </div>
+          ) : (
+            <div className="space-x-6">
+              <Link to="/register">
+                <button className="font-display px-4 py-3 text-white text-[12px] bg-principal rounded-full cursor-pointer font-semibold uppercase tracking-widest hover:text-white hover:bg-secundario">
+                  Registrate
+                </button>
+              </Link>
+              <Link to="/login">
+                <button className="font-display uppercase text-[14px] hover:bg-gray-100 py-3 px-4 rounded-full cursor-pointer">
+                  Ingresar
+                </button>
+              </Link>
+            </div>
+          )}
+          <div className="relative">
+            <button
+              onClick={() => toggle("isCartOpen")}
+              className="cursor-pointer relative"
+            >
+              <ShoppingBagIcon width={24} height={24} />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-principal text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
+                  {totalItems}
+                </span>
+              )}
+            </button>
           </div>
-        ) : (
-          <div className="space-x-6">
-            <a href="/">
-              <button className="font-display px-4 py-3 text-white text-[12px] bg-principal rounded-[10px] font-semibold uppercase tracking-widest hover:text-white hover:bg-secundario">
-                Registrate
-              </button>
-            </a>
-            <a href="/">
-              <button className="font-display uppercase text-[14px] hover:bg-gris-claro py-3 px-4 rounded-[10px]">
-                Ingresar
-              </button>
-            </a>
-          </div>
-        )}
+        </div>
       </div>
     </nav>
   );

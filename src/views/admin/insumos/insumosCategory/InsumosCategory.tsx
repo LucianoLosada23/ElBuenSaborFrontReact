@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import { useUIState } from "../../../../hooks/ui/useUIState";
 import GenericTable from "../../../../components/ui/GenericTable";
 import { getAllInsumosCategory } from "../../../../services/admin/insumos/insumosCategory/InsumosCategory";
-import type {
-  IngredientCategory,
-  IngredientCategoryList,
-} from "../../../../types/Ingredients/IngredientCategory";
+
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
-import InsumosSubCategoryModal from "../../../../components/admin/insumos/insumosCategory/insumosSubCategory/insumosSubCategoryModal/InsumosSubCategoryModal";
-import InsumosCategoryModal from "../../../../components/admin/insumos/insumosCategory/insumosCategoryModal/InsumosCategoryModal";
+import InsumosSubCategoryModal from "../../../../components/admin/insumos/insumosCategory/insumosSubCategory/InsumosSubCategoryModal";
 import { useInsumosCategory } from "../../../../hooks/insumosCategory/useInsumosCategory";
 import type { MRT_ColumnDef } from "material-react-table";
 import { useCategorias } from "../../../../hooks/useCategorias";
+import InsumosCategoryModal from "../../../../components/admin/insumos/insumosCategory/InsumosCategoryModal";
+import type {
+  IngredientCategory,
+  IngredientCategoryList,
+} from "../../../../types/Insumos/IngredientCategory";
 
 export default function InsumosCategory() {
   const [ingredientCategory, setIngredientCategory] =
@@ -98,6 +99,7 @@ export default function InsumosCategory() {
     },
   ];
   const { seleccionarCategoria } = useCategorias();
+  
   const handleEdit = (categoria: {
     id: number;
     name: string;
