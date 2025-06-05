@@ -20,7 +20,7 @@ export default function Modal({
       <div className="fixed inset-0 flex items-center justify-center p-2">
         <DialogPanel className="w-full max-w-6xl rounded-md bg-white p-22 shadow-xl">
           <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-2xl font-bold text-black">
+            <DialogTitle className="text-3xl font-semibold text-black">
               {title}
             </DialogTitle>
             <XMarkIcon 

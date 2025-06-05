@@ -26,7 +26,7 @@ export default function Carrito() {
       }`}
     >
       {/* Header */}
-      <div className="p-4 flex justify-between items-center border-b">
+      <div className="p-4 flex justify-between items-center border-b border-gray-300">
         <h1 className="text-xl font-bold">Mi Orden</h1>
         <button onClick={() => toggle('isCartOpen')} className="cursor-pointer">
           <XMarkIcon className="w-6 h-6" />
@@ -51,8 +51,8 @@ export default function Carrito() {
                   src={item.product.image}
                   alt={item.product.name}
                   loading="lazy"
-                  width={70}
-                  height={70}
+                  width={80}
+                  height={80}
                   className="rounded-lg object-cover"
                 />
                 <div className="flex flex-col text-sm w-full">
@@ -67,7 +67,7 @@ export default function Carrito() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => decrementAmount(item.product.id)}
-                        className="px-2 py-1 bg-gray-200 cursor-pointer rounded hover:bg-gray-300 text-sm"
+                        className="px-2 py-1 bg-principal text-white cursor-pointer rounded hover:bg-gray-300 text-sm"
                       >
                         −
                       </button>
@@ -76,7 +76,7 @@ export default function Carrito() {
                       </span>
                       <button
                         onClick={() => incrementAmount(item.product.id)}
-                        className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300 text-sm"
+                        className="px-2 py-1 bg-principal text-white rounded cursor-pointer hover:bg-gray-300 text-sm"
                       >
                         +
                       </button>
@@ -91,16 +91,16 @@ export default function Carrito() {
           </div>
 
           {/* Totales */}
-          <div className="p-4 border-t bg-white">
-            <div className="flex justify-between text-gray-800 text-sm mb-1">
+          <div className="p-4 border-t border-gray-300 bg-white">
+            <div className="flex justify-between text-gray-600 text-sm mb-1">
               <span>Subtotal</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm text-green-600 mb-2">
+            <div className="flex justify-between text-sm text-green-700 mb-1">
               <span>10% OFF Retiro en local</span>
               <span>- ${descuento.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between font-bold text-sm">
+            <div className="flex justify-between font-medium text-sm">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>

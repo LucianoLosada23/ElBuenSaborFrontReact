@@ -4,6 +4,8 @@ import type { MRT_ColumnDef } from "material-react-table";
 import { useUIState } from "../../../hooks/ui/useUIState";
 import ProductModal from "../../../components/admin/product/ProductModal";
 import { getAllProduct } from "../../../services/admin/product/product";
+
+import { useProduct } from "../../../hooks/useProduct";
 import type { Product } from "../../../types/product/product";
 
 const columns: MRT_ColumnDef<Product>[] = [
@@ -18,9 +20,10 @@ const columns: MRT_ColumnDef<Product>[] = [
 export default function Product() {
   // State
   const [products, setProducts] = useState<Product[]>([]);
+  console.log(products);
   
   //Redux hooks
-
+  const {setProductEdit} = useProduct()
   const { toggle } = useUIState();
 
   useEffect(() => {
@@ -29,12 +32,18 @@ export default function Product() {
         const data = await getAllProduct();
         setProducts(data ?? []);
       } catch (error) {
-        console.error("Error fetching ingredients:", error);
+        console.error("Error fetching product:", error);
       }
     };
 
     fetchProducts();
   }, []);
+
+   const handleEdit = (producto : Product) => {
+      toggle("isProductOpen");
+      setProductEdit(producto)
+    };
+
   return (
     <>
       <GenericTable
@@ -43,6 +52,7 @@ export default function Product() {
         data={products}
         addButtonText="Añadir"
         onAddClick={() => toggle("isProductOpen")}
+        onEdit={handleEdit}
       />
       <ProductModal/>
     </>

@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 
-import type { IngredientCreate } from '../../types/Insumos/Ingredient';
+import type { Ingredient} from '../../types/Insumos/Ingredient';
 import { useCallback } from 'react';
 import type { AppDispatch, RootState } from '../../app/store';
 import { clearInsumoEdit, setInsumoEdit } from '../../features/insumos/insumosSlice';
@@ -12,9 +12,9 @@ export const useInsumoEdit = () => {
   const insumoEdit = useSelector((state: RootState) => state.insumos.insumoEdit);
 
   // Función para setear el insumo en edición
-  const setEdit = useCallback((insumo: IngredientCreate | null) => {
+  const setEdit = useCallback((insumo: Ingredient | null) => {
     dispatch(setInsumoEdit(insumo));
-  }, [dispatch]);
+  }, [dispatch]); 
 
   // Función para limpiar el insumo en edición
   const clearEdit = useCallback(() => {
