@@ -8,10 +8,10 @@ import {
 export const getAllInsumosCategory = async () => {
   try {
     const url = "http://localhost:8080/api/v1/category-ingredients";
-    const { data } = await axios.get(url);
+    const { data } = await axios.get(url , {
+      withCredentials: true
+    });
     const result = safeParse(ingredientCategoryListSchema, data);
-    console.log(result);
-
     if (result.success) {
       return result.output;
     }
@@ -30,7 +30,9 @@ export const postInsumosCategory = async (
   }
   try {
     const url = "http://localhost:8080/api/v1/category-ingredients";
-    const { data } = await axios.post(url, category);
+    const { data } = await axios.post(url, category ,{
+      withCredentials: true
+    });
     if (result.success) {
       return data;
     } else {

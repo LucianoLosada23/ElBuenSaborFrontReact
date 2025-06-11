@@ -1,34 +1,54 @@
-import { XMarkIcon } from "@heroicons/react/24/solid";
-import React from "react";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
-import { Link } from "react-router-dom";
-
-interface FormData {
-  email: string;
-  contrasena: string;
-}
-
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { login } from "../../../services/auth/login/login";
+import type { Login } from "../../../types/auth/login/Login";
+import { jwtDecode } from "jwt-decode";
+import { useAuth } from "../../../hooks/auth/useAuth";
+import Cookies from "js-cookie";
 const LoginForm: React.FC = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<Login>();
 
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    console.log("Datos del formulario:", data);
+  //state
+  const [showPassword, setShowPassword] = useState(false);
+
+  //hooks
+  const { loginUser } = useAuth();
+
+  //location
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  //Login
+  const onSubmit: SubmitHandler<Login> = async (data) => {
+    try {
+      await login(data);
+      const token = Cookies.get("token");
+      if (token) {
+        const decoded: any = jwtDecode(token);
+        const role = decoded.role;
+        loginUser({ role, token });
+      }
+      const from = (location.state as any)?.from?.pathname || "/";
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md mt-4">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold mb-6">Iniciar Sesión</h2>
-        <XMarkIcon width={24} hanging={24}/>
+      <div className="flex justify-center">
+        <img src="/logo1.png" width={200} height={200} />
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      
         {/* Email */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -37,22 +57,30 @@ const LoginForm: React.FC = () => {
           <input
             type="email"
             {...register("email", { required: true })}
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1 pr-16"
             placeholder="Email"
           />
         </div>
 
         {/* Contraseña */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Contraseña *
-          </label>
+        <div className="relative">
+          <label className="block text-sm font-medium mb-1">Contraseña</label>
           <input
-            type="password"
-            {...register("contrasena", { required: true })}
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            {...register("password")}
+            type={showPassword ? "text" : "password"}
+            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1 pr-16"
             placeholder="Contraseña"
           />
+          <div
+            className="absolute right-10 top-8 text-gray-500 cursor-pointer"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <EyeIcon className="w-5 h-5" />
+            ) : (
+              <EyeSlashIcon className="w-5 h-5" />
+            )}
+          </div>
         </div>
 
         <button
@@ -71,7 +99,17 @@ const LoginForm: React.FC = () => {
       </div>
 
       {/* Botón de Google */}
-      <button className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-md hover:bg-gray-50 transition">
+      <button
+        type="button"
+        className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-md hover:bg-gray-50 transition"
+        onClick={() => {
+          const from = (location.state as any)?.from?.pathname || "/";
+          const redirect = `http://localhost:5173${from}`;
+          console.log(redirect);
+          
+          window.location.href = `http://localhost:8080/oauth2/google-login?redirect=${redirect}`;
+        }}
+      >
         <img
           src="https://www.svgrepo.com/show/475656/google-color.svg"
           alt="Google"
@@ -83,7 +121,7 @@ const LoginForm: React.FC = () => {
       {/* Enlace a iniciar sesión */}
       <p className="text-sm text-center mt-4">
         ¿Necesitas una Cuenta?{" "}
-        <Link to="/register" className="text-gray-700 underline font-medium">
+        <Link to="/register" className="text-blue-500 underline font-medium">
           Registrarse
         </Link>
       </p>

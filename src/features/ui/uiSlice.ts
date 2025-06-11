@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 export interface UIState {
+  isLoginModal : boolean,
   isProductModal : boolean,
   isProductOpen : boolean;
   isCartOpen: boolean;
@@ -14,6 +15,7 @@ export interface UIState {
 }
 
 const initialState: UIState = {
+  isLoginModal : false,
   isProductModal : false,
   isProductOpen : false,
   isInsumosOpen : false,
