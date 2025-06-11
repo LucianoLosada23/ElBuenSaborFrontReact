@@ -1,5 +1,4 @@
 import { safeParse } from "valibot";
-
 import axios from "axios";
 import {
   ingredientListSchema,
@@ -11,7 +10,9 @@ import {
 export const getAllIngredients = async () => {
   try {
     const url = "http://localhost:8080/api/v1/ingredients";
-    const { data } = await axios.get(url);
+    const { data } = await axios.get(url, {
+      withCredentials: true
+    });
     const result = safeParse(ingredientListSchema, data);
     if (result.success) {
       return result.output;
@@ -45,7 +46,9 @@ export const createIngredient = async (data: IngredientCreate) => {
   }
   try {
     const url = "http://localhost:8080/api/v1/ingredients";
-    const { data } = await axios.post(url, result.output);
+    const { data } = await axios.post(url, result.output , {
+      withCredentials: true
+    });
     return data;
   } catch (error) {
     console.error("Error al crear ingrediente:", error);
@@ -53,7 +56,7 @@ export const createIngredient = async (data: IngredientCreate) => {
   }
 };
 
-export const putIngredient = async (data: IngredientCreate , id : number) => {
+export const putIngredient = async (data: IngredientCreate, id: number) => {
   const payload: IngredientCreate = {
     company: { id: Number(data.company.id) },
     name: data.name,

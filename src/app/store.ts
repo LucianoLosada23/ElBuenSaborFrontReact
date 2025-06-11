@@ -5,7 +5,7 @@ import productReducers from "../features/product/productSlice"
 import insumosCategoryReducer from '../features/insumosCategory/insumosCategorySlice';
 import categoriasReducer from '../features/categoriasSlice';
 import insumosReducer from  '../features/insumos/insumosSlice';
-
+import authReducer from '../features/auth/authSlice'
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +15,7 @@ export const store = configureStore({
     product : productReducers,
     insumosCategory: insumosCategoryReducer,
     insumos: insumosReducer,
+    auth : authReducer
   },
 });
 

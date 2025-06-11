@@ -13,18 +13,21 @@ import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useUIState } from "../../hooks/ui/useUIState";
 import { useCart } from "../../hooks/useCart";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 export default function Navbar() {
   // State
-  const [userAuth, setUserAuth] = useState<boolean>(true);
   const [open, setOpen] = useState<boolean>(false);
   const [isSticky, setIsSticky] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  //location
   const location = useLocation();
+
   // Redux hooks
   const { toggle } = useUIState();
   const { cart } = useCart();
+  const { isAuthenticated, logout } = useAuth();
 
   // Funciones
   const totalItems = cart.reduce((sum, item) => sum + item.amount, 0);
@@ -115,7 +118,7 @@ export default function Navbar() {
           </div>
         )}
         <div className=" flex items-center gap-6">
-          {userAuth ? (
+          {isAuthenticated ? (
             <div className="space-x-10 flex items-center">
               <div className="relative" ref={dropdownRef}>
                 <div
@@ -132,16 +135,27 @@ export default function Navbar() {
                 {open && (
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gris rounded-lg shadow-lg z-50">
                     <ul className="text-gray-700">
-                      {dropdownItems.map((drop, index) => (
-                        <Link to={drop.link} key={index}>
-                          <li className="px-4 py-2 cursor-pointer flex items-center space-x-2 hover:bg-gray-100">
-                            {drop.icon}
-                            <span className="font-display text-gris-oscuro text-[14px]">
-                              {drop.name}
-                            </span>
-                          </li>
-                        </Link>
-                      ))}
+                      {dropdownItems.map((drop, index) =>
+                        index === 3 ? (
+                          <Link to={drop.link} key={index} onClick={logout}>
+                            <li className="px-4 py-2 cursor-pointer flex items-center space-x-2 hover:bg-gray-100">
+                              {drop.icon}
+                              <span className="font-display text-gris-oscuro text-[14px]">
+                                {drop.name}
+                              </span>
+                            </li>
+                          </Link>
+                        ) : (
+                          <Link to={drop.link} key={index}>
+                            <li className="px-4 py-2 cursor-pointer flex items-center space-x-2 hover:bg-gray-100">
+                              {drop.icon}
+                              <span className="font-display text-gris-oscuro text-[14px]">
+                                {drop.name}
+                              </span>
+                            </li>
+                          </Link>
+                        )
+                      )}
                     </ul>
                   </div>
                 )}
@@ -149,15 +163,21 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="space-x-6">
-              <Link to="/register">
-                <button className="font-display px-4 py-3 text-white text-[12px] bg-principal rounded-full cursor-pointer font-semibold uppercase tracking-widest hover:text-white hover:bg-secundario">
-                  Registrate
-                </button>
+              <Link
+                to="/register"
+                state={{ from: location }}
+                className="px-6 py-3  text-white  bg-principal rounded-full cursor-pointer font-semibold  hover:text-white hover:bg-secundario transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-principal"
+                role="button"
+              >
+                Registrate
               </Link>
-              <Link to="/login">
-                <button className="font-display uppercase text-[14px] hover:bg-gray-100 py-3 px-4 rounded-full cursor-pointer">
-                  Ingresar
-                </button>
+               <Link
+                to="/login"
+                state={{ from: location }}
+                className="px-6 py-3 text-gris-oscuro rounded-full cursor-pointer font-semibold   hover:bg-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-principal"
+                role="button"
+              >
+                Ingresar
               </Link>
             </div>
           )}

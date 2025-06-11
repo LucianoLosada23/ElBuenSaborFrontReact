@@ -14,7 +14,6 @@ import InsumosCategory from "./views/admin/insumos/insumosCategory/InsumosCatego
 import Product from "./views/admin/product/Product";
 import ProductCategory from "./views/admin/product/productosCategory/ProductCategory";
 
-
 export const router = createBrowserRouter([
 
    {
@@ -23,6 +22,10 @@ export const router = createBrowserRouter([
   },
   {
     path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/register/company",
     element: <Register />,
   },
   // Layout general para usuarios

@@ -3,6 +3,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useCart } from "../../hooks/useCart";
 
 import { useUIState } from "../../hooks/ui/useUIState";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 
 export default function Carrito() {
@@ -10,6 +11,7 @@ export default function Carrito() {
   // Redux hooks
   const { cart, decrementAmount, incrementAmount} = useCart();
   const { isCartOpen, toggle } = useUIState();
+  const {isAuthenticated} = useAuth()
 
   // Funciones
   const subtotal = cart.reduce(
@@ -106,7 +108,7 @@ export default function Carrito() {
             </div>
             <button
               className="bg-principal w-full py-3 cursor-pointer mt-4 rounded-full text-white font-medium hover:bg-terciario transition"
-              onClick={() => toggle('isFacturacionOpen')}
+              onClick={() => { !isAuthenticated ? toggle('isLoginModal') : toggle('isFacturacionOpen')}}
             >
               Continuar
             </button>

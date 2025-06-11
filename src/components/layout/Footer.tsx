@@ -42,6 +42,18 @@ export default function Footer() {
           ))}
         </ul>
       </div>
+      {/* Enlace registro empresa */}
+      <div className="max-w-8xl mx-auto mt-6 text-center">
+        <p className="text-white text-sm">
+          ¿Eres una empresa?{" "}
+          <a
+            href="/register/company"
+            className="text-cyan-400 hover:underline font-semibold cursor-pointer"
+          >
+            Regístrate aquí
+          </a>
+        </p>
+      </div>
 
       {/* Información adicional legal */}
       <div className="max-w-8xl mx-auto mt-8 text-center">

@@ -13,7 +13,9 @@ export const postInsumosSubCategory = async (subCategoryData: IngredientSubCateg
   }
   try {
     const url = "http://localhost:8080/api/v1/category-ingredients";
-    const { data } = await axios.post(url, subCategoryData);
+    const { data } = await axios.post(url, subCategoryData ,{
+      withCredentials: true
+    });
     if (data.success) {
       return data.output;
     } else {
