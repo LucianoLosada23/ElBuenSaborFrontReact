@@ -15,6 +15,8 @@ export const postOrder = async (order: Order) => {
     const {data} = await axios.post(url , order , {
         withCredentials: true
     })
+
+    console.log(data)
     return data
   } catch (error) {
     console.log(error);
