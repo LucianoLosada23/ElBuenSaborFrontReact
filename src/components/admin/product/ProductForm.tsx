@@ -187,6 +187,8 @@ const ProductosForm: React.FC = () => {
               Imagen <span className="text-orange-500 text-lg">*</span>
             </label>
             <input
+              type="file"
+              accept="image/*"
               {...register("image", { required: "La URL de la imagen es obligatoria" })}
               placeholder="URL de imagen"
               className="w-full px-3 py-2 border border-gray-300 rounded-md"

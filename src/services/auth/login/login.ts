@@ -13,10 +13,20 @@ export const login = async (user: Login) => {
     const { data } = await axios.post(url, result.output ,{
       withCredentials: true
     });
-    console.log(data);
     return data;
   } catch (error) {
     console.log(error);
+    throw error;
+  }
+};
+
+export const logout = async () => {
+  try {
+    const url = "http://localhost:8080/public/auth/logout";
+    const { data } = await axios.post(url, {}, { withCredentials: true }); // ← ¡esto es clave!
+    return data;
+  } catch (error) {
+    console.error("Logout failed:", error);
     throw error;
   }
 };

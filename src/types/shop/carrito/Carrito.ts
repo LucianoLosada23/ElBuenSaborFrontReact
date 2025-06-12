@@ -1,7 +1,9 @@
-import type { Product } from "../product/Product";
+import type { Product } from "../../product/product";
 
 export interface Carrito {
     product: Product,
-    amount: number,
+    quantity: number,
     clarifications?: string
 }
+
+

@@ -1,25 +1,27 @@
-import { XMarkIcon } from "@heroicons/react/24/outline";
-
+import { XMarkIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import { BuildingStorefrontIcon, TruckIcon } from "@heroicons/react/24/solid";
 import { useCart } from "../../hooks/useCart";
-
 import { useUIState } from "../../hooks/ui/useUIState";
 import { useAuth } from "../../hooks/auth/useAuth";
 
 
 export default function Carrito() {
-
   // Redux hooks
-  const { cart, decrementAmount, incrementAmount} = useCart();
-  const { isCartOpen, toggle } = useUIState();
-  const {isAuthenticated} = useAuth()
+  const {
+    cart,
+    tipoEntrega,
+    subtotal,
+    descuento,
+    recargo,
+    total,
+    setPay,
+    decrementAmount,
+    incrementAmount,
+    setEntrega,
+  } = useCart();
 
-  // Funciones
-  const subtotal = cart.reduce(
-    (acc, item) => acc + item.product.price * (item.amount ?? 1),
-    0
-  );
-  const descuento = subtotal * 0.1;
-  const total = subtotal - descuento;
+  const { isCartOpen, toggle } = useUIState();
+  const { user} = useAuth();
 
   return (
     <div
@@ -28,9 +30,9 @@ export default function Carrito() {
       }`}
     >
       {/* Header */}
-      <div className="p-4 flex justify-between items-center border-b border-gray-300">
+      <div className="p-4 flex justify-between items-center border-b">
         <h1 className="text-xl font-bold">Mi Orden</h1>
-        <button onClick={() => toggle('isCartOpen')} className="cursor-pointer">
+        <button onClick={() => toggle("isCartOpen")} className="cursor-pointer">
           <XMarkIcon className="w-6 h-6" />
         </button>
       </div>
@@ -43,26 +45,26 @@ export default function Carrito() {
       ) : (
         <>
           {/* Lista de productos */}
-          <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-240px)]">
+          <div className="p-4 space-y-4">
             {cart.map((item) => (
               <div
                 key={item.product.id}
-                className="flex gap-3  p-3 rounded items-end justify-center"
+                className="flex gap-3 p-3 rounded items-end justify-center "
               >
                 <img
                   src={item.product.image}
-                  alt={item.product.name}
+                  alt={item.product.title}
                   loading="lazy"
                   width={80}
                   height={80}
                   className="rounded-lg object-cover"
                 />
                 <div className="flex flex-col text-sm w-full">
-                  <p className=" text-xs">{item.product.name}</p>
+                  <p className="text-xs font-medium">{item.product.title}</p>
                   {item.clarifications && (
                     <p className="text-gray-500 text-xs mt-1 italic">
                       “{item.clarifications}”
-                    </p>
+                    </p> 
                   )}
 
                   <div className="flex justify-between items-center mt-2">
@@ -74,7 +76,7 @@ export default function Carrito() {
                         −
                       </button>
                       <span className="font-semibold text-xs">
-                        {item.amount}
+                        {item.quantity}
                       </span>
                       <button
                         onClick={() => incrementAmount(item.product.id)}
@@ -92,30 +94,74 @@ export default function Carrito() {
             ))}
           </div>
 
+          {/* Entrega */}
+          <div className="px-4 mt-6">
+            <h3 className="font-semibold mb-2 text-base">Entrega</h3>
+            <div className="flex justify-center gap-4">
+              <div
+                className={`border rounded-md py-2 px-4 flex gap-2 items-center cursor-pointer transition ${
+                  tipoEntrega === "TAKEAWAY"
+                    ? "bg-principal text-white border-principal"
+                    : "hover:bg-gray-100"
+                }`}
+                onClick={() => {setEntrega("TAKEAWAY") , setPay("EFECTIVO")}}
+              >
+                <BuildingStorefrontIcon width={20} height={20} />
+                <h4 className="text-sm">En tienda</h4>
+              </div>
+              <div
+                className={`border rounded-md py-2 px-4 flex gap-2 items-center cursor-pointer transition ${
+                  tipoEntrega === "DELIVERY"
+                    ? "bg-principal text-white border-principal"
+                    : "hover:bg-gray-100"
+                }`}
+                onClick={() => {setEntrega("DELIVERY") , setPay("MERCADO_PAGO")}}
+              >
+                <TruckIcon width={20} height={20} />
+                <h4 className="text-sm">Delivery</h4>
+              </div>
+            </div>
+          </div>
+
           {/* Totales */}
-          <div className="p-4 border-t border-gray-300 bg-white">
+          <div className="p-4 border-y bg-white mt-8">
             <div className="flex justify-between text-gray-600 text-sm mb-1">
               <span>Subtotal</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm text-green-700 mb-1">
-              <span>10% OFF Retiro en local</span>
-              <span>- ${descuento.toFixed(2)}</span>
-            </div>
+            {tipoEntrega === "TAKEAWAY" && (
+              <div className="flex justify-between text-green-700 text-sm mb-1">
+                <span>10% OFF Retiro en local</span>
+                <span>- ${descuento.toFixed(2)}</span>
+              </div>
+            )}
+            {tipoEntrega=== "DELIVERY" && (
+              <div className="flex justify-between text-red-700 text-sm mb-1">
+                <span>10% Recargo Delivery</span>
+                <span>+ ${recargo.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between font-medium text-sm">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
+          </div>
+          <div className="p-2">
             <button
-              className="bg-principal w-full py-3 cursor-pointer mt-4 rounded-full text-white font-medium hover:bg-terciario transition"
-              onClick={() => { !isAuthenticated ? toggle('isLoginModal') : toggle('isFacturacionOpen')}}
+              className="bg-principal w-full py-3 cursor-pointer mt-4 flex gap-4 justify-center items-center rounded-full text-white font-medium hover:bg-principal/80 transition"
+              onClick={() => {
+                user.user === null ?
+                toggle("isLoginModal")
+                :
+                toggle("isFacturacionOpen")
+              }}
             >
               Continuar
+              <ArrowRightIcon width={20} height={20} />
             </button>
           </div>
         </>
       )}
-
     </div>
   );
 }
