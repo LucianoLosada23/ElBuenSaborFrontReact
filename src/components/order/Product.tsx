@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import type { Product } from "../../types/shop/product/Product";
-import { getProducts } from "../../services/shop/ProductService";
 import { ProductPopup } from "./ProductPopUp";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useProduct } from "../../hooks/useProduct";
 import { useUIState } from "../../hooks/ui/useUIState";
+import { getAllProduct } from "../../services/admin/product/product";
+import type { Product } from "../../types/product/product";
 
 export default function Product() {
   // State
@@ -19,8 +19,10 @@ export default function Product() {
 
   useEffect(() => {
     const callproducts = async () => {
-      const data = await getProducts();
-      setProducts(data);
+      const data = await getAllProduct();
+      if(data){
+        setProducts(data);
+      }
     };
     callproducts();
   }, []);
@@ -70,7 +72,7 @@ export default function Product() {
             >
               <div className="flex flex-col items-start">
                 <h2 className="text-[14px] font-medium text-gray-700">
-                  {product.name}
+                  {product.title}
                 </h2>
                 <p className="text-[12px] text-gray-600">
                   {product.description}

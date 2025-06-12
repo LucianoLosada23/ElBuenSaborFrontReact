@@ -18,7 +18,7 @@ export const postProduct = async (rawProduct: PostProduct) => {
       description: rawProduct.description,
       estimatedTime: Number(rawProduct.estimatedTime),
       price: Number(rawProduct.price),
-      image: rawProduct.image,
+      image: String(rawProduct.image),
       productIngredients: rawProduct.productIngredients.map((pi) => ({
         ingredient: { id: pi.ingredient.id },
         quantity: pi.quantity,
@@ -34,7 +34,9 @@ export const postProduct = async (rawProduct: PostProduct) => {
 
     // POST al backend
     const url = "http://localhost:8080/api/v1/products";
-    const { data } = await axios.post(url, result.output);
+    const { data } = await axios.post(url, result.output , {
+      withCredentials: true
+    });
     return data;
   } catch (error) {
     console.error("Error al crear producto:", error);
@@ -78,7 +80,9 @@ export const putProduct = async (rawProduct: PostProduct , id : number) => {
 export const getAllProduct = async () => {
   try {
     const url = "http://localhost:8080/api/v1/products";
-    const { data } = await axios(url);
+    const { data } = await axios(url , {
+      withCredentials: true
+    });
     const result = safeParse(array(ProductSchema), data);
     if (result.success) {
       return result.output;

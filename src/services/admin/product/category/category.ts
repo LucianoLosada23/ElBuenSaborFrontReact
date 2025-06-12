@@ -6,7 +6,9 @@ import { IngredientCategoryCreate, ingredientCategoryListSchema } from "../../..
 export const getAllProductCategory = async () => {
   try {
     const url = "http://localhost:8080/api/v1/category";
-    const { data } = await axios.get(url);
+    const { data } = await axios.get(url , {
+      withCredentials: true
+    });
     const result = safeParse(ingredientCategoryListSchema, data);
     if (result.success) {
       return result.output;
@@ -24,7 +26,9 @@ export const postProductCategory = async (category: IngredientCategoryCreate) =>
       return;
     }
     const url = "http://localhost:8080/api/v1/category";
-    const { data } = await axios.post(url, result.output);
+    const { data } = await axios.post(url, result.output , {
+      withCredentials: true
+    });
     return data;
   } catch (error) {
     console.error("Error al crear la categoría de insumos:", error);

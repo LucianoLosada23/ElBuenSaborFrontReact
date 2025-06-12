@@ -1,6 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { Product as ProductAdmin} from "../../types/product/product";
-import type { Product } from "../../types/shop/product/Product";
+import type { Product, Product as ProductAdmin} from "../../types/product/product";
 
 interface ProductType {
   product: Product | null;

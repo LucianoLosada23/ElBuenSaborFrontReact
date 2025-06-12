@@ -14,6 +14,7 @@ import { useLocation } from "react-router-dom";
 import { useUIState } from "../../hooks/ui/useUIState";
 import { useCart } from "../../hooks/useCart";
 import { useAuth } from "../../hooks/auth/useAuth";
+import { logout } from "../../services/auth/login/login";
 
 export default function Navbar() {
   // State
@@ -27,10 +28,20 @@ export default function Navbar() {
   // Redux hooks
   const { toggle } = useUIState();
   const { cart } = useCart();
-  const { isAuthenticated, logout } = useAuth();
+  const { user, logoutUser } = useAuth();
 
   // Funciones
-  const totalItems = cart.reduce((sum, item) => sum + item.amount, 0);
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const handleLogout = async () => {
+    try {
+      const result = await logout();
+      console.log(result);
+      
+      logoutUser();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
 
   const handleScroll = () => {
     setIsSticky(window.scrollY > 0);
@@ -118,7 +129,7 @@ export default function Navbar() {
           </div>
         )}
         <div className=" flex items-center gap-6">
-          {isAuthenticated ? (
+          {user.user !== null ? (
             <div className="space-x-10 flex items-center">
               <div className="relative" ref={dropdownRef}>
                 <div
@@ -127,7 +138,9 @@ export default function Navbar() {
                 >
                   <UserCircleIcon width={24} height={24} />
                   <div className="flex items-center space-x-1">
-                    <p className="font-display">Nombre Apellido</p>
+                    <p className="font-display">
+                      {user.user?.User.name} {user.user.User.lastname}
+                    </p>
                     <ChevronDownIcon width={24} height={24} />
                   </div>
                 </div>
@@ -137,7 +150,11 @@ export default function Navbar() {
                     <ul className="text-gray-700">
                       {dropdownItems.map((drop, index) =>
                         index === 3 ? (
-                          <Link to={drop.link} key={index} onClick={logout}>
+                          <Link
+                            to={drop.link}
+                            key={index}
+                            onClick={handleLogout}
+                          >
                             <li className="px-4 py-2 cursor-pointer flex items-center space-x-2 hover:bg-gray-100">
                               {drop.icon}
                               <span className="font-display text-gris-oscuro text-[14px]">
@@ -171,7 +188,7 @@ export default function Navbar() {
               >
                 Registrate
               </Link>
-               <Link
+              <Link
                 to="/login"
                 state={{ from: location }}
                 className="px-6 py-3 text-gris-oscuro rounded-full cursor-pointer font-semibold   hover:bg-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-principal"

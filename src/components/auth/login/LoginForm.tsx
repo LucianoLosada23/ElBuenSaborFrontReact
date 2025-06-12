@@ -5,9 +5,8 @@ import type { SubmitHandler } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { login } from "../../../services/auth/login/login";
 import type { Login } from "../../../types/auth/login/Login";
-import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../../../hooks/auth/useAuth";
-import Cookies from "js-cookie";
+import { useUIState } from "../../../hooks/ui/useUIState";
 const LoginForm: React.FC = () => {
   const {
     register,
@@ -20,6 +19,7 @@ const LoginForm: React.FC = () => {
 
   //hooks
   const { loginUser } = useAuth();
+  const {toggle} = useUIState()
 
   //location
   const location = useLocation();
@@ -28,13 +28,8 @@ const LoginForm: React.FC = () => {
   //Login
   const onSubmit: SubmitHandler<Login> = async (data) => {
     try {
-      await login(data);
-      const token = Cookies.get("token");
-      if (token) {
-        const decoded: any = jwtDecode(token);
-        const role = decoded.role;
-        loginUser({ role, token });
-      }
+      const result = await login(data);
+      loginUser(result)
       const from = (location.state as any)?.from?.pathname || "/";
       navigate(from, { replace: true });
     } catch (error) {
