@@ -1,10 +1,10 @@
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '../../app/store'; // Ajusta esta ruta según tu estructura
-import { toggleState } from '../../features/ui/uiSlice'; // Ajusta esta ruta también
-import type { UIState } from '../../features/ui/uiSlice'; // Asegúrate de exportar la interfaz
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../../app/store"; // Ajusta esta ruta según tu estructura
+import { setState, toggleState } from "../../features/ui/uiSlice"; // Ajusta esta ruta también
+import type { UIState } from "../../features/ui/uiSlice"; // Asegúrate de exportar la interfaz
 
 type BooleanKeys<T> = {
-  [K in keyof T]: T[K] extends boolean ? K : never
+  [K in keyof T]: T[K] extends boolean ? K : never;
 }[keyof T];
 
 export const useUIState = () => {
@@ -18,8 +18,12 @@ export const useUIState = () => {
     dispatch(toggleState(key));
   };
 
+  const set = <K extends BooleanKeys<UIState>>(key: K, value: boolean) => {
+    dispatch(setState({ key, value }));
+  };
   return {
     ...uiState,
+    set,
     toggle,
   };
 };

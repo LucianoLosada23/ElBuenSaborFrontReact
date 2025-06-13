@@ -25,7 +25,6 @@ const RegisterForm: React.FC = () => {
   const onSubmit: SubmitHandler<RegisterClient> = async (data) => {
     try {
       await registerClient(data);
-      toggle("isLoginModal")
       // Redirige a la ubicación anterior o a "/" si no existe
       const from = (location.state as any)?.from?.pathname || "/";
       navigate(from, { replace: true });

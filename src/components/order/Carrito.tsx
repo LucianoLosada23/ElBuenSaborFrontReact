@@ -4,7 +4,6 @@ import { useCart } from "../../hooks/useCart";
 import { useUIState } from "../../hooks/ui/useUIState";
 import { useAuth } from "../../hooks/auth/useAuth";
 
-
 export default function Carrito() {
   // Redux hooks
   const {
@@ -20,8 +19,8 @@ export default function Carrito() {
     setEntrega,
   } = useCart();
 
-  const { isCartOpen, toggle } = useUIState();
-  const { user} = useAuth();
+  const { isCartOpen, toggle, set } = useUIState();
+  const { user } = useAuth();
 
   return (
     <div
@@ -52,7 +51,7 @@ export default function Carrito() {
                 className="flex gap-3 p-3 rounded items-end justify-center "
               >
                 <img
-                  src={item.product.image}
+                  src={item.product.image ?? ""}
                   alt={item.product.title}
                   loading="lazy"
                   width={80}
@@ -64,7 +63,7 @@ export default function Carrito() {
                   {item.clarifications && (
                     <p className="text-gray-500 text-xs mt-1 italic">
                       “{item.clarifications}”
-                    </p> 
+                    </p>
                   )}
 
                   <div className="flex justify-between items-center mt-2">
@@ -104,7 +103,9 @@ export default function Carrito() {
                     ? "bg-principal text-white border-principal"
                     : "hover:bg-gray-100"
                 }`}
-                onClick={() => {setEntrega("TAKEAWAY") , setPay("EFECTIVO")}}
+                onClick={() => {
+                  setEntrega("TAKEAWAY"), setPay("EFECTIVO");
+                }}
               >
                 <BuildingStorefrontIcon width={20} height={20} />
                 <h4 className="text-sm">En tienda</h4>
@@ -115,7 +116,9 @@ export default function Carrito() {
                     ? "bg-principal text-white border-principal"
                     : "hover:bg-gray-100"
                 }`}
-                onClick={() => {setEntrega("DELIVERY") , setPay("MERCADO_PAGO")}}
+                onClick={() => {
+                  setEntrega("DELIVERY"), setPay("MERCADO_PAGO");
+                }}
               >
                 <TruckIcon width={20} height={20} />
                 <h4 className="text-sm">Delivery</h4>
@@ -135,7 +138,7 @@ export default function Carrito() {
                 <span>- ${descuento.toFixed(2)}</span>
               </div>
             )}
-            {tipoEntrega=== "DELIVERY" && (
+            {tipoEntrega === "DELIVERY" && (
               <div className="flex justify-between text-red-700 text-sm mb-1">
                 <span>10% Recargo Delivery</span>
                 <span>+ ${recargo.toFixed(2)}</span>
@@ -150,10 +153,13 @@ export default function Carrito() {
             <button
               className="bg-principal w-full py-3 cursor-pointer mt-4 flex gap-4 justify-center items-center rounded-full text-white font-medium hover:bg-principal/80 transition"
               onClick={() => {
-                user.user === null ?
-                toggle("isLoginModal")
-                :
-                toggle("isFacturacionOpen")
+                if (user.user === null) {
+                  set("isLoginModal", true);
+                  set("isFacturacionOpen", false);
+                } else {
+                  set("isFacturacionOpen", true);
+                  set("isLoginModal", false);
+                }
               }}
             >
               Continuar

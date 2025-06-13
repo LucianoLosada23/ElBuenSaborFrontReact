@@ -19,7 +19,7 @@ const LoginForm: React.FC = () => {
 
   //hooks
   const { loginUser } = useAuth();
-  const {toggle} = useUIState()
+  const {set} = useUIState()
 
   //location
   const location = useLocation();
@@ -29,6 +29,7 @@ const LoginForm: React.FC = () => {
   const onSubmit: SubmitHandler<Login> = async (data) => {
     try {
       const result = await login(data);
+      set("isLoginModal", false);
       loginUser(result)
       const from = (location.state as any)?.from?.pathname || "/";
       navigate(from, { replace: true });
