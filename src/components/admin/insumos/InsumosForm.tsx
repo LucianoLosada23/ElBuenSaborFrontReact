@@ -119,9 +119,15 @@ const InsumosForm: React.FC = () => {
       if (data.id) {
         await putIngredient(ingredientPayload , data.id);
         toast.success("Insumo actualizado con éxito");
+        setTimeout(() => {
+            window.location.reload();
+        }, 500); 
       } else {
         await createIngredient(ingredientPayload);
         toast.success("Insumo creado con éxito");
+        setTimeout(() => {
+            window.location.reload();
+        }, 500); 
       }
       toggle("isInsumosOpen");
       setEdit(null);
@@ -140,7 +146,7 @@ const InsumosForm: React.FC = () => {
           <div className="flex flex-col gap-2">
             <label className="text-gray-700 text-sm">
               Denominación <span className="text-orange-500 text-lg">*</span>
-            </label>
+            </label>º
             <input
               {...register("name", { required: "El nombre es obligatorio" })}
               placeholder="Denominación del insumo"

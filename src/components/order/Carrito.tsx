@@ -85,7 +85,7 @@ export default function Carrito() {
                       </button>
                     </div>
                     <span className="font-medium">
-                      ${item.product.price.toFixed(2)}
+                      ${(item.product.price * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 </div>
