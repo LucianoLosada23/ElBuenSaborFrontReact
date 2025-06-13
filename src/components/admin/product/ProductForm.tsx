@@ -16,7 +16,7 @@ interface ProductFormData {
   description: string;
   estimatedTime: number;
   price: number;
-  image: string;
+  image: File;
   categoryId: number;
   ingredients: { ingredientId: number; quantity: number }[];
 }
@@ -30,6 +30,8 @@ const ProductosForm: React.FC = () => {
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
   const [selectedIngredients, setSelectedIngredients] = useState<{ ingredientId: number; quantity: number }[]>([]);
   const [search, setSearch] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
 
   const { toggle } = useUIState();
   const { productEdit } = useProduct();
@@ -49,7 +51,6 @@ const ProductosForm: React.FC = () => {
       description: data.description,
       estimatedTime: data.estimatedTime,
       price: data.price,
-      image: data.image,
       category: { id: data.categoryId },
       productIngredients: selectedIngredients.map((item) => ({
         ingredient: { id: item.ingredientId },
@@ -59,7 +60,7 @@ const ProductosForm: React.FC = () => {
 
     const result = productEdit
       ? await putProduct(product , productEdit.id)
-      : await postProduct(product);
+      : await postProduct(product, imageFile);
 
     if (result) {
       toggle("isProductOpen");
@@ -99,7 +100,6 @@ const ProductosForm: React.FC = () => {
       setValue("description", productEdit.description);
       setValue("price", productEdit.price);
       setValue("estimatedTime", productEdit.estimatedTime);
-      setValue("image", productEdit.image);
 
       const parent = categories.find(cat => cat.id === productEdit.category.parent?.id);
       if (parent) {
@@ -187,12 +187,16 @@ const ProductosForm: React.FC = () => {
               Imagen <span className="text-orange-500 text-lg">*</span>
             </label>
             <input
-              type="file"
-              accept="image/*"
-              {...register("image", { required: "La URL de la imagen es obligatoria" })}
-              placeholder="URL de imagen"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setImageFile(file);
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
             {errors.image && <p className="text-red-500">{errors.image.message}</p>}
           </div>
         </div>

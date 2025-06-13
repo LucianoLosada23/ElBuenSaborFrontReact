@@ -1,4 +1,5 @@
 import {
+  optional,
   object,
   number,
   string,
@@ -50,7 +51,7 @@ const BaseProductSchema = {
   description: string(),
   estimatedTime: number(),
   price: number(),
-  image: string(), // URL o base64
+  image: optional(union([string(), null_()]))
 };
 
 // Producto completo con IDs

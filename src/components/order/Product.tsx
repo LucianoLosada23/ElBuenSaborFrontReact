@@ -20,6 +20,7 @@ export default function Product() {
   useEffect(() => {
     const callproducts = async () => {
       const data = await getAllProduct();
+      console.log(data)
       if(data){
         setProducts(data);
       }
@@ -82,7 +83,18 @@ export default function Product() {
                 </p>
                 <h3 className="font-bold mt-2">${product.price.toFixed(2)}</h3>
               </div>
-              <img src={product.image} loading="lazy" className="w-32 h-32 object-cover" />
+              {product.image ? (
+                <img
+                  src={product.image}
+                  loading="lazy"
+                  className="w-32 h-32 object-cover"
+                  alt={product.title}
+                />
+              ) : (
+                <div className="w-32 h-32 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                  Sin imagen
+                </div>
+              )}
             </div>
           ))}
         </div>
