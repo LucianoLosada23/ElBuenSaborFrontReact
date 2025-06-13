@@ -36,7 +36,7 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product }) => {
         {/* Imagen centrada */}
         <div className="flex-shrink-0 flex items-center justify-center w-[400px] h-[400px] border border-gray-200 rounded overflow-hidden">
           <img
-            src={product.image}
+            src={product.image ?? ""}
             alt={product.title}
             loading="lazy"
             className="object-cover w-full h-full"

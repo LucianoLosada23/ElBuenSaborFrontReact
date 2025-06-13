@@ -97,14 +97,10 @@ export default function FacturacionPopUp() {
           )}
 
           {mpUrl && (
-            <a
-              href={mpUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-blue-600 w-full py-3 cursor-pointer mt-4 flex gap-4 justify-center items-center rounded-full text-white font-medium hover:bg-blue-700 transition"
-            >
-              Ir a Mercado Pago
-            </a>
+            <div className="flex justify-center mt-4 items-center gap-8 bg-blue-300 rounded-full">
+              <img src="/mp.svg" alt="Mercado Pago" width={64} height={20} />
+              <a href={mpUrl}>Ir a Mercado Pago</a>
+            </div>
           )}
 
           {!isLoading && !mpUrl && !successMsg && (

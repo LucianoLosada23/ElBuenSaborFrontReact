@@ -38,8 +38,15 @@ const uiSlice = createSlice({
       const key = action.payload;
       state[key] = !state[key];
     },
+     setState: (
+      state,
+      action: PayloadAction<{ key: keyof UIState; value: boolean }>
+    ) => {
+      const { key, value } = action.payload;
+      state[key] = value;
+    },
   },
 });
 
-export const { toggleState } = uiSlice.actions;
+export const { toggleState , setState} = uiSlice.actions;
 export default uiSlice.reducer;
