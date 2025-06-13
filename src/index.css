@@ -4,7 +4,7 @@
     --font-display: "Barlow", sans-serif;
 
     --color-bg-light: #f8f7f7; /* Gris claro */
-    --color-principal: #FF3333;
+    --color-principal: #ef3054;
     --color-secundario: #ff9c9c;
     --color-terciario: #ff6464;
     --color-gris: #D1D1D1;
@@ -15,10 +15,12 @@
     --color-verde : #34A853;
     --color-verde-pastel : #A8E6CF;
     --color-rojo-pastel : #FFB3B3;
+    --color-admin-principal : #3054ef;
+    --color-admin-secundario : #77B6EA;
     --container-8xl: 1400px;
 }
 
 
 body{
-    background: var(--color-bg-light);
+    background: white;
 }

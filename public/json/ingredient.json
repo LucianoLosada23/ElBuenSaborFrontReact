@@ -1,0 +1,131 @@
+[
+  {
+    "id": 1,
+    "company_id": {
+      "id": 101
+    },
+    "name": "Harina",
+    "unit_measure": "Kg",
+    "status": true,
+    "min_stock": 10,
+    "current_stock": 25,
+    "max_stock": 100,
+    "category_ingredient_id": {
+      "company_id": {"id": 1},
+      "id": 5,
+      "name": "Cereales",
+      "category_parent_id": {
+        "id": 1,
+        "name": "Ingredientes Secos"
+      }
+    }
+  },
+  {
+    "id": 2,
+    "company_id": {
+      "id": 101
+    },
+    "name": "Aceite",
+    "unit_measure": "L",
+    "status": true,
+    "min_stock": 5,
+    "current_stock": 12,
+    "max_stock": 50,
+    "category_ingredient_id": {
+      "company_id": {"id": 1},
+      "id": 6,
+      "name": "Líquidos",
+      "category_parent_id": null
+    }
+  },
+  {
+    "id": 3,
+    "company_id": {
+      "id": 101
+    },
+    "name": "Sal",
+    "unit_measure": "Kg",
+    "status": true,
+    "min_stock": 2,
+    "current_stock": 8,
+    "max_stock": 20,
+    "category_ingredient_id": {
+      "company_id": {"id": 1},
+      "id": 7,
+      "name": "Condimentos",
+      "category_parent_id": null
+    }
+  },
+  {
+    "id": 4,
+    "company_id": {
+      "id": 101
+    },
+    "name": "Azúcar",
+    "unit_measure": "Kg",
+    "status": true,
+    "min_stock": 3,
+    "current_stock": 15,
+    "max_stock": 30,
+    "category_ingredient_id": {
+      "company_id": {"id": 1},
+      "id": 8,
+      "name": "Endulzantes",
+      "category_parent_id": null
+    }
+  },
+  {
+    "id": 5,
+    "company_id": {
+      "id": 101
+    },
+    "name": "Levadura",
+    "unit_measure": "Gr",
+    "status": true,
+    "min_stock": 1,
+    "current_stock": 5,
+    "max_stock": 10,
+    "category_ingredient_id": {
+      "company_id": {"id": 1},
+      "id": 9,
+      "name": "Fermentos",
+      "category_parent_id": null
+    }
+  },
+  {
+    "id": 6,
+    "company_id": {
+      "id": 101
+    },
+    "name": "Leche",
+    "unit_measure": "L",
+    "status": true,
+    "min_stock": 4,
+    "current_stock": 20,
+    "max_stock": 60,
+    "category_ingredient_id": {
+      "company_id": {"id": 1},
+      "id": 10,
+      "name": "Lácteos",
+      "category_parent_id": null
+    }
+  },
+  {
+    "id": 7,
+    "company_id": {
+      "id": 101
+    },
+    "name": "Mantequilla",
+    "unit_measure": "Kg",
+    "status": true,
+    "min_stock": 2,
+    "current_stock": 10,
+    "max_stock": 25,
+    "category_ingredient_id": {
+      "company_id": {"id": 1},
+      "id": 11,
+      "name": "Grasas",
+      "category_parent_id": null
+    }
+  }
+]

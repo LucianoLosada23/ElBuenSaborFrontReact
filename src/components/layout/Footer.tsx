@@ -15,7 +15,7 @@ export default function Footer() {
   ];
 
   return (
-    <div className="bg-principal mt-20 py-12">
+    <div className="bg-principal mt-10 py-12">
       <div className="max-w-8xl mx-auto grid grid-cols-2 justify-between items-center">
         <a href={"/"}>
           <img
@@ -41,6 +41,18 @@ export default function Footer() {
             </li>
           ))}
         </ul>
+      </div>
+      {/* Enlace registro empresa */}
+      <div className="max-w-8xl mx-auto mt-6 text-center">
+        <p className="text-white text-sm">
+          ¿Eres una empresa?{" "}
+          <a
+            href="/register/company"
+            className="text-cyan-400 hover:underline font-semibold cursor-pointer"
+          >
+            Regístrate aquí
+          </a>
+        </p>
       </div>
 
       {/* Información adicional legal */}

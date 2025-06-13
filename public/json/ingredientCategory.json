@@ -1,0 +1,22 @@
+[
+  {"company_id": {"id": 1}, "id": 1, "name": "Frutas", "category_parent_id": null},
+  {"company_id": {"id": 1}, "id": 2, "name": "Cítricos", "category_parent_id": {"id": 1, "name": "Frutas"}},
+  {"company_id": {"id": 1}, "id": 3, "name": "Manzanas", "category_parent_id": {"id": 1, "name": "Frutas"}},
+  {"company_id": {"id": 1}, "id": 4, "name": "Verduras", "category_parent_id": null},
+  {"company_id": {"id": 1}, "id": 5, "name": "Hojas verdes", "category_parent_id": {"id": 4, "name": "Verduras"}},
+  {"company_id": {"id": 1}, "id": 6, "name": "Tubérculos", "category_parent_id": {"id": 4, "name": "Verduras"}},
+  {"company_id": {"id": 1}, "id": 7, "name": "Carnes", "category_parent_id": null},
+  {"company_id": {"id": 1}, "id": 8, "name": "Res", "category_parent_id": {"id": 7, "name": "Carnes"}},
+  {"company_id": {"id": 1}, "id": 9, "name": "Pollo", "category_parent_id": {"id": 7, "name": "Carnes"}},
+  {"company_id": {"id": 1}, "id": 10, "name": "Pescado", "category_parent_id": {"id": 7, "name": "Carnes"}},
+  {"company_id": {"id": 1}, "id": 11, "name": "Lácteos", "category_parent_id": null},
+  {"company_id": {"id": 1}, "id": 12, "name": "Leche", "category_parent_id": {"id": 11, "name": "Lácteos"}},
+  {"company_id": {"id": 1}, "id": 13, "name": "Quesos", "category_parent_id": {"id": 11, "name": "Lácteos"}},
+  {"company_id": {"id": 1}, "id": 14, "name": "Panadería", "category_parent_id": null},
+  {"company_id": {"id": 1}, "id": 15, "name": "Pan", "category_parent_id": {"id": 14, "name": "Panadería"}},
+  {"company_id": {"id": 1}, "id": 16, "name": "Tortas", "category_parent_id": {"id": 14, "name": "Panadería"}},
+  {"company_id": {"id": 1}, "id": 17, "name": "Bebidas", "category_parent_id": null},
+  {"company_id": {"id": 1}, "id": 18, "name": "Jugos", "category_parent_id": {"id": 17, "name": "Bebidas"}},
+  {"company_id": {"id": 1}, "id": 19, "name": "Gaseosas", "category_parent_id": {"id": 17, "name": "Bebidas"}},
+  {"company_id": {"id": 1}, "id": 20, "name": "Agua", "category_parent_id": {"id": 17, "name": "Bebidas"}}
+]

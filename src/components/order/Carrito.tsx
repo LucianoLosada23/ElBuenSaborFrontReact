@@ -1,19 +1,26 @@
-import { XMarkIcon } from "@heroicons/react/24/outline";
-
+import { XMarkIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import { BuildingStorefrontIcon, TruckIcon } from "@heroicons/react/24/solid";
 import { useCart } from "../../hooks/useCart";
-import { useAppSelector } from "../../app/hooks";
+import { useUIState } from "../../hooks/ui/useUIState";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 export default function Carrito() {
-  const { isCartOpen, cart, toggleCart, decrementAmount, incrementAmount , toggleFacturacion} = useCart();
+  // Redux hooks
+  const {
+    cart,
+    tipoEntrega,
+    subtotal,
+    descuento,
+    recargo,
+    total,
+    setPay,
+    decrementAmount,
+    incrementAmount,
+    setEntrega,
+  } = useCart();
 
-  const subtotal = cart.reduce(
-    (acc, item) => acc + item.product.price * (item.amount ?? 1),
-    0
-  );
-  const descuento = subtotal * 0.1;
-  const total = subtotal - descuento;
-
-  const facturacion = useAppSelector(state => state.cart.isFacturacionOpen);
+  const { isCartOpen, toggle, set } = useUIState();
+  const { user } = useAuth();
 
   return (
     <div
@@ -24,7 +31,7 @@ export default function Carrito() {
       {/* Header */}
       <div className="p-4 flex justify-between items-center border-b">
         <h1 className="text-xl font-bold">Mi Orden</h1>
-        <button onClick={() => toggleCart()} className="cursor-pointer">
+        <button onClick={() => toggle("isCartOpen")} className="cursor-pointer">
           <XMarkIcon className="w-6 h-6" />
         </button>
       </div>
@@ -37,22 +44,22 @@ export default function Carrito() {
       ) : (
         <>
           {/* Lista de productos */}
-          <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-240px)]">
+          <div className="p-4 space-y-4">
             {cart.map((item) => (
               <div
                 key={item.product.id}
-                className="flex gap-3  p-3 rounded items-end justify-center"
+                className="flex gap-3 p-3 rounded items-end justify-center "
               >
                 <img
-                  src={item.product.image}
-                  alt={item.product.name}
+                  src={item.product.image ?? ""}
+                  alt={item.product.title}
                   loading="lazy"
-                  width={70}
-                  height={70}
+                  width={80}
+                  height={80}
                   className="rounded-lg object-cover"
                 />
                 <div className="flex flex-col text-sm w-full">
-                  <p className=" text-xs">{item.product.name}</p>
+                  <p className="text-xs font-medium">{item.product.title}</p>
                   {item.clarifications && (
                     <p className="text-gray-500 text-xs mt-1 italic">
                       “{item.clarifications}”
@@ -63,16 +70,16 @@ export default function Carrito() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => decrementAmount(item.product.id)}
-                        className="px-2 py-1 bg-gray-200 cursor-pointer rounded hover:bg-gray-300 text-sm"
+                        className="px-2 py-1 bg-principal text-white cursor-pointer rounded hover:bg-gray-300 text-sm"
                       >
                         −
                       </button>
                       <span className="font-semibold text-xs">
-                        {item.amount}
+                        {item.quantity}
                       </span>
                       <button
                         onClick={() => incrementAmount(item.product.id)}
-                        className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300 text-sm"
+                        className="px-2 py-1 bg-principal text-white rounded cursor-pointer hover:bg-gray-300 text-sm"
                       >
                         +
                       </button>
@@ -86,30 +93,81 @@ export default function Carrito() {
             ))}
           </div>
 
+          {/* Entrega */}
+          <div className="px-4 mt-6">
+            <h3 className="font-semibold mb-2 text-base">Entrega</h3>
+            <div className="flex justify-center gap-4">
+              <div
+                className={`border rounded-md py-2 px-4 flex gap-2 items-center cursor-pointer transition ${
+                  tipoEntrega === "TAKEAWAY"
+                    ? "bg-principal text-white border-principal"
+                    : "hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  setEntrega("TAKEAWAY"), setPay("EFECTIVO");
+                }}
+              >
+                <BuildingStorefrontIcon width={20} height={20} />
+                <h4 className="text-sm">En tienda</h4>
+              </div>
+              <div
+                className={`border rounded-md py-2 px-4 flex gap-2 items-center cursor-pointer transition ${
+                  tipoEntrega === "DELIVERY"
+                    ? "bg-principal text-white border-principal"
+                    : "hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  setEntrega("DELIVERY"), setPay("MERCADO_PAGO");
+                }}
+              >
+                <TruckIcon width={20} height={20} />
+                <h4 className="text-sm">Delivery</h4>
+              </div>
+            </div>
+          </div>
+
           {/* Totales */}
-          <div className="p-4 border-t bg-white">
-            <div className="flex justify-between text-gray-800 text-sm mb-1">
+          <div className="p-4 border-y bg-white mt-8">
+            <div className="flex justify-between text-gray-600 text-sm mb-1">
               <span>Subtotal</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm text-green-600 mb-2">
-              <span>10% OFF Retiro en local</span>
-              <span>- ${descuento.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between font-bold text-sm">
+            {tipoEntrega === "TAKEAWAY" && (
+              <div className="flex justify-between text-green-700 text-sm mb-1">
+                <span>10% OFF Retiro en local</span>
+                <span>- ${descuento.toFixed(2)}</span>
+              </div>
+            )}
+            {tipoEntrega === "DELIVERY" && (
+              <div className="flex justify-between text-red-700 text-sm mb-1">
+                <span>10% Recargo Delivery</span>
+                <span>+ ${recargo.toFixed(2)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-medium text-sm">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
+          </div>
+          <div className="p-2">
             <button
-              className="bg-principal w-full py-3 cursor-pointer mt-4 rounded-full text-white font-medium hover:bg-terciario transition"
-              onClick={() => toggleFacturacion()}
+              className="bg-principal w-full py-3 cursor-pointer mt-4 flex gap-4 justify-center items-center rounded-full text-white font-medium hover:bg-principal/80 transition"
+              onClick={() => {
+                if (user.user === null) {
+                  set("isLoginModal", true);
+                  set("isFacturacionOpen", false);
+                } else {
+                  set("isFacturacionOpen", true);
+                  set("isLoginModal", false);
+                }
+              }}
             >
               Continuar
+              <ArrowRightIcon width={20} height={20} />
             </button>
           </div>
         </>
       )}
-
     </div>
   );
 }

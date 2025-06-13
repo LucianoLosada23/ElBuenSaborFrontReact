@@ -17,13 +17,13 @@ export default function Modal({
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <DialogPanel className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+      <div className="fixed inset-0 flex items-center justify-center p-2">
+        <DialogPanel className="w-full max-w-6xl rounded-md bg-white p-22 shadow-xl">
           <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-2xl font-bold text-black">
+            <DialogTitle className="text-3xl font-semibold text-black">
               {title}
             </DialogTitle>
-            <XMarkIcon
+            <XMarkIcon 
               width={24}
               height={24}
               className="cursor-pointer"
