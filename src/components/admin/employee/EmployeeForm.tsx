@@ -12,18 +12,18 @@ import {
   getAllProvinces,
 } from "../../../services/address/Address";
 import useAddress from "../../../hooks/address/useAddress";
-import type { CreateCompany } from "../../../types/Company/Company";
-import { registerCompany } from "../../../services/auth/register/registerCompany";
+import type { RegisterEmployee } from "../../../types/auth/register/RegisterEmployee";
 import { toast } from "react-toastify";
+import { createEmployee } from "../../../services/admin/employee/employeeServices";
 
-export default function RegisterCompanyForm() {
+export default function EmployeeForm() {
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
     trigger,
-  } = useForm<CreateCompany>();
+  } = useForm<RegisterEmployee>();
 
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
@@ -32,49 +32,34 @@ export default function RegisterCompanyForm() {
   );
   const { provinces, cities, setProvinces, setCities } = useAddress();
 
-  //location
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const provincesData = await getAllProvinces();
-        const citiesData = await getAllCities();
-        setProvinces(provincesData);
-        setCities(citiesData);
-      } catch (error) {
-        console.error("Error cargando provincias o ciudades:", error);
-      }
-    };
-    fetchData();
-  }, []);
 
   const filteredCities = selectedProvinceId
     ? cities.filter((city) => city.province.id === selectedProvinceId)
     : [];
 
-  const onSubmit = async (data: CreateCompany) => {
-    const companyData = {
-      ...data,
-      role: "COMPANY", // hardcodeado
-    };
+  const onSubmit = async (data: RegisterEmployee) => {
     try {
-      await registerCompany(companyData);
+      await createEmployee(data);
       const from = (location.state as any)?.from?.pathname || "/";
       navigate(from, { replace: true });
     } catch (error: any) {
-      toast.error(error.response.data.error);
+      toast.error(error.response?.data?.error || "Error al registrar empleado");
     }
   };
 
   const handleNext = async () => {
     const isValid = await trigger([
       "name",
+      "lastname",
       "email",
       "password",
       "phone",
-      "cuit",
+      "born_date",
+      "genero",
+      "roleEmployee",
     ]);
     if (isValid) setStep(2);
   };
@@ -84,24 +69,34 @@ export default function RegisterCompanyForm() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
-      <div className="flex justify-center mb-4">
-        <img src="/logo1.png" width={200} height={200} />
-      </div>
-
+    <div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {step === 1 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="text-sm font-medium">
-                Nombre Compañía <span className="text-orange-500">*</span>
+                Nombre <span className="text-orange-500">*</span>
               </label>
               <input
                 {...register("name", { required: true })}
-                className="w-full border-b-2 border-zinc-300  focus:outline-none py-1"
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
                 placeholder="Nombre"
               />
               {errors.name && (
+                <span className="text-red-500 text-sm">Campo requerido</span>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">
+                Apellido <span className="text-orange-500">*</span>
+              </label>
+              <input
+                {...register("lastname", { required: true })}
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+                placeholder="Apellido"
+              />
+              {errors.lastname && (
                 <span className="text-red-500 text-sm">Campo requerido</span>
               )}
             </div>
@@ -123,20 +118,6 @@ export default function RegisterCompanyForm() {
 
             <div>
               <label className="text-sm font-medium">
-                CUIT <span className="text-orange-500">*</span>
-              </label>
-              <input
-                {...register("cuit", { required: true })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="CUIT"
-              />
-              {errors.cuit && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">
                 Teléfono <span className="text-orange-500">*</span>
               </label>
               <input
@@ -150,6 +131,55 @@ export default function RegisterCompanyForm() {
                 placeholder="Teléfono"
               />
               {errors.phone && (
+                <span className="text-red-500 text-sm">Campo requerido</span>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">
+                Fecha de nacimiento <span className="text-orange-500">*</span>
+              </label>
+              <input
+                type="date"
+                {...register("born_date", { required: true })}
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              />
+              {errors.born_date && (
+                <span className="text-red-500 text-sm">Campo requerido</span>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">
+                Género <span className="text-orange-500">*</span>
+              </label>
+              <select
+                {...register("genero", { required: true })}
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Selecciona un género
+                </option>
+                <option value="MASCULINO">Masculino</option>
+                <option value="FEMENINO">Femenino</option>
+                <option value="OTRO">Otro</option>
+              </select>
+              {errors.genero && (
+                <span className="text-red-500 text-sm">Campo requerido</span>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">
+                Rol <span className="text-orange-500">*</span>
+              </label>
+              <input
+                {...register("roleEmployee", { required: true })}
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+                placeholder="Rol del empleado"
+              />
+              {errors.roleEmployee && (
                 <span className="text-red-500 text-sm">Campo requerido</span>
               )}
             </div>
@@ -201,11 +231,11 @@ export default function RegisterCompanyForm() {
                 Calle <span className="text-orange-500">*</span>
               </label>
               <input
-                {...register("address.street", { required: true })}
+                {...register("addressBasicDTO.street", { required: true })}
                 className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
                 placeholder="Calle"
               />
-              {errors.address?.street && (
+              {errors.addressBasicDTO?.street && (
                 <span className="text-red-500 text-sm">Campo requerido</span>
               )}
             </div>
@@ -236,14 +266,14 @@ export default function RegisterCompanyForm() {
               </label>
               <input
                 type="number"
-                {...register("address.postalCode", {
+                {...register("addressBasicDTO.postalCode", {
                   required: true,
                   valueAsNumber: true,
                 })}
                 className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
                 placeholder="Código Postal"
               />
-              {errors.address?.postalCode && (
+              {errors.addressBasicDTO?.postalCode && (
                 <span className="text-red-500 text-sm">Campo requerido</span>
               )}
             </div>
@@ -253,12 +283,12 @@ export default function RegisterCompanyForm() {
                 Ciudad <span className="text-orange-500">*</span>
               </label>
               <select
-                {...register("address.city.id", {
+                {...register("addressBasicDTO.cityId", {
                   required: true,
                   valueAsNumber: true,
                 })}
                 onChange={(e) =>
-                  setValue("address.city.id", Number(e.target.value))
+                  setValue("addressBasicDTO.cityId", Number(e.target.value))
                 }
                 className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
                 defaultValue=""
@@ -274,7 +304,7 @@ export default function RegisterCompanyForm() {
                   </option>
                 ))}
               </select>
-              {errors.address?.city?.id && (
+              {errors.addressBasicDTO?.cityId && (
                 <span className="text-red-500 text-sm">Campo requerido</span>
               )}
             </div>
@@ -285,17 +315,18 @@ export default function RegisterCompanyForm() {
               </label>
               <input
                 type="number"
-                {...register("address.number", {
+                {...register("addressBasicDTO.number", {
                   required: true,
                   valueAsNumber: true,
                 })}
                 className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
                 placeholder="Número"
               />
-              {errors.address?.number && (
+              {errors.addressBasicDTO?.number && (
                 <span className="text-red-500 text-sm">Campo requerido</span>
               )}
             </div>
+
             <div className="col-span-2 flex justify-between mt-4">
               <button
                 type="button"
@@ -309,7 +340,7 @@ export default function RegisterCompanyForm() {
                 type="submit"
                 className="bg-principal hover:bg-secundario text-white font-semibold px-5 py-3 rounded-full transition cursor-pointer"
               >
-                Registrar Empresa
+                Registrar Empleado
               </button>
             </div>
           </div>
