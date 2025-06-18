@@ -7,6 +7,7 @@ import { login } from "../../../services/auth/login/login";
 import type { Login } from "../../../types/auth/login/Login";
 import { useAuth } from "../../../hooks/auth/useAuth";
 import { useUIState } from "../../../hooks/ui/useUIState";
+import { toast } from "react-toastify";
 const LoginForm: React.FC = () => {
   const {
     register,
@@ -19,7 +20,7 @@ const LoginForm: React.FC = () => {
 
   //hooks
   const { loginUser } = useAuth();
-  const {set} = useUIState()
+  const { set } = useUIState();
 
   //location
   const location = useLocation();
@@ -30,11 +31,11 @@ const LoginForm: React.FC = () => {
     try {
       const result = await login(data);
       set("isLoginModal", false);
-      loginUser(result)
+      loginUser(result);
       const from = (location.state as any)?.from?.pathname || "/";
       navigate(from, { replace: true });
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      toast.error(error.response.data.error);
     }
   };
 
@@ -102,7 +103,7 @@ const LoginForm: React.FC = () => {
           const from = (location.state as any)?.from?.pathname || "/";
           const redirect = `http://localhost:5173${from}`;
           console.log(redirect);
-          
+
           window.location.href = `http://localhost:8080/oauth2/google-login?redirect=${redirect}`;
         }}
       >

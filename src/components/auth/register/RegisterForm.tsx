@@ -5,7 +5,7 @@ import type { SubmitHandler } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import type { RegisterClient } from "../../../types/auth/register/Register";
 import { registerClient } from "../../../services/auth/register/register";
-import { useUIState } from "../../../hooks/ui/useUIState";
+import { toast } from "react-toastify";
 
 const RegisterForm: React.FC = () => {
   const {
@@ -20,7 +20,6 @@ const RegisterForm: React.FC = () => {
   //location
   const navigate = useNavigate();
   const location = useLocation();
-  const {toggle} = useUIState()
 
   const onSubmit: SubmitHandler<RegisterClient> = async (data) => {
     try {
@@ -28,8 +27,8 @@ const RegisterForm: React.FC = () => {
       // Redirige a la ubicación anterior o a "/" si no existe
       const from = (location.state as any)?.from?.pathname || "/";
       navigate(from, { replace: true });
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      toast.error(error.response.data.error);
     }
   };
 

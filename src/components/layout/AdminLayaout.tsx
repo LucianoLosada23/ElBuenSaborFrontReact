@@ -63,7 +63,7 @@ export default function AdminLayout() {
     },
     {
       label: "Órdenes",
-      path: "#",
+      path: "/admin/ordenes",
       icon: ClipboardDocumentListIconOutline,
       iconSolid: ClipboardDocumentListIconSolid,
     },
@@ -81,7 +81,7 @@ export default function AdminLayout() {
     },
     {
       label: "Empleados",
-      path: "#",
+      path: "/admin/empleados",
       icon: IdentificationIconOutline,
       iconSolid: IdentificationIconSolid,
     },

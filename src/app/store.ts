@@ -6,6 +6,7 @@ import insumosCategoryReducer from '../features/insumosCategory/insumosCategoryS
 import categoriasReducer from '../features/categoriasSlice';
 import insumosReducer from  '../features/insumos/insumosSlice';
 import authReducer from '../features/auth/authSlice'
+import addressReducer from '../features/address/addressSlice'
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
     product : productReducers,
     insumosCategory: insumosCategoryReducer,
     insumos: insumosReducer,
-    auth : authReducer
+    auth : authReducer,
+    address : addressReducer
   },
 });
 
