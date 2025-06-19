@@ -1,3 +1,5 @@
+import { Link, useLocation } from "react-router-dom";
+
 export default function Footer() {
   const links = [
     {
@@ -14,6 +16,9 @@ export default function Footer() {
     },
   ];
 
+  //location
+  const location = useLocation();
+  
   return (
     <div className="bg-principal mt-10 py-12">
       <div className="max-w-8xl mx-auto grid grid-cols-2 justify-between items-center">
@@ -46,12 +51,13 @@ export default function Footer() {
       <div className="max-w-8xl mx-auto mt-6 text-center">
         <p className="text-white text-sm">
           ¿Eres una empresa?{" "}
-          <a
-            href="/register/company"
+          <Link
+            to="/register/company"
+            state={{ from: location }}
             className="text-cyan-400 hover:underline font-semibold cursor-pointer"
           >
             Regístrate aquí
-          </a>
+          </Link>
         </p>
       </div>
 

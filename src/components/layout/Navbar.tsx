@@ -191,7 +191,7 @@ export default function Navbar() {
               <Link
                 to="/login"
                 state={{ from: location }}
-                className="px-6 py-3 text-gris-oscuro rounded-full cursor-pointer font-semibold   hover:bg-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-principal"
+                className="px-6 py-3 text-gris-oscuro rounded-full cursor-pointer font-semibold bg-gray-100 hover:bg-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-principal"
                 role="button"
               >
                 Ingresar

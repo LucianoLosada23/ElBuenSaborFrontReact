@@ -48,7 +48,7 @@ export default function Carrito() {
             {cart.map((item) => (
               <div
                 key={item.product.id}
-                className="flex gap-3 p-3 rounded items-end justify-center "
+                className="flex gap-3 p-3 rounded items-center justify-center"
               >
                 <img
                   src={item.product.image ?? ""}
@@ -85,7 +85,7 @@ export default function Carrito() {
                       </button>
                     </div>
                     <span className="font-medium">
-                      ${item.product.price.toFixed(2)}
+                      ${(item.product.price * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 </div>

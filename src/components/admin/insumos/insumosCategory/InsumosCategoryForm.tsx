@@ -85,7 +85,10 @@ const InsumosCategoryForm: React.FC = () => {
           toggle("isProductCategoryOpen");
         }
         if (result) {
-          toast.success("Categoría creada con éxito");
+          toast.success(selectedCategory ? "Categoría actualizada con éxito" : "Categoría creada con éxito");
+          setTimeout(() => {
+            window.location.reload();
+          }, 500); // le doy 500ms para que se vea bien el toast
         }
       }
     } catch (error) {

@@ -13,10 +13,12 @@ import Register from "./views/auth/register/Register";
 import InsumosCategory from "./views/admin/insumos/insumosCategory/InsumosCategory";
 import Product from "./views/admin/product/Product";
 import ProductCategory from "./views/admin/product/productosCategory/ProductCategory";
+import Orders from "./views/admin/order/Orders";
+import PrivateRoutes from "./components/routes/PrivateRoutes";
+import Employee from "./views/admin/employee/Employee";
 
 export const router = createBrowserRouter([
-
-   {
+  {
     path: "/login",
     element: <Login />,
   },
@@ -28,6 +30,7 @@ export const router = createBrowserRouter([
     path: "/register/company",
     element: <Register />,
   },
+
   // Layout general para usuarios
   {
     path: "/",
@@ -55,27 +58,40 @@ export const router = createBrowserRouter([
       },
     ],
   },
-
-  // Layout separado para admin (sin el layout general)
+  // Rutas protegidas solo para admin
   {
     path: "/admin",
-    element: <AdminLayaout />,
+    element: <PrivateRoutes allowedRoles={["COMPANY"]} />,
     children: [
       {
-        path: "insumos",
-        element: <Insumos />,
-      },
-      {
-        path: "insumos-categorias",
-        element: <InsumosCategory/>,
-      },
-      {
-        path: "productos",
-        element: <Product/>,
-      },
-      {
-        path: "productos-categorias",
-        element: <ProductCategory/>,
+        path: "", 
+        element: <AdminLayaout />,
+        children: [
+          {
+            path: "insumos",
+            element: <Insumos />,
+          },
+          {
+            path: "insumos-categorias",
+            element: <InsumosCategory />,
+          },
+          {
+            path: "productos",
+            element: <Product />,
+          },
+          {
+            path: "productos-categorias",
+            element: <ProductCategory />,
+          },
+          {
+            path: "ordenes",
+            element: <Orders />,
+          },
+          {
+            path: "empleados",
+            element: <Employee />,
+          },
+        ],
       },
     ],
   },

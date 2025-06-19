@@ -65,6 +65,9 @@ const ProductosForm: React.FC = () => {
     if (result) {
       toggle("isProductOpen");
       toast.success(productEdit ? "Producto actualizado con éxito" : "Producto creado con éxito");
+      setTimeout(() => {
+            window.location.reload();
+      }, 500); 
     }
   };
 
