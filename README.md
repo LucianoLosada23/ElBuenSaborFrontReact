@@ -1,54 +1,97 @@
-# React + TypeScript + Vite
+# 🍽️ Buen Sabor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema de pedidos online para restaurantes y comercios gastronómicos.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Tecnologías Utilizadas
 
-## Expanding the ESLint configuration
+- **React 19** + **TypeScript**  
+  Desarrollo de interfaces modernas, robustas y tipadas.
+- **Vite**  
+  Herramienta de build y desarrollo ultrarrápida.
+- **Redux Toolkit**  
+  Manejo eficiente del estado global.
+- **React Hook Form** & **Valibot**  
+  Formularios dinámicos y validación avanzada.
+- **Axios**  
+  Cliente HTTP para comunicación con el backend.
+- **TailwindCSS** & **Material UI**  
+  Estilos modernos, responsivos y componentes visuales.
+- **React Router DOM**  
+  Navegación fluida y declarativa.
+- **React Toastify**  
+  Notificaciones amigables para el usuario.
+- **ESLint**  
+  Calidad y consistencia en el código.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 🛠️ Instalación y Ejecución
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+1. **Clonar el repositorio**
+   ```sh
+   git clone https://github.com/LucianoLosada23/ElBuenSaborFrontReact.git Front
+   cd Front
+   ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+2. **Instalar dependencias**
+   ```sh
+   npm install
+   ```
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+3. **Ejecutar en modo desarrollo**
+   ```sh
+   npm run dev
+   ```
+   Accede a la app en [http://localhost:5173](http://localhost:5173)
+
+4. **Build para producción**
+   ```sh
+   npm run build
+   ```
+
+5. **Preview del build**
+   ```sh
+   npm run preview
+   ```
+
+---
+
+## 🧩 Módulos Principales
+
+- **🔐 Autenticación y Registro**  
+  Registro y login de usuarios y empresas, manejo de sesiones seguras.
+
+- **🛒 Carrito de Compras**  
+  Agrega, edita y elimina productos, elige tipo de entrega y método de pago.
+
+- **🍔 Gestión de Productos e Insumos**  
+  CRUD de productos, categorías, insumos y subcategorías.
+
+- **📦 Órdenes y Pedidos**  
+  Visualización y gestión de pedidos para usuarios y administradores.
+
+- **🏠 Direcciones de Usuario**  
+  Gestión de direcciones para facilitar compras y entregas.
+
+- **🏠 Landing Page y Navegación**  
+  Página principal con información, pasos para comprar y contacto.
+
+- **🛠️ Panel de Administración**  
+  Gestión de empleados, productos, insumos y órdenes para empresas.
+
+- **🔔 Notificaciones**  
+  Feedback visual para acciones exitosas o errores.
+
+---
+
+## 👨‍💻 Integrantes del Grupo
+
+- **Ignacio Molina**
+- **Gabriel Kitanovich**
+- **Juan Guerrero**
+- **Luciano Losada**
+- **Julian Ortega**
+
+---
