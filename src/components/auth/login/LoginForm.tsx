@@ -12,7 +12,6 @@ const LoginForm: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
   } = useForm<Login>();
 
   //state

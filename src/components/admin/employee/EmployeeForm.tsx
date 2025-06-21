@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   EyeIcon,
@@ -7,10 +7,6 @@ import {
   ArrowLeftIcon,
 } from "@heroicons/react/24/solid";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  getAllCities,
-  getAllProvinces,
-} from "../../../services/address/Address";
 import useAddress from "../../../hooks/address/useAddress";
 import type { RegisterEmployee } from "../../../types/auth/register/RegisterEmployee";
 import { toast } from "react-toastify";
@@ -30,7 +26,7 @@ export default function EmployeeForm() {
   const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(
     null
   );
-  const { provinces, cities, setProvinces, setCities } = useAddress();
+  const { provinces, cities} = useAddress();
 
   const navigate = useNavigate();
   const location = useLocation();
