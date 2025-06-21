@@ -92,7 +92,7 @@ export const putProduct = async (rawProduct: PostProduct , id : number) => {
 
 export const getAllProduct = async () => {
   try {
-    const url = "http://localhost:8080/api/v1/products";
+    const url = "http://localhost:8080/api/v1/products/public";
     const { data } = await axios(url , {
       withCredentials: true
     });
