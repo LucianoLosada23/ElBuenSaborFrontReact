@@ -106,7 +106,7 @@ const InsumosSubCategoryForm: React.FC = () => {
         <input
           {...register("name", { required: "El nombre es obligatorio" })}
           placeholder="Nombre de la subcategoría"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
         />
         {errors.name && (
           <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>

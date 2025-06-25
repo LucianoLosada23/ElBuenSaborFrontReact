@@ -144,7 +144,7 @@ const ProductosForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-8">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
             <h3 className="font-semibold">Detalles Del Producto</h3>
@@ -154,7 +154,7 @@ const ProductosForm: React.FC = () => {
             <input
               {...register("title", { required: "El título es obligatorio" })}
               placeholder="Denominación del producto"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
             {errors.title && <p className="text-red-500">{errors.title.message}</p>}
           </div>
@@ -166,7 +166,7 @@ const ProductosForm: React.FC = () => {
             <textarea
               {...register("description", { required: "La descripción es obligatoria" })}
               placeholder="Descripción"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
             {errors.description && <p className="text-red-500">{errors.description.message}</p>}
           </div>
@@ -180,7 +180,7 @@ const ProductosForm: React.FC = () => {
               step="0.01"
               {...register("price", { required: true, min: 0 })}
               placeholder="Precio"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
             {errors.price && <p className="text-red-500">Precio inválido</p>}
           </div>
@@ -215,7 +215,7 @@ const ProductosForm: React.FC = () => {
               type="number"
               {...register("estimatedTime", { required: true, min: 1 })}
               placeholder="Tiempo estimado en minutos"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
             {errors.estimatedTime && <p className="text-red-500">Tiempo estimado inválido</p>}
           </div>
@@ -326,6 +326,7 @@ const ProductosForm: React.FC = () => {
                     }
                     className="w-18 border border-gray-300 rounded-md"
                   />
+                  <span>{ingredient?.unitMeasure}</span>
                   <button
                     type="button"
                     onClick={() =>

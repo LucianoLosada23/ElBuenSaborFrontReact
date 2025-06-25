@@ -1,9 +1,30 @@
 import { safeParse } from "valibot";
 import {
+  employeesArraySchema,
   registerEmployeeSchema,
   type RegisterEmployee,
 } from "../../../types/auth/register/RegisterEmployee";
 import axios from "axios";
+
+export const getAllEmployees = async () => {
+  try { 
+    const url = "http://localhost:8080/api/v1/employee/bycompany";
+    const { data } = await axios.get(url, {
+      withCredentials: true,
+    });
+    const result = safeParse(employeesArraySchema, data);
+    if (!result.success) {
+      console.error("Error de validación:", result.issues);
+      return;
+    }
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;  
+
+  }
+}
+
 
 export const createEmployee = async (employeeData: RegisterEmployee) => {
   try {
@@ -29,7 +50,9 @@ export const createEmployee = async (employeeData: RegisterEmployee) => {
       return;
     }
     const url = "http://localhost:8080/public/auth/register/employee";
-    const { data } = await axios.post(url, result.output);
+    const { data } = await axios.post(url, result.output ,{
+      withCredentials : true
+    });
     return data;
   } catch (error) {
     console.log(error);

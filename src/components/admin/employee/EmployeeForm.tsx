@@ -6,7 +6,6 @@ import {
   ArrowRightIcon,
   ArrowLeftIcon,
 } from "@heroicons/react/24/solid";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAddress from "../../../hooks/address/useAddress";
 import type { RegisterEmployee } from "../../../types/auth/register/RegisterEmployee";
 import { toast } from "react-toastify";
@@ -21,16 +20,20 @@ export default function EmployeeForm() {
     trigger,
   } = useForm<RegisterEmployee>();
 
+  // state
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(
-    null
-  );
-  const { provinces, cities} = useAddress();
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(null);
+  const [rolEmployee] = useState([
+    { value: "CASHIER", name: "Cajero" },
+    { value: "COOK", name: "Cocinero"},
+    { value: "DELIVERY", name: "Repartidor" }
+  ]);
 
-  const navigate = useNavigate();
-  const location = useLocation();
+  //hooks
+  const { provinces, cities } = useAddress();
 
+ 
 
   const filteredCities = selectedProvinceId
     ? cities.filter((city) => city.province.id === selectedProvinceId)
@@ -38,9 +41,8 @@ export default function EmployeeForm() {
 
   const onSubmit = async (data: RegisterEmployee) => {
     try {
+      console.log(data);
       await createEmployee(data);
-      const from = (location.state as any)?.from?.pathname || "/";
-      navigate(from, { replace: true });
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Error al registrar empleado");
     }
@@ -170,17 +172,26 @@ export default function EmployeeForm() {
               <label className="text-sm font-medium">
                 Rol <span className="text-orange-500">*</span>
               </label>
-              <input
+              <select
                 {...register("roleEmployee", { required: true })}
                 className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="Rol del empleado"
-              />
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Selecciona un rol
+                </option>
+                {rolEmployee.map((rol) => (
+                  <option key={rol.value} value={rol.value}>
+                    {rol.name}
+                  </option>
+                ))}
+              </select>
               {errors.roleEmployee && (
                 <span className="text-red-500 text-sm">Campo requerido</span>
               )}
             </div>
 
-            <div className="col-span-2">
+            <div>
               <label className="text-sm font-medium">
                 Contraseña <span className="text-orange-500">*</span>
               </label>
@@ -211,7 +222,7 @@ export default function EmployeeForm() {
               <button
                 type="button"
                 onClick={handleNext}
-                className="bg-principal hover:bg-secundario text-white font-semibold px-5 py-3 rounded-full transition flex gap-4 cursor-pointer"
+                className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold px-5 py-3 rounded-full transition flex gap-4 cursor-pointer"
               >
                 Siguiente
                 <ArrowRightIcon width={24} height={24} />
@@ -334,7 +345,7 @@ export default function EmployeeForm() {
               </button>
               <button
                 type="submit"
-                className="bg-principal hover:bg-secundario text-white font-semibold px-5 py-3 rounded-full transition cursor-pointer"
+                className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold px-5 py-3 rounded-full transition cursor-pointer"
               >
                 Registrar Empleado
               </button>
@@ -342,13 +353,6 @@ export default function EmployeeForm() {
           </div>
         )}
       </form>
-
-      <p className="text-sm text-center mt-6">
-        ¿Ya tienes cuenta?{" "}
-        <Link to="/login" className="text-blue-500 underline font-medium">
-          Inicia Sesión
-        </Link>
-      </p>
     </div>
   );
 }

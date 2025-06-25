@@ -139,18 +139,18 @@ const InsumosForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-8">
         {/* Columna Izquierda */}
         <div className="flex flex-col gap-2">
           {/* Nombre */}
           <div className="flex flex-col gap-2">
             <label className="text-gray-700 text-sm">
               Denominación <span className="text-orange-500 text-lg">*</span>
-            </label>º
+            </label>
             <input
               {...register("name", { required: "El nombre es obligatorio" })}
               placeholder="Denominación del insumo"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
             {errors.name && <p className="text-red-500">{errors.name.message}</p>}
           </div>
@@ -165,7 +165,7 @@ const InsumosForm: React.FC = () => {
               step="0.01"
               {...register("price", { required: "El precio es obligatorio", min: 0 })}
               placeholder="Precio"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
             {errors.price && <p className="text-red-500">{errors.price.message}</p>}
           </div>
@@ -202,19 +202,19 @@ const InsumosForm: React.FC = () => {
                 type="number"
                 {...register("minStock", { required: "Stock mínimo obligatorio", min: 0 })}
                 placeholder="Stock Mínimo"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               />
               <input
                 type="number"
                 {...register("currentStock", { required: "Stock actual obligatorio", min: 0 })}
                 placeholder="Stock Actual"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               />
               <input
                 type="number"
                 {...register("maxStock", { required: "Stock máximo obligatorio", min: 0 })}
                 placeholder="Stock Máximo"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               />
             </div>
             {(errors.minStock || errors.currentStock || errors.maxStock) && (
