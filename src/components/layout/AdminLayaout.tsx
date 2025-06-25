@@ -1,5 +1,5 @@
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Outline Icons
 import {
@@ -28,6 +28,8 @@ import {
   UserGroupIcon as UserGroupIconSolid,
   ListBulletIcon as ListBulletIconSolid,
 } from "@heroicons/react/24/solid";
+import useAddress from "../../hooks/address/useAddress";
+import { getAllCities, getAllProvinces } from "../../services/address/Address";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -35,6 +37,22 @@ export default function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleSidebar = () => setCollapsed(!collapsed);
+
+   const { setProvinces, setCities } = useAddress();
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const provincesData = await getAllProvinces();
+          const citiesData = await getAllCities();
+          setProvinces(provincesData);
+          setCities(citiesData);
+        } catch (error) {
+          console.error("Error cargando provincias o ciudades:", error);
+        }
+      };
+      fetchData();
+    }, []);
 
   const menuItems = [
     {
