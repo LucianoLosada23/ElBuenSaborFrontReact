@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 // Outline Icons
 import {
   Squares2X2Icon as Squares2X2IconOutline,
-  Cog8ToothIcon as Cog8ToothIconOutline,
   IdentificationIcon as IdentificationIconOutline,
   ArchiveBoxIcon as ArchiveBoxIconOutline,
   ClipboardDocumentListIcon as ClipboardDocumentListIconOutline,
@@ -19,7 +18,6 @@ import {
 // Solid Icons
 import {
   Squares2X2Icon as Squares2X2IconSolid,
-  Cog8ToothIcon as Cog8ToothIconSolid,
   IdentificationIcon as IdentificationIconSolid,
   ArchiveBoxIcon as ArchiveBoxIconSolid,
   ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
@@ -102,12 +100,6 @@ export default function AdminLayout() {
       path: "/admin/empleados",
       icon: IdentificationIconOutline,
       iconSolid: IdentificationIconSolid,
-    },
-    {
-      label: "Configuración",
-      path: "#",
-      icon: Cog8ToothIconOutline,
-      iconSolid: Cog8ToothIconSolid,
     },
   ];
 
