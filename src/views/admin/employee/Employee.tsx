@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import type { MRT_ColumnDef } from "material-react-table";
 import { useUIState } from "../../../hooks/ui/useUIState";
 import EmployeeModal from "../../../components/admin/employee/EmployeeModal";
-import { getAllEmployees } from "../../../services/admin/employee/employeeServices";
+import { deleteEmployee, getAllEmployees } from "../../../services/admin/employee/employeeServices";
 import type { Employee } from "../../../types/auth/register/RegisterEmployee";
 
 const columns: MRT_ColumnDef<Employee>[] = [
@@ -20,10 +20,14 @@ const columns: MRT_ColumnDef<Employee>[] = [
 ];
 export default function Employee() {
   // State
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
 
   //Redux hooks
   const { toggle } = useUIState();
+
+  const refreshEmployees = () => setRefreshTrigger((prev) => prev + 1);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -36,11 +40,26 @@ export default function Employee() {
     };
 
     fetchEmployees();
-  }, []);
+  }, [refreshTrigger]);
 
-   const handleEdit = (employee : Employee) => {
-      toggle("isEmployeeModalOpen");
-    };
+  const handleDelete = async (employee: Employee) => {
+    const confirmDelete = window.confirm(
+      `¿Estás seguro de eliminar a ${employee.name} ${employee.lastname}?`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await deleteEmployee(employee.id);
+      refreshEmployees()
+    } catch (error) {
+      console.error("Error eliminando el empleado:", error);
+    }
+  };
+
+  const handleEdit = (employee: Employee) => {
+    setEmployeeToEdit(employee);
+    toggle("isEmployeeModalOpen");
+  };
 
   return (
     <>
@@ -51,8 +70,13 @@ export default function Employee() {
         addButtonText="Añadir"
         onAddClick={() => toggle("isEmployeeModalOpen")}
         onEdit={handleEdit}
+        onDelete={handleDelete}
       />
-      <EmployeeModal/>
+      <EmployeeModal 
+        onRefresh={refreshEmployees}
+        employeeToEdit={employeeToEdit}
+        setEmployeeToEdit={setEmployeeToEdit}
+      />
     </>
   );
 }

@@ -1,19 +1,28 @@
 import { useUIState } from "../../../hooks/ui/useUIState";
-import { useProduct } from "../../../hooks/useProduct";
+import type { Employee } from "../../../types/auth/register/RegisterEmployee";
 import Modal from "../../ui/Modal";
 import EmployeeForm from "./EmployeeForm";
 
-export default function EmployeeModal() {
+type EmployeeModalProps = {
+  onRefresh: () => void;
+  employeeToEdit?: Employee | null;
+  setEmployeeToEdit: React.Dispatch<React.SetStateAction<Employee | null>>;
+}
+
+export default function EmployeeModal({onRefresh , employeeToEdit , setEmployeeToEdit}: EmployeeModalProps) {
   const { isEmployeeModalOpen , toggle } = useUIState();
-  const {setProductEdit} = useProduct()
   return (
     <>
       <Modal
         isOpen={isEmployeeModalOpen}
-        onClose={() => {toggle("isEmployeeModalOpen") , setProductEdit(null)}}
-        title="Añadir un Empleado"
+        onClose={() => {toggle("isEmployeeModalOpen") , setEmployeeToEdit(null)}}
+        title={employeeToEdit ? "Editar un Empleado" : "Añadir un Empleado"}
       >
-        <EmployeeForm/>
+        <EmployeeForm
+          onRefresh={onRefresh}
+          employeeToEdit={employeeToEdit}
+          setEmployeeToEdit={setEmployeeToEdit}
+        />
       </Modal>
     </>
   );
