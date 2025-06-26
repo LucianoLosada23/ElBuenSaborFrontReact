@@ -16,6 +16,7 @@ import ProductCategory from "./views/admin/product/productosCategory/ProductCate
 import Orders from "./views/admin/order/Orders";
 import PrivateRoutes from "./components/routes/PrivateRoutes";
 import Employee from "./views/admin/employee/Employee";
+import Promotions from "./views/admin/promotions/Promotions";
 
 export const router = createBrowserRouter([
   {
@@ -67,6 +68,10 @@ export const router = createBrowserRouter([
         path: "", 
         element: <AdminLayaout />,
         children: [
+          {
+            path: "promociones",
+            element: <Promotions />,
+          },
           {
             path: "insumos",
             element: <Insumos />,

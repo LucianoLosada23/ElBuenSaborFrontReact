@@ -9,6 +9,7 @@ import {
   ClipboardDocumentListIcon as ClipboardDocumentListIconOutline,
   ClipboardIcon as ClipboardIconOutline,
   InboxArrowDownIcon as InboxArrowDownIconOutline,
+  CalendarDateRangeIcon as CalendarDateRangeIconLine,
   ChevronLeftIcon,
   ChevronRightIcon,
   UserGroupIcon as UserGroupIconOutline,
@@ -22,6 +23,7 @@ import {
   ArchiveBoxIcon as ArchiveBoxIconSolid,
   ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
   ClipboardIcon as ClipboardIconSolid,
+  CalendarDateRangeIcon,
   InboxArrowDownIcon as InboxArrowDownIconSolid,
   UserGroupIcon as UserGroupIconSolid,
   ListBulletIcon as ListBulletIconSolid,
@@ -58,6 +60,12 @@ export default function AdminLayout() {
       path: "/admin",
       icon: Squares2X2IconOutline,
       iconSolid: Squares2X2IconSolid,
+    },
+    {
+      label: "Promociones",
+      path: "/admin/promociones",
+      icon: CalendarDateRangeIconLine,
+      iconSolid: CalendarDateRangeIcon,
     },
     {
       label: "Categorías",
