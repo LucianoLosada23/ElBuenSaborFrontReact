@@ -18,13 +18,17 @@ const columns: MRT_ColumnDef<Product>[] = [
   { accessorKey: "company.id", header: "ID Empresa" },
 ];
 export default function Product() {
-  // State
+
+  //State
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
-  console.log(products);
   
   //Redux hooks
   const {setProductEdit} = useProduct()
   const { toggle } = useUIState();
+
+  //funciones 
+  const refreshEmployees = () => setRefreshTrigger((prev) => prev + 1);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -37,7 +41,7 @@ export default function Product() {
     };
 
     fetchProducts();
-  }, []);
+  }, [refreshTrigger]);
 
    const handleEdit = (producto : Product) => {
       toggle("isProductOpen");
@@ -54,7 +58,9 @@ export default function Product() {
         onAddClick={() => toggle("isProductOpen")}
         onEdit={handleEdit}
       />
-      <ProductModal/>
+      <ProductModal
+        onRefresh={refreshEmployees}
+      />
     </>
   );
 }

@@ -17,6 +17,7 @@ import Orders from "./views/admin/order/Orders";
 import PrivateRoutes from "./components/routes/PrivateRoutes";
 import Employee from "./views/admin/employee/Employee";
 import Promotions from "./views/admin/promotions/Promotions";
+import PromotionsTypes from "./views/admin/promotions/promotionsTypes/PromotionsTypes";
 
 export const router = createBrowserRouter([
   {
@@ -71,6 +72,10 @@ export const router = createBrowserRouter([
           {
             path: "promociones",
             element: <Promotions />,
+          },
+          {
+            path: "promociones-tipos",
+            element: <PromotionsTypes />,
           },
           {
             path: "insumos",

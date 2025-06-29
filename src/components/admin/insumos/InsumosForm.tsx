@@ -4,7 +4,6 @@ import type { SubmitHandler } from "react-hook-form";
 import {
   createIngredient,
   putIngredient,
-
 } from "../../../services/admin/insumos/Ingredients";
 import { getAllInsumosCategory } from "../../../services/admin/insumos/insumosCategory/InsumosCategory";
 import type { IngredientCategory } from "../../../types/Insumos/IngredientCategory";
@@ -14,7 +13,7 @@ import { toast } from "react-toastify";
 import { PlusIcon, PencilSquareIcon } from "@heroicons/react/24/solid";
 
 interface InsumosFormFormData {
-  id?: number; // Para editar (opcional)
+  id?: number;
   name: string;
   price: number;
   unitMeasure: string;
@@ -23,6 +22,7 @@ interface InsumosFormFormData {
   currentStock: number;
   maxStock: number;
   categoryId: number;
+  toPrepare?: boolean; // nuevo campo
 }
 
 const unidades = ["KILOGRAM", "UNIT", "GRAM", "LITER", "MILLILITER"];
@@ -44,7 +44,6 @@ const InsumosForm: React.FC = () => {
     formState: { errors },
   } = useForm<InsumosFormFormData>();
 
-  // Setear valores cuando cambia insumoEdit (editar o limpiar)
   useEffect(() => {
     if (insumoEdit) {
       setValue("id", insumoEdit.id);
@@ -54,6 +53,7 @@ const InsumosForm: React.FC = () => {
       setValue("minStock", insumoEdit.minStock);
       setValue("currentStock", insumoEdit.currentStock);
       setValue("maxStock", insumoEdit.maxStock);
+      setValue("toPrepare", insumoEdit.toPrepare ?? false);
 
       if (insumoEdit.categoryIngredient?.id) {
         setValue("categoryId", insumoEdit.categoryIngredient.id);
@@ -70,7 +70,6 @@ const InsumosForm: React.FC = () => {
     }
   }, [insumoEdit, setValue, reset, allCategories]);
 
-  // Traer categorías
   useEffect(() => {
     const fetchCategories = async () => {
       const data = await getAllInsumosCategory();
@@ -82,12 +81,10 @@ const InsumosForm: React.FC = () => {
     fetchCategories();
   }, []);
 
-  // Manejo de subcategorías según padre seleccionado
   useEffect(() => {
     if (selectedParentId !== null) {
       const children = allCategories.filter(cat => cat.parent?.id === selectedParentId);
       setChildCategories(children);
-
       if (children.length === 0) {
         setValue("categoryId", selectedParentId);
       } else {
@@ -100,9 +97,8 @@ const InsumosForm: React.FC = () => {
   }, [selectedParentId, allCategories, setValue]);
 
   const onSubmit: SubmitHandler<InsumosFormFormData> = async (data) => {
-    console.log(data.id)
     const ingredientPayload = {
-      company: { id: 1 }, // cambiar por el id real si hace falta
+      company: { id: 1 }, // reemplazar si tenés otro ID real
       name: data.name,
       price: data.price,
       unitMeasure: data.unitMeasure.toUpperCase(),
@@ -113,21 +109,18 @@ const InsumosForm: React.FC = () => {
       categoryIngredient: {
         id: data.categoryId,
       },
+      toPrepare: data.toPrepare ?? false, // nuevo campo
     };
 
     try {
       if (data.id) {
-        await putIngredient(ingredientPayload , data.id);
+        await putIngredient(ingredientPayload, data.id);
         toast.success("Insumo actualizado con éxito");
-        setTimeout(() => {
-            window.location.reload();
-        }, 500); 
+        setTimeout(() => window.location.reload(), 500);
       } else {
         await createIngredient(ingredientPayload);
         toast.success("Insumo creado con éxito");
-        setTimeout(() => {
-            window.location.reload();
-        }, 500); 
+        setTimeout(() => window.location.reload(), 500);
       }
       toggle("isInsumosOpen");
       setEdit(null);
@@ -188,6 +181,16 @@ const InsumosForm: React.FC = () => {
             </select>
             {errors.unitMeasure && <p className="text-red-500">{errors.unitMeasure.message}</p>}
           </div>
+
+          {/* ¿Es para preparar? */}
+          <div className="flex items-center gap-2 mt-4">
+            <input
+              type="checkbox"
+              {...register("toPrepare")}
+              className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+            />
+            <label className="text-gray-700 text-sm">¿Es un insumo para preparar?</label>
+          </div>
         </div>
 
         {/* Columna Derecha */}
@@ -224,7 +227,7 @@ const InsumosForm: React.FC = () => {
             )}
           </div>
 
-          {/* Categoría Padre y Subcategoría */}
+          {/* Categorías */}
           <div className="flex flex-col gap-2">
             <label className="text-gray-700 text-sm">
               Categorías <span className="text-orange-500 text-lg">*</span>
@@ -271,7 +274,7 @@ const InsumosForm: React.FC = () => {
         </div>
       </div>
 
-      {/* Botón Submit */}
+      {/* Botón */}
       <div className="flex justify-end mt-4">
         <button
           type="submit"

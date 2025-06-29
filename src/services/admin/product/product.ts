@@ -7,8 +7,6 @@ import {
 } from "../../../types/product/product";
 
 export const postProduct = async (rawProduct: PostProduct, imageFile?: File | null) => {
-
-  console.log(imageFile)
   try {
     // Conversión a Product válido
     const parsedProduct: PostProduct = {
@@ -83,7 +81,9 @@ export const putProduct = async (rawProduct: PostProduct , id : number) => {
 
     // POST al backend
     const url = `http://localhost:8080/api/v1/products/${id}`;
-    const { data } = await axios.put(url, result.output);
+    const { data } = await axios.put(url, result.output ,{
+      withCredentials: true
+    });
     return data;
   } catch (error) {
     console.error("Error al crear producto:", error);
@@ -92,13 +92,11 @@ export const putProduct = async (rawProduct: PostProduct , id : number) => {
 
 export const getAllProduct = async () => {
   try {
-    const url = "http://localhost:8080/api/v1/products/public";
+    const url = "http://localhost:8080/api/v1/products/bycompany";
     const { data } = await axios(url , {
       withCredentials: true
     });
-    console.log("Data cruda del backend: ", data);
     const result = safeParse(array(ProductSchema), data);
-    console.log("Validated products:", result.success ? result.output : result.issues);
     if (result.success) {
       return result.output;
     }

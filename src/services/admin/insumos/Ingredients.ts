@@ -7,6 +7,8 @@ import {
   type IngredientCreate,
 } from "../../../types/Insumos/Ingredient";
 
+
+
 export const getAllIngredients = async () => {
   try {
     const url = "http://localhost:8080/api/v1/ingredients";
@@ -23,6 +25,23 @@ export const getAllIngredients = async () => {
     console.error("Error al obtener los ingredientes:", error);
   }
 };
+export const getAllIngredientsToPrepare = async () => {
+  try {
+    const url = "http://localhost:8080/api/v1/ingredients/toprepare";
+    const { data } = await axios.get(url, {
+      withCredentials: true
+    });
+    const result = safeParse(ingredientListSchema, data);
+    if (result.success) {
+      return result.output;
+    } else {
+      throw new Error("Falló el parseo del schema:");
+    }
+  } catch (error) {
+    console.error("Error al obtener los ingredientes:", error);
+  }
+};
+
 
 export const createIngredient = async (data: IngredientCreate) => {
   const payload: IngredientCreate = {
@@ -37,6 +56,7 @@ export const createIngredient = async (data: IngredientCreate) => {
     categoryIngredient: {
       id: Number(data.categoryIngredient.id),
     },
+    toPrepare : data.toPrepare
   };
 
   const result = safeParse(ingredientSchemaCreate, payload);
