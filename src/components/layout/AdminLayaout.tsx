@@ -38,21 +38,21 @@ export default function AdminLayout() {
 
   const toggleSidebar = () => setCollapsed(!collapsed);
 
-   const { setProvinces, setCities } = useAddress();
-  
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const provincesData = await getAllProvinces();
-          const citiesData = await getAllCities();
-          setProvinces(provincesData);
-          setCities(citiesData);
-        } catch (error) {
-          console.error("Error cargando provincias o ciudades:", error);
-        }
-      };
-      fetchData();
-    }, []);
+  const { setProvinces, setCities } = useAddress();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const provincesData = await getAllProvinces();
+        const citiesData = await getAllCities();
+        setProvinces(provincesData);
+        setCities(citiesData);
+      } catch (error) {
+        console.error("Error cargando provincias o ciudades:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const menuItems = [
     {
@@ -118,10 +118,18 @@ export default function AdminLayout() {
         location.pathname === "/admin/insumos-categorias"
       );
     }
+    if (label === "Promociones") {
+      return (
+        location.pathname === "/admin/promociones" ||
+        location.pathname === "/admin/promociones-tipos"
+      );
+    }
 
     if (path === "/admin") return location.pathname === "/admin";
 
-    return location.pathname === path || location.pathname.startsWith(path + "/");
+    return (
+      location.pathname === path || location.pathname.startsWith(path + "/")
+    );
   };
 
   return (

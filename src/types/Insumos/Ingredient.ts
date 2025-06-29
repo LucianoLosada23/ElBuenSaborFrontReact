@@ -5,6 +5,7 @@ import {
   boolean,
   type InferOutput,
   array,
+  optional,
 } from "valibot";
 import { IngredientCategorySchema } from "./IngredientCategory";
 import { companySchema } from "../Company/Company";
@@ -20,8 +21,10 @@ export const ingredientSchemaCreate = object({
   maxStock: number(),
   categoryIngredient : object({
     id : number()
-  })
+  }),
+  toPrepare : optional(boolean())
 });
+
 export type IngredientCreate = InferOutput<typeof ingredientSchemaCreate>;
 
 
@@ -36,6 +39,7 @@ export const ingredientSchema = object({
   currentStock: number(),
   maxStock: number(),
   categoryIngredient: IngredientCategorySchema,
+  toPrepare : optional(boolean())
 });
 export type Ingredient = InferOutput<typeof ingredientSchema>;
 

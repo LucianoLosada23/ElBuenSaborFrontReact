@@ -13,7 +13,7 @@ export type CreatetypePromotion = InferOutput<typeof createtypePromotionSchema>
 //schema para obtener un type de promocion
 export const typePromotionSchema = object({
     id: number(),
-    createtypePromotionSchema,
+    ...createtypePromotionSchema.entries,
     companyId: number()
 })
 

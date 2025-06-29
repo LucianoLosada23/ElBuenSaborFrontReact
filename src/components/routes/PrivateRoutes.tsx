@@ -15,7 +15,6 @@ const PrivateRoutes: React.FC<Props> = ({ allowedRoles }) => {
 
   // Obtener rol y normalizar a minúsculas
   const userRole = user.user?.User.role?.toLowerCase();
-  console.log(userRole);
   
   const allowed = allowedRoles.map((r) => r.toLowerCase());
 

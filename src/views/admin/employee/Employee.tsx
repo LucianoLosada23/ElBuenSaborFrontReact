@@ -27,6 +27,7 @@ export default function Employee() {
   //Redux hooks
   const { toggle } = useUIState();
 
+  //funciones
   const refreshEmployees = () => setRefreshTrigger((prev) => prev + 1);
 
   useEffect(() => {
