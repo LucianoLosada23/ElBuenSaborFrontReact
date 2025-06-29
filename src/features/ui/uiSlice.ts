@@ -11,7 +11,9 @@ export interface UIState {
   isProductCategoryOpen : boolean,
   isProductSubCategoryOpen : boolean,
   isFacturacionOpen: boolean;
-  isInsumosOpen : boolean
+  isInsumosOpen : boolean;
+  isPromotionsOpen : boolean;
+  isPromotionsTypesOpen : boolean
   // Agrega aquí más propiedades booleanas si quieres reutilizar la función
 }
 
@@ -27,6 +29,8 @@ const initialState: UIState = {
   isProductSubCategoryOpen : false,
   isCartOpen: false,
   isFacturacionOpen: false,
+  isPromotionsOpen : false,
+  isPromotionsTypesOpen : false
 };
 
 const uiSlice = createSlice({

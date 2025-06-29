@@ -32,9 +32,9 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product }) => {
       onClose={() => toggle("isProductModal")}
       title={product.title}
     >
-      <div className="mt-8 border-t border-gray-200 p-4 flex gap-6 max-h-[600px]">
-        {/* Imagen centrada */}
-        <div className="flex-shrink-0 flex items-center justify-center w-[400px] h-[400px] border border-gray-200 rounded overflow-hidden">
+      <div className="mt-8 border-t border-gray-200 p-4 flex flex-col lg:flex-row gap-6 max-h-[80vh] overflow-y-auto">
+        {/* Imagen */}
+        <div className="flex-shrink-0 flex items-center justify-center w-full lg:w-[400px] h-[300px] lg:h-[400px] border border-gray-200 rounded overflow-hidden">
           <img
             src={product.image ?? ""}
             alt={product.title}
@@ -44,7 +44,7 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product }) => {
         </div>
 
         {/* Contenido y controles */}
-        <div className="flex flex-col flex-grow max-h-[400px]">
+        <div className="flex flex-col flex-grow max-h-full lg:max-h-[400px]">
           {/* Contenido con scroll */}
           <div className="overflow-y-auto flex-grow pr-2">
             <p className="font-bold mb-6">$ {product.price}</p>
@@ -73,8 +73,8 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product }) => {
           </div>
 
           {/* Control de unidades y botón */}
-          <div className="flex items-center gap-4 mt-4">
-            <div className="border border-gray-200 flex items-center rounded p-4 gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
+            <div className="w-full sm:w-auto border border-gray-200 flex items-center justify-between sm:justify-start rounded p-4 gap-4">
               <h4 className="font-medium">Unidades</h4>
               <div className="flex items-center gap-2">
                 <button
@@ -100,7 +100,7 @@ export const ProductPopup: FC<ProductPopupProps> = ({ product }) => {
 
             <button
               onClick={handleAddToCart}
-              className="flex-grow bg-principal text-white py-4 cursor-pointer rounded-full flex items-center justify-center gap-2 text-sm font-semibold uppercase hover:bg-terciario transition"
+              className="w-full sm:flex-grow bg-principal text-white py-4 cursor-pointer rounded-full flex items-center justify-center gap-2 text-sm font-semibold uppercase hover:bg-terciario transition"
             >
               <ShoppingCartIcon className="h-5 w-5" />
               Agregar a mi pedido

@@ -24,7 +24,7 @@ type EmployeeFormProps = {
   setEmployeeToEdit: React.Dispatch<React.SetStateAction<Employee | null>>;
 };
 
-export default function EmployeeForm({ onRefresh, employeeToEdit , setEmployeeToEdit}: EmployeeFormProps) {
+export default function PromotionsForm({ onRefresh, employeeToEdit , setEmployeeToEdit}: EmployeeFormProps) {
   const {
     register,
     handleSubmit,

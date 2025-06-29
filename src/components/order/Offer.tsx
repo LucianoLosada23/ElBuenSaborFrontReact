@@ -18,28 +18,35 @@ export default function Offer() {
   ];
 
   return (
-    <section className="bg-white py-16">
-      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {offers.map((offer, index) => (
-          <div
-            key={index}
-            className="border border-gray-200 rounded-xl p-6 "
-          >
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 rounded-full">
-                <img
-                  src={offer.icon}
-                  alt={offer.title}
-                  className="w-6 h-6 object-contain"
-                />
+    <section className="bg-white py-12 sm:py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {offers.map((offer, index) => (
+            <div
+              key={index}
+              className="border border-gray-200 rounded-xl p-5 sm:p-6 hover:shadow-md transition-shadow duration-300"
+            >
+              <div className="flex items-start gap-4 sm:gap-5 mb-4 sm:mb-5">
+                <div className="p-2 sm:p-3 bg-gray-50 rounded-full flex-shrink-0">
+                  <img
+                    src={offer.icon}
+                    alt={offer.title}
+                    className="w-6 h-6 sm:w-7 sm:h-7 object-contain"
+                    loading="lazy"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+                    {offer.title}
+                  </h3>
+                  <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
+                    {offer.description}
+                  </p>
+                </div>
               </div>
-              <h3 className="text-base font-semibold text-gray-800">
-                {offer.title}
-              </h3>
             </div>
-            <p className="text-sm text-gray-600">{offer.description}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

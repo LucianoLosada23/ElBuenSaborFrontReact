@@ -9,17 +9,14 @@ export const postOrder = async (order: Order) => {
       console.error("Error de validación:", result.issues);
       return;
     }
-    console.log(order);
     
     const url = "http://localhost:8080/api/v1/order/create";
     const {data} = await axios.post(url , order , {
-        withCredentials: true
+      withCredentials: true
     })
 
-    console.log(data)
     return data
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };

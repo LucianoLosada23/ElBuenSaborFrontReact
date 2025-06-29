@@ -3,9 +3,16 @@ import { useProduct } from "../../../hooks/useProduct";
 import Modal from "../../ui/Modal";
 import ProductForm from "./ProductForm";
 
-export default function ProductModal() {
+//props
+type ProductModalProps = {
+  onRefresh: () => void
+}
+
+export default function ProductModal({onRefresh} : ProductModalProps) {
+
   const { isProductOpen, toggle } = useUIState();
   const {setProductEdit} = useProduct()
+
   return (
     <>
       <Modal
@@ -13,7 +20,9 @@ export default function ProductModal() {
         onClose={() => {toggle("isProductOpen") , setProductEdit(null)}}
         title="Añadir un Producto"
       >
-        <ProductForm/>
+        <ProductForm
+          onRefresh={onRefresh}
+        />
       </Modal>
     </>
   );
