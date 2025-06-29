@@ -7,7 +7,6 @@ export const getAllProvinces = async () => {
   try {
     const url = "http://localhost:8080/public/api/v1/provinces"
     const {data} = await axios.get(url)
-    console.log(data);
     const result = safeParse(provincesSchema , data)
     if(result.success){
       return result.output
@@ -26,7 +25,7 @@ export const getAllCities = async () => {
     const {data} = await axios.get(url)
     const result = safeParse(citiesSchema , data)
     if(result.success){
-        return result.output
+      return result.output
     }
     throw new Error("Error al parsear las provincias");
   } catch (error) {

@@ -9,10 +9,7 @@ import { useAuth } from "../../../hooks/auth/useAuth";
 import { useUIState } from "../../../hooks/ui/useUIState";
 import { toast } from "react-toastify";
 const LoginForm: React.FC = () => {
-  const {
-    register,
-    handleSubmit,
-  } = useForm<Login>();
+  const { register, handleSubmit } = useForm<Login>();
 
   //state
   const [showPassword, setShowPassword] = useState(false);
@@ -100,10 +97,8 @@ const LoginForm: React.FC = () => {
         className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-md hover:bg-gray-50 transition"
         onClick={() => {
           const from = (location.state as any)?.from?.pathname || "/";
-          const redirect = `http://localhost:5173${from}`;
-          console.log(redirect);
-
-          window.location.href = `http://localhost:8080/oauth2/google-login?redirect=${redirect}`;
+          const redirect = encodeURIComponent(`http://localhost:5173${from}`);
+          window.location.href = `http://localhost:8080/oauth2/authorization/google?redirect_uri=${redirect}`;
         }}
       >
         <img

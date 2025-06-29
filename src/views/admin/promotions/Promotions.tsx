@@ -5,6 +5,7 @@ import { useUIState } from "../../../hooks/ui/useUIState";
 import EmployeeModal from "../../../components/admin/employee/EmployeeModal";
 import { deleteEmployee, getAllEmployees } from "../../../services/admin/employee/employeeServices";
 import type { Employee } from "../../../types/auth/register/RegisterEmployee";
+import PromotionsModal from "../../../components/admin/promotions/PromotionsModal";
 
 const columns: MRT_ColumnDef<Employee>[] = [
   { accessorKey: "name", header: "Nombre" },
@@ -18,7 +19,7 @@ const columns: MRT_ColumnDef<Employee>[] = [
   { accessorKey: "addressBasicDTO.number", header: "Número" },
   { accessorKey: "addressBasicDTO.postalCode", header: "Código Postal" },
 ];
-export default function Employee() {
+export default function Promotions() {
   // State
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -65,15 +66,15 @@ export default function Employee() {
   return (
     <>
       <GenericTable
-        title="Empleados"
+        title="Promociones"
         columns={columns}
         data={employees}
         addButtonText="Añadir"
-        onAddClick={() => toggle("isEmployeeModalOpen")}
+        onAddClick={() => toggle("isPromotionsOpen")}
         onEdit={handleEdit}
         onDelete={handleDelete}
-      />
-      <EmployeeModal 
+      /> 
+      <PromotionsModal
         onRefresh={refreshEmployees}
         employeeToEdit={employeeToEdit}
         setEmployeeToEdit={setEmployeeToEdit}

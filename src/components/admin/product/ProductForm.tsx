@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
-import { getAllIngredients } from "../../../services/admin/insumos/Ingredients";
+import { getAllIngredients, getAllIngredientsToPrepare } from "../../../services/admin/insumos/Ingredients";
 import { getAllProductCategory } from "../../../services/admin/product/category/category";
 import { postProduct, putProduct } from "../../../services/admin/product/product";
 import type { IngredientCategory } from "../../../types/Insumos/IngredientCategory";
@@ -21,7 +21,11 @@ interface ProductFormData {
   ingredients: { ingredientId: number; quantity: number }[];
 }
 
-const ProductosForm: React.FC = () => {
+type ProductosFormProps = {
+  onRefresh: () => void;
+};
+
+const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
   const [categories, setCategories] = useState<IngredientCategory[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [filteredIngredients, setFilteredIngredients] = useState<Ingredient[]>([]);
@@ -31,7 +35,6 @@ const ProductosForm: React.FC = () => {
   const [selectedIngredients, setSelectedIngredients] = useState<{ ingredientId: number; quantity: number }[]>([]);
   const [search, setSearch] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-
 
   const { toggle } = useUIState();
   const { productEdit } = useProduct();
@@ -59,22 +62,20 @@ const ProductosForm: React.FC = () => {
     };
 
     const result = productEdit
-      ? await putProduct(product , productEdit.id)
+      ? await putProduct(product, productEdit.id)
       : await postProduct(product, imageFile);
 
     if (result) {
       toggle("isProductOpen");
       toast.success(productEdit ? "Producto actualizado con éxito" : "Producto creado con éxito");
-      setTimeout(() => {
-            window.location.reload();
-      }, 500); 
+      onRefresh();
     }
   };
 
   useEffect(() => {
     const fetchData = async () => {
       const cats = await getAllProductCategory();
-      const ingr = await getAllIngredients();
+      const ingr = await getAllIngredientsToPrepare();
       if (cats && ingr) {
         setCategories(cats);
         setIngredients(ingr);
@@ -96,21 +97,24 @@ const ProductosForm: React.FC = () => {
     }
   }, [selectedParentId, categories, setValue]);
 
-  // Prellenar si estamos en modo edición
   useEffect(() => {
-    if (productEdit) {
+    if (productEdit && categories.length > 0) {
       setValue("title", productEdit.title);
       setValue("description", productEdit.description);
       setValue("price", productEdit.price);
       setValue("estimatedTime", productEdit.estimatedTime);
 
-      const parent = categories.find(cat => cat.id === productEdit.category.parent?.id);
+      const categoryId = productEdit.category.id;
+      const parent = categories.find((cat) => cat.id === productEdit.category.parent?.id);
+
       if (parent) {
         setSelectedParentId(parent.id);
-        setValue("categoryId", productEdit.category.id);
+        setChildCategories(categories.filter((cat) => cat.parent?.id === parent.id));
+        setValue("categoryId", categoryId);
       } else {
-        setSelectedParentId(productEdit.category.id);
-        setValue("categoryId", productEdit.category.id);
+        setSelectedParentId(categoryId); // sin subcategoría
+        setChildCategories([]);
+        setValue("categoryId", categoryId);
       }
 
       const formattedIngredients = productEdit.productIngredients.map((pi: any) => ({
@@ -144,125 +148,115 @@ const ProductosForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-8">
+        {/* Columna 1 */}
         <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-2">
-            <h3 className="font-semibold">Detalles Del Producto</h3>
-            <label className="text-gray-700">
-              Denominación <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <input
-              {...register("title", { required: "El título es obligatorio" })}
-              placeholder="Denominación del producto"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.title && <p className="text-red-500">{errors.title.message}</p>}
-          </div>
+          {/* Título */}
+          <label className="text-gray-700">
+            Denominación <span className="text-orange-500 text-lg">*</span>
+          </label>
+          <input
+            {...register("title", { required: "El título es obligatorio" })}
+            placeholder="Denominación del producto"
+            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+          />
+          {errors.title && <p className="text-red-500">{errors.title.message}</p>}
 
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Descripción <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <textarea
-              {...register("description", { required: "La descripción es obligatoria" })}
-              placeholder="Descripción"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.description && <p className="text-red-500">{errors.description.message}</p>}
-          </div>
+          {/* Descripción */}
+          <label className="text-gray-700">
+            Descripción <span className="text-orange-500 text-lg">*</span>
+          </label>
+          <textarea
+            {...register("description", { required: "La descripción es obligatoria" })}
+            placeholder="Descripción"
+            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+          />
+          {errors.description && <p className="text-red-500">{errors.description.message}</p>}
 
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Precio <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              {...register("price", { required: true, min: 0 })}
-              placeholder="Precio"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.price && <p className="text-red-500">Precio inválido</p>}
-          </div>
+          {/* Precio */}
+          <label className="text-gray-700">
+            Precio <span className="text-orange-500 text-lg">*</span>
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            {...register("price", { required: true, min: 0 })}
+            placeholder="Precio"
+            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+          />
+          {errors.price && <p className="text-red-500">Precio inválido</p>}
 
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Imagen <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setImageFile(file);
-                  }
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            {errors.image && <p className="text-red-500">{errors.image.message}</p>}
-          </div>
+          {/* Imagen */}
+          <label className="text-gray-700">
+            Imagen <span className="text-orange-500 text-lg">*</span>
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) setImageFile(file);
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
         </div>
 
+        {/* Columna 2 - Categoría y tiempo */}
         <div className="flex flex-col gap-2">
-          <h3 className="font-semibold">Categorías y Tiempo Estimado</h3>
+          <label className="text-gray-700">
+            Tiempo Estimado <span className="text-orange-500 text-lg">*</span>
+          </label>
+          <input
+            type="number"
+            {...register("estimatedTime", { required: true, min: 1 })}
+            placeholder="Tiempo estimado en minutos"
+            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+          />
+          {errors.estimatedTime && <p className="text-red-500">Tiempo estimado inválido</p>}
 
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Tiempo Estimado <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <input
-              type="number"
-              {...register("estimatedTime", { required: true, min: 1 })}
-              placeholder="Tiempo estimado en minutos"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.estimatedTime && <p className="text-red-500">Tiempo estimado inválido</p>}
-          </div>
+          {/* Categoría padre */}
+          <label className="text-gray-700">Categoría principal</label>
+          <select
+            onChange={(e) => {
+              const id = parseInt(e.target.value);
+              setSelectedParentId(isNaN(id) ? null : id);
+            }}
+            value={selectedParentId ?? ""}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="">Seleccioná categoría principal</option>
+            {parentCategories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Categoría <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <select
-              onChange={(e) => {
-                const id = parseInt(e.target.value);
-                setSelectedParentId(isNaN(id) ? null : id);
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Seleccioná categoría principal</option>
-              {parentCategories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
+          {/* Categoría hija (subcategoría) */}
           {childCategories.length > 0 && (
-            <select
-              {...register("categoryId", {
-                required: "La subcategoría es obligatoria",
-              })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Seleccioná subcategoría</option>
-              {childCategories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          )}
-          {errors.categoryId && (
-            <p className="text-red-500">{errors.categoryId.message}</p>
+            <>
+              <label className="text-gray-700">Subcategoría</label>
+              <select
+                {...register("categoryId", { required: "La subcategoría es obligatoria" })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="">Seleccioná subcategoría</option>
+                {childCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              {errors.categoryId && (
+                <p className="text-red-500">{errors.categoryId.message}</p>
+              )}
+            </>
           )}
         </div>
 
+        {/* Columna 3 - Ingredientes */}
         <div className="flex flex-col justify-between h-full">
           <div className="flex flex-col gap-2">
-            <h3 className="font-semibold">Ingredientes</h3>
             <label className="text-gray-700">
               Ingredientes <span className="text-orange-500 text-lg">*</span>
             </label>
@@ -273,6 +267,7 @@ const ProductosForm: React.FC = () => {
               placeholder="Buscar ingrediente..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
+
             {search && filteredIngredients.length > 0 && (
               <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md mt-2">
                 {filteredIngredients.map((ingredient) => (
@@ -304,17 +299,13 @@ const ProductosForm: React.FC = () => {
             )}
 
             {selectedIngredients.map((item) => {
-              const ingredient = ingredients.find(
-                (ing) => ing.id === item.ingredientId
-              );
+              const ingredient = ingredients.find((ing) => ing.id === item.ingredientId);
               return (
                 <div
                   key={item.ingredientId}
                   className="flex items-center gap-2 border-b py-2 border-gray-300"
                 >
-                  <label className="flex-1 text-gray-700 text-sm">
-                    {ingredient?.name}
-                  </label>
+                  <label className="flex-1 text-gray-700 text-sm">{ingredient?.name}</label>
                   <input
                     type="number"
                     min={0}
@@ -326,6 +317,7 @@ const ProductosForm: React.FC = () => {
                     }
                     className="w-18 border border-gray-300 rounded-md"
                   />
+                  <span>{ingredient?.unitMeasure}</span>
                   <button
                     type="button"
                     onClick={() =>
