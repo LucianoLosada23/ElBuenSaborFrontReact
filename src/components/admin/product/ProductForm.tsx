@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
-import { getAllIngredients, getAllIngredientsToPrepare } from "../../../services/admin/insumos/Ingredients";
+import { getAllIngredientsToPrepare } from "../../../services/admin/insumos/Ingredients";
 import { getAllProductCategory } from "../../../services/admin/product/category/category";
 import { postProduct, putProduct } from "../../../services/admin/product/product";
 import type { IngredientCategory } from "../../../types/Insumos/IngredientCategory";
@@ -35,6 +35,9 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
   const [selectedIngredients, setSelectedIngredients] = useState<{ ingredientId: number; quantity: number }[]>([]);
   const [search, setSearch] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [profitMargin, setProfitMargin] = useState<number>(0);
+  const [subtotal, setSubtotal] = useState<number>(0);
+  const [finalPrice, setFinalPrice] = useState<number>(0);
 
   const { toggle } = useUIState();
   const { productEdit } = useProduct();
@@ -53,7 +56,8 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
       title: data.title,
       description: data.description,
       estimatedTime: data.estimatedTime,
-      price: data.price,
+      price: finalPrice,
+      profit_percentage: profitMargin, // <- aquí el nombre correcto
       category: { id: data.categoryId },
       productIngredients: selectedIngredients.map((item) => ({
         ingredient: { id: item.ingredientId },
@@ -101,7 +105,6 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
     if (productEdit && categories.length > 0) {
       setValue("title", productEdit.title);
       setValue("description", productEdit.description);
-      setValue("price", productEdit.price);
       setValue("estimatedTime", productEdit.estimatedTime);
 
       const categoryId = productEdit.category.id;
@@ -112,7 +115,7 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
         setChildCategories(categories.filter((cat) => cat.parent?.id === parent.id));
         setValue("categoryId", categoryId);
       } else {
-        setSelectedParentId(categoryId); // sin subcategoría
+        setSelectedParentId(categoryId);
         setChildCategories([]);
         setValue("categoryId", categoryId);
       }
@@ -122,16 +125,27 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
         quantity: pi.quantity,
       }));
       setSelectedIngredients(formattedIngredients);
+      setProfitMargin(productEdit.profit_percentage ?? 0);
     }
   }, [productEdit, categories, setValue]);
+
+  useEffect(() => {
+    const total = selectedIngredients.reduce((acc, item) => {
+      const ingredient = ingredients.find((i) => i.id === item.ingredientId);
+      if (!ingredient) return acc;
+      return acc + ingredient.price * item.quantity;
+    }, 0);
+    setSubtotal(total);
+    const final = total + total * (profitMargin / 100);
+    setFinalPrice(Number(final.toFixed(2)));
+    setValue("price", final);
+  }, [selectedIngredients, profitMargin, ingredients, setValue]);
 
   const handleIngredientChange = (ingredientId: number, quantity: number) => {
     setSelectedIngredients((prev) => {
       const existing = prev.find((i) => i.ingredientId === ingredientId);
       if (existing) {
-        return prev.map((i) =>
-          i.ingredientId === ingredientId ? { ...i, quantity } : i
-        );
+        return prev.map((i) => (i.ingredientId === ingredientId ? { ...i, quantity } : i));
       } else {
         return [...prev, { ingredientId, quantity }];
       }
@@ -151,7 +165,6 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
       <div className="grid grid-cols-3 gap-8">
         {/* Columna 1 */}
         <div className="flex flex-col gap-2">
-          {/* Título */}
           <label className="text-gray-700">
             Denominación <span className="text-orange-500 text-lg">*</span>
           </label>
@@ -162,7 +175,6 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
           />
           {errors.title && <p className="text-red-500">{errors.title.message}</p>}
 
-          {/* Descripción */}
           <label className="text-gray-700">
             Descripción <span className="text-orange-500 text-lg">*</span>
           </label>
@@ -173,20 +185,35 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
           />
           {errors.description && <p className="text-red-500">{errors.description.message}</p>}
 
-          {/* Precio */}
+          <label className="text-gray-700">Subtotal (insumos)</label>
+          <input
+            type="number"
+            readOnly
+            value={subtotal.toFixed(2)}
+            className="w-full border-b-2 border-zinc-300 py-1 text-gray-600 bg-gray-100"
+          />
+
           <label className="text-gray-700">
-            Precio <span className="text-orange-500 text-lg">*</span>
+            % Ganancia <span className="text-orange-500 text-lg">*</span>
           </label>
           <input
             type="number"
-            step="0.01"
-            {...register("price", { required: true, min: 0 })}
-            placeholder="Precio"
-            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+            min={0}
+            step={0.01}
+            value={profitMargin}
+            onChange={(e) => setProfitMargin(parseFloat(e.target.value))}
+            className="w-full border-b-2 border-zinc-300 py-1"
+            placeholder="Porcentaje de ganancia"
           />
-          {errors.price && <p className="text-red-500">Precio inválido</p>}
 
-          {/* Imagen */}
+          <label className="text-gray-700">Precio final</label>
+          <input
+            type="number"
+            readOnly
+            value={finalPrice.toFixed(2)}
+            className="w-full border-b-2 border-zinc-300 py-1 text-gray-600 bg-gray-100"
+          />
+
           <label className="text-gray-700">
             Imagen <span className="text-orange-500 text-lg">*</span>
           </label>
@@ -201,7 +228,7 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
           />
         </div>
 
-        {/* Columna 2 - Categoría y tiempo */}
+        {/* Columna 2 - Categorías y tiempo */}
         <div className="flex flex-col gap-2">
           <label className="text-gray-700">
             Tiempo Estimado <span className="text-orange-500 text-lg">*</span>
@@ -214,7 +241,6 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
           />
           {errors.estimatedTime && <p className="text-red-500">Tiempo estimado inválido</p>}
 
-          {/* Categoría padre */}
           <label className="text-gray-700">Categoría principal</label>
           <select
             onChange={(e) => {
@@ -232,7 +258,6 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
             ))}
           </select>
 
-          {/* Categoría hija (subcategoría) */}
           {childCategories.length > 0 && (
             <>
               <label className="text-gray-700">Subcategoría</label>

@@ -11,6 +11,7 @@ export const postProduct = async (rawProduct: PostProduct, imageFile?: File | nu
     // Conversión a Product válido
     const parsedProduct: PostProduct = {
       company: rawProduct.company,
+      profit_percentage : rawProduct.profit_percentage,
       category: { id: Number(rawProduct.category.id) },
       title: rawProduct.title,
       description: rawProduct.description,
@@ -55,6 +56,8 @@ export const postProduct = async (rawProduct: PostProduct, imageFile?: File | nu
   }
 };
 export const putProduct = async (rawProduct: PostProduct , id : number) => {
+  console.log(rawProduct);
+  
   try {
     // Conversión a Product válido
     const parsedProduct: PostProduct = {
@@ -63,6 +66,7 @@ export const putProduct = async (rawProduct: PostProduct , id : number) => {
         id: Number(rawProduct.category.id),
       },
       title: rawProduct.title,
+      profit_percentage : rawProduct.profit_percentage,
       description: rawProduct.description,
       estimatedTime: Number(rawProduct.estimatedTime),
       price: Number(rawProduct.price),
