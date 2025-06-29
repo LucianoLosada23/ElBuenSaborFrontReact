@@ -24,14 +24,18 @@ export default function Carrito() {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-86 bg-white py-2 shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
+      className={`fixed inset-0 md:inset-auto md:top-0 md:right-0 md:h-full w-full md:w-86 bg-white py-2 shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
         isCartOpen ? "translate-x-0" : "translate-x-full"
       }`}
     >
       {/* Header */}
       <div className="p-4 flex justify-between items-center border-b">
         <h1 className="text-xl font-bold">Mi Orden</h1>
-        <button onClick={() => toggle("isCartOpen")} className="cursor-pointer">
+        <button 
+          onClick={() => toggle("isCartOpen")} 
+          className="cursor-pointer"
+          aria-label="Cerrar carrito"
+        >
           <XMarkIcon className="w-6 h-6" />
         </button>
       </div>
@@ -44,7 +48,7 @@ export default function Carrito() {
       ) : (
         <>
           {/* Lista de productos */}
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-4 overflow-y-auto max-h-[50vh] md:max-h-[calc(100%-300px)]">
             {cart.map((item) => (
               <div
                 key={item.product.id}
@@ -56,12 +60,12 @@ export default function Carrito() {
                   loading="lazy"
                   width={80}
                   height={80}
-                  className="rounded-lg object-cover"
+                  className="rounded-lg object-cover w-20 h-20"
                 />
                 <div className="flex flex-col text-sm w-full">
-                  <p className="text-xs font-medium">{item.product.title}</p>
+                  <p className="text-xs font-medium line-clamp-2">{item.product.title}</p>
                   {item.clarifications && (
-                    <p className="text-gray-500 text-xs mt-1 italic">
+                    <p className="text-gray-500 text-xs mt-1 italic line-clamp-2">
                       “{item.clarifications}”
                     </p>
                   )}
@@ -71,6 +75,7 @@ export default function Carrito() {
                       <button
                         onClick={() => decrementAmount(item.product.id)}
                         className="px-2 py-1 bg-principal text-white cursor-pointer rounded hover:bg-gray-300 text-sm"
+                        aria-label="Reducir cantidad"
                       >
                         −
                       </button>
@@ -80,6 +85,7 @@ export default function Carrito() {
                       <button
                         onClick={() => incrementAmount(item.product.id)}
                         className="px-2 py-1 bg-principal text-white rounded cursor-pointer hover:bg-gray-300 text-sm"
+                        aria-label="Aumentar cantidad"
                       >
                         +
                       </button>
@@ -96,7 +102,7 @@ export default function Carrito() {
           {/* Entrega */}
           <div className="px-4 mt-6">
             <h3 className="font-semibold mb-2 text-base">Entrega</h3>
-            <div className="flex justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
               <div
                 className={`border rounded-md py-2 px-4 flex gap-2 items-center cursor-pointer transition ${
                   tipoEntrega === "TAKEAWAY"
@@ -104,8 +110,11 @@ export default function Carrito() {
                     : "hover:bg-gray-100"
                 }`}
                 onClick={() => {
-                  setEntrega("TAKEAWAY"), setPay("EFECTIVO");
+                  setEntrega("TAKEAWAY"); 
+                  setPay("EFECTIVO");
                 }}
+                role="button"
+                tabIndex={0}
               >
                 <BuildingStorefrontIcon width={20} height={20} />
                 <h4 className="text-sm">En tienda</h4>
@@ -117,8 +126,11 @@ export default function Carrito() {
                     : "hover:bg-gray-100"
                 }`}
                 onClick={() => {
-                  setEntrega("DELIVERY"), setPay("MERCADO_PAGO");
+                  setEntrega("DELIVERY"); 
+                  setPay("MERCADO_PAGO");
                 }}
+                role="button"
+                tabIndex={0}
               >
                 <TruckIcon width={20} height={20} />
                 <h4 className="text-sm">Delivery</h4>
@@ -149,7 +161,7 @@ export default function Carrito() {
               <span>${total.toFixed(2)}</span>
             </div>
           </div>
-          <div className="p-2">
+          <div className="p-4">
             <button
               className="bg-principal w-full py-3 cursor-pointer mt-4 flex gap-4 justify-center items-center rounded-full text-white font-medium hover:bg-principal/80 transition"
               onClick={() => {
@@ -161,6 +173,7 @@ export default function Carrito() {
                   set("isLoginModal", false);
                 }
               }}
+              aria-label="Continuar con el pedido"
             >
               Continuar
               <ArrowRightIcon width={20} height={20} />
