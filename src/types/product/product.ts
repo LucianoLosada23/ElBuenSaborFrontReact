@@ -51,6 +51,7 @@ const BaseProductSchema = {
   description: string(),
   estimatedTime: number(),
   price: number(),
+  profit_percentage : number(),
   image: optional(union([string(), null_()]))
 };
 
