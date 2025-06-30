@@ -1,19 +1,19 @@
-import Aboutus from "../../components/landing/Aboutus";
-import Contact from "../../components/landing/Contact";
 import ListCompanies from "../../components/landingCompanies/listCompanies";
+import BannerProduct from "../../components/order/BannerProduct";
+import Offer from "../../components/order/Offer";
 
 export default function LandingCompanies() {
 
   return (
     <>
-    <section>
-        <ListCompanies />
-    </section>
       <section>
-        <Aboutus />
+        <BannerProduct />
       </section>
+       <section>
+          <Offer />
+        </section>
       <section>
-        <Contact />
+          <ListCompanies />
       </section>
     </>
   );

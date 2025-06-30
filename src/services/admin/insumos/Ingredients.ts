@@ -25,6 +25,7 @@ export const getAllIngredients = async () => {
     console.error("Error al obtener los ingredientes:", error);
   }
 };
+
 export const getAllIngredientsToPrepare = async () => {
   try {
     const url = "http://localhost:8080/api/v1/ingredients/toprepare";

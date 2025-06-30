@@ -1,259 +1,283 @@
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import {
-  EyeIcon,
-  EyeSlashIcon,
-  ArrowRightIcon,
-  ArrowLeftIcon,
-} from "@heroicons/react/24/solid";
-import useAddress from "../../../hooks/address/useAddress";
-import type {
-  UpdateEmployee,
-  Employee,
-} from "../../../types/auth/register/RegisterEmployee";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
+import type {
+  CreatePromotions,
+  Promotions,
+} from "../../../types/promotions/Promotions";
+import { getAllPromotionsTypes } from "../../../services/admin/promotions/promotionsTypes";
+import { getAllProduct } from "../../../services/admin/product/product";
 import {
-  createEmployee,
-  updateEmployee,
-} from "../../../services/admin/employee/employeeServices";
+  createPromotion,
+  updatePromotion,
+} from "../../../services/admin/promotions/promotions";
 import { useUIState } from "../../../hooks/ui/useUIState";
 
-type EmployeeFormProps = {
+type PromotionFormProps = {
   onRefresh: () => void;
-  employeeToEdit?: Employee | null;
-  setEmployeeToEdit: React.Dispatch<React.SetStateAction<Employee | null>>;
+  promotionsToEdit?: Promotions | null;
+  setPromotionsToEdit: React.Dispatch<React.SetStateAction<Promotions | null>>;
 };
 
-export default function PromotionsForm({ onRefresh, employeeToEdit , setEmployeeToEdit}: EmployeeFormProps) {
+type ProductItem = {
+  id: number;
+  title: string;
+  price: number;
+};
+
+export default function PromotionForm({
+  onRefresh,
+  promotionsToEdit,
+  setPromotionsToEdit,
+}: PromotionFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
-    watch,
-    trigger,
-  } = useForm<UpdateEmployee>();
+    reset,
+  } = useForm<CreatePromotions>();
 
   const [step, setStep] = useState(1);
-  const [showPassword, setShowPassword] = useState(false);
-  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(null);
-
-  const { provinces, cities } = useAddress();
+  const [productValues, setProductValues] = useState<Record<string, number>>({});
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [promotionTypes, setPromotionTypes] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [productList, setProductList] = useState<ProductItem[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProducts, setSelectedProducts] = useState<ProductItem[]>([]);
   const { toggle } = useUIState();
 
-  const rolEmployee = [
-    { value: "CASHIER", name: "Cajero" },
-    { value: "COOK", name: "Cocinero" },
-    { value: "DELIVERY", name: "Repartidor" },
-  ];
-
-  const filteredCities = selectedProvinceId
-    ? cities.filter((city) => city.province.id === selectedProvinceId)
-    : [];
-
+  // Cargar productos y tipos
   useEffect(() => {
-    if (employeeToEdit) {
-      const cityId = employeeToEdit.addressBasicDTO.cityId;
-      const city = cities.find((c) => c.id === cityId);
-      const provinceId = city?.province?.id;
+    const fetchInitialData = async () => {
+      const [products, types] = await Promise.all([
+        getAllProduct(),
+        getAllPromotionsTypes(),
+      ]);
+      if (products) {
+        setProductList(
+          products.map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            price: p.price,
+          }))
+        );
+      }
+      if (types) setPromotionTypes(types);
+    };
+    fetchInitialData();
+  }, []);
 
-      setValue("name", employeeToEdit.name);
-      setValue("lastname", employeeToEdit.lastname);
-      setValue("email", employeeToEdit.email);
-      setValue("phone", Number(employeeToEdit.phone));
-      setValue("born_date", employeeToEdit.born_date.split("T")[0]);
-      setValue("genero", employeeToEdit.genero);
-      setValue("roleEmployee", employeeToEdit.roleEmployee);
-      setValue("addressBasicDTO.street", employeeToEdit.addressBasicDTO.street);
-      setValue("addressBasicDTO.number", employeeToEdit.addressBasicDTO.number);
-      setValue("addressBasicDTO.postalCode", employeeToEdit.addressBasicDTO.postalCode);
-      setValue("addressBasicDTO.cityId", cityId);
-      setValue("addressBasicDTO.id", employeeToEdit.addressBasicDTO.id);
+  // Prellenar formulario si se edita
+  useEffect(() => {
+    if (promotionsToEdit) {
+      const {
+        title,
+        discountDescription,
+        dateFrom,
+        dateTo,
+        timeFrom,
+        timeTo,
+        dayOfWeeks,
+        promotionTypeDTO,
+        productPromotions,
+      } = promotionsToEdit;
 
-      if (provinceId) {
-        setSelectedProvinceId(provinceId);
+      reset({
+        title,
+        discountDescription,
+        dateFrom,
+        dateTo,
+        timeFrom,
+        timeTo,
+        promotionTypeId: promotionTypeDTO.id,
+      });
+
+      setSelectedDays(dayOfWeeks || []);
+
+      if (productPromotions && productPromotions.length > 0) {
+        const productsForForm: ProductItem[] = productPromotions
+          .map((pp) => {
+            if (pp.product) {
+              return {
+                id: pp.product.id,
+                title: pp.product.title,
+                price: pp.product.price,
+              };
+            }
+            return null;
+          })
+          .filter(Boolean) as ProductItem[];
+
+        setSelectedProducts(productsForForm);
+
+        const promoPrices: Record<string, number> = {};
+        productPromotions.forEach((pp) => {
+          if (pp.productId && pp.value !== undefined) {
+            promoPrices[pp.product.id] = pp.value;
+          }
+        });
+
+        setProductValues(promoPrices);
       }
     }
-  }, [employeeToEdit, setValue, cities]);
+  }, [promotionsToEdit, reset]);
 
-  const onSubmit = async (data: UpdateEmployee) => {
+  const handleDayToggle = (day: string) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const onSubmit = async (data: CreatePromotions) => {
+    const payload: CreatePromotions = {
+      ...data,
+      dayOfWeeks: selectedDays,
+      productIds: Object.keys(productValues).map((id) => Number(id)),
+      productValues,
+    };
+
     try {
-      if (employeeToEdit) {
-        const result = await updateEmployee(employeeToEdit.id, {
-          ...data,
-          addressBasicDTO: {
-            ...data.addressBasicDTO,
-            id: employeeToEdit.addressBasicDTO.id,
-          },
-        });
-        if (!result) throw new Error("Error al actualizar el empleado");
-        toast.success("Empleado actualizado exitosamente");
-        setEmployeeToEdit(null)
-      } else {
-        if (!data.password) {
-          toast.error("La contraseña es obligatoria para crear un empleado");
-          return;
-        }
+      let success = false;
+      if (promotionsToEdit) {
+        // Actualizar productPromotions con los valores nuevos
+        const updatedProductPromotions = promotionsToEdit.productPromotions.map(
+          (pp) => {
+            const updatedValue = productValues[pp.productId ?? ""] ?? pp.value;
+            return {
+              ...pp,
+              value: updatedValue,
+            };
+          }
+        );
 
-        const result = await createEmployee({
-          ...data,
-          password: data.password,
-        });
-        if (!result) throw new Error("Error al registrar el empleado");
-        toast.success("Empleado registrado exitosamente");
+        const payloadToSend = {
+          ...payload,
+          id: promotionsToEdit.id,
+          companyId: promotionsToEdit.companyId,
+          isActive: promotionsToEdit.isActive,
+          productPromotions: updatedProductPromotions,
+          promotionTypeDTO: promotionsToEdit.promotionTypeDTO,
+        };
+
+        const result = await updatePromotion(promotionsToEdit.id, payloadToSend);
+        success = Boolean(result);
+        toast.success("Promoción actualizada");
+      } else {
+        const result = await createPromotion(payload);
+        success = Boolean(result);
+        toast.success("Promoción creada");
       }
 
-      toggle("isEmployeeModalOpen");
-      onRefresh();
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Ocurrió un error");
+      if (success) {
+        onRefresh();
+        toggle("isPromotionsOpen");
+        setPromotionsToEdit(null);
+      }
+    } catch (error) {
+      toast.error("Hubo un error al guardar la promoción");
+      console.error(error);
     }
   };
-
-  const handleNext = async () => {
-    const isValid = await trigger([
-      "name",
-      "lastname",
-      "email",
-      "password",
-      "phone",
-      "born_date",
-      "genero",
-      "roleEmployee",
-    ]);
-    if (isValid) setStep(2);
-  };
-
-  const handleBack = () => setStep(1);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {step === 1 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Datos personales */}
           <div>
-            <label className="text-sm font-medium">Nombre *</label>
+            <label className="text-sm font-medium">Título *</label>
             <input
-              {...register("name", { required: true })}
+              {...register("title", { required: true })}
+              placeholder="Ej: Promo hamburguesa"
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-              placeholder="Nombre"
             />
-            {errors.name && <span className="text-red-500 text-sm">Campo requerido</span>}
+            {errors.title && (
+              <span className="text-red-500 text-sm">Campo requerido</span>
+            )}
           </div>
 
           <div>
-            <label className="text-sm font-medium">Apellido *</label>
+            <label className="text-sm font-medium">Descripción *</label>
             <input
-              {...register("lastname", { required: true })}
+              {...register("discountDescription", { required: true })}
+              placeholder="Ej: 2x1 todos los viernes"
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-              placeholder="Apellido"
             />
-            {errors.lastname && <span className="text-red-500 text-sm">Campo requerido</span>}
+            {errors.discountDescription && (
+              <span className="text-red-500 text-sm">Campo requerido</span>
+            )}
           </div>
 
           <div>
-            <label className="text-sm font-medium">Email *</label>
-            <input
-              type="email"
-              {...register("email", { required: true })}
-              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-              placeholder="Email"
-            />
-            {errors.email && <span className="text-red-500 text-sm">Campo requerido</span>}
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">Teléfono *</label>
-            <input
-              type="tel"
-              {...register("phone", { required: true, valueAsNumber: true })}
-              onInput={(e) => {
-                const input = e.target as HTMLInputElement;
-                input.value = input.value.replace(/\D/g, "");
-              }}
-              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-              placeholder="Teléfono"
-            />
-            {errors.phone && <span className="text-red-500 text-sm">Campo requerido</span>}
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">Fecha de nacimiento *</label>
+            <label className="text-sm font-medium">Desde *</label>
             <input
               type="date"
-              {...register("born_date", { required: true })}
+              {...register("dateFrom", { required: true })}
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
-            {errors.born_date && <span className="text-red-500 text-sm">Campo requerido</span>}
           </div>
 
           <div>
-            <label className="text-sm font-medium">Género *</label>
-            <select
-              {...register("genero", { required: true })}
+            <label className="text-sm font-medium">Hasta *</label>
+            <input
+              type="date"
+              {...register("dateTo", { required: true })}
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-              defaultValue=""
-            >
-              <option value="" disabled>Selecciona un género</option>
-              <option value="MASCULINO">Masculino</option>
-              <option value="FEMENINO">Femenino</option>
-              <option value="OTRO">Otro</option>
-            </select>
-            {errors.genero && <span className="text-red-500 text-sm">Campo requerido</span>}
+            />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Rol *</label>
+            <label className="text-sm font-medium">Hora Desde *</label>
+            <input
+              type="time"
+              {...register("timeFrom", { required: true })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Hora Hasta *</label>
+            <input
+              type="time"
+              {...register("timeTo", { required: true })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Tipo de promoción *</label>
             <select
-              {...register("roleEmployee", { required: true })}
+              {...register("promotionTypeId", {
+                required: true,
+                valueAsNumber: true,
+              })}
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               defaultValue=""
             >
-              <option value="" disabled>Selecciona un rol</option>
-              {rolEmployee.map((rol) => (
-                <option key={rol.value} value={rol.value}>
-                  {rol.name}
+              <option value="" disabled>
+                Selecciona tipo
+              </option>
+              {promotionTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
                 </option>
               ))}
             </select>
-            {errors.roleEmployee && <span className="text-red-500 text-sm">Campo requerido</span>}
+            {errors.promotionTypeId && (
+              <span className="text-red-500 text-sm">Campo requerido</span>
+            )}
           </div>
 
-          {!employeeToEdit && (
-            <div className="flex flex-col">
-              <label className="text-sm font-medium">Contraseña *</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  {...register("password", { required: true })}
-                  className="w-full border-b-2 border-zinc-300 focus:outline-none py-1 pr-10"
-                  placeholder="Contraseña"
-                />
-                <div
-                  className="absolute right-2 top-2 cursor-pointer"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeIcon className="w-5 h-5 text-gray-600" />
-                  ) : (
-                    <EyeSlashIcon className="w-5 h-5 text-gray-600" />
-                  )}
-                </div>
-                {errors.password && (
-                  <span className="text-red-500 text-sm">Campo requerido</span>
-                )}
-              </div>
-            </div>
-          )}
-
-          <div className="col-span-2 flex justify-end">
+          <div className="col-span-2 flex justify-end mt-4">
             <button
               type="button"
-              onClick={handleNext}
-              className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold px-5 py-3 rounded-full transition flex gap-4 cursor-pointer"
+              onClick={() => setStep(2)}
+              className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold px-5 py-3 rounded-full transition flex gap-4"
             >
               Siguiente
-              <ArrowRightIcon width={24} height={24} />
+              <ArrowRightIcon className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -261,99 +285,126 @@ export default function PromotionsForm({ onRefresh, employeeToEdit , setEmployee
 
       {step === 2 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <input type="hidden" {...register("addressBasicDTO.id")} />
-
-          <div>
-            <label className="text-sm font-medium">Calle *</label>
-            <input
-              {...register("addressBasicDTO.street", { required: true })}
-              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-              placeholder="Calle"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">Provincia *</label>
-            <select
-              value={selectedProvinceId ?? ""}
-              onChange={(e) => {
-                const id = Number(e.target.value);
-                setSelectedProvinceId(id);
-                setValue("addressBasicDTO.cityId", 0);
-              }}
-              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-            >
-              <option value="" disabled>Selecciona una provincia</option>
-              {provinces.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+          <div className="col-span-2">
+            <label className="text-sm font-medium">Días de la semana</label>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {[
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+                "SUNDAY",
+              ].map((day) => (
+                <button
+                  key={day}
+                  type="button"
+                  onClick={() => handleDayToggle(day)}
+                  className={`px-3 py-1 rounded-full border text-sm ${
+                    selectedDays.includes(day)
+                      ? "bg-admin-principal text-white"
+                      : "border-zinc-300 text-gray-700"
+                  }`}
+                >
+                  {day.slice(0, 3)}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Código Postal *</label>
+          <div className="col-span-2">
+            <label className="text-sm font-medium">Productos y precios</label>
+
             <input
-              type="number"
-              {...register("addressBasicDTO.postalCode", {
-                required: true,
-                valueAsNumber: true,
-              })}
-              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-              placeholder="Código Postal"
+              type="text"
+              placeholder="Buscar producto..."
+              className="border px-2 py-1 w-full mt-2 mb-2"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div>
 
-          <div>
-            <label className="text-sm font-medium">Ciudad *</label>
-            <select
-              {...register("addressBasicDTO.cityId", {
-                required: true,
-                valueAsNumber: true,
-              })}
-              value={watch("addressBasicDTO.cityId") ?? ""}
-              onChange={(e) => setValue("addressBasicDTO.cityId", Number(e.target.value))}
-              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-            >
-              <option value="" disabled>
-                {selectedProvinceId
-                  ? "Selecciona una ciudad"
-                  : "Primero selecciona una provincia"}
-              </option>
-              {filteredCities.map((city) => (
-                <option key={city.id} value={city.id}>
-                  {city.name}
-                </option>
+            {/* Mostrar un solo resultado si hay coincidencia */}
+            {searchTerm &&
+              productList
+                .filter(
+                  (p) =>
+                    p.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+                    !selectedProducts.find((sp) => sp.id === p.id)
+                )
+                .map((product) => (
+                  <button
+                    key={product.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedProducts((prev) => [...prev, product]);
+                      setSearchTerm("");
+                    }}
+                    className="block w-full text-left px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 transition"
+                  >
+                    <div className="flex justify-between">
+                      <span>{product.title}</span>
+                      <span className="text-sm text-gray-500">${product.price}</span>
+                    </div>
+                  </button>
+                ))}
+
+            <div className="space-y-3 mt-4">
+              {selectedProducts.map((product) => (
+                <div key={product.id} className="flex items-center gap-4">
+                  <div className="w-40 truncate">
+                    <div>{product.title}</div>
+                    <div className="text-xs text-gray-500">
+                      Precio actual: ${product.price}
+                    </div>
+                  </div>
+                  <input
+                    type="number"
+                    placeholder="Precio promo"
+                    className="border-b-2 border-zinc-300 py-1 w-32"
+                    value={productValues[product.id] ?? ""}
+                    onChange={(e) =>
+                      setProductValues((prev) => ({
+                        ...prev,
+                        [product.id]: Number(e.target.value),
+                      }))
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProducts((prev) =>
+                        prev.filter((p) => p.id !== product.id)
+                      );
+                      setProductValues((prev) => {
+                        const newValues = { ...prev };
+                        delete newValues[product.id];
+                        return newValues;
+                      });
+                    }}
+                    className="text-red-500 hover:underline text-sm"
+                  >
+                    Quitar
+                  </button>
+                </div>
               ))}
-            </select>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Número *</label>
-            <input
-              type="number"
-              {...register("addressBasicDTO.number", {
-                required: true,
-                valueAsNumber: true,
-              })}
-              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-              placeholder="Número"
-            />
-          </div>
-
-          <div className="col-span-2 flex justify-between mt-4">
+          <div className="col-span-2 flex justify-between mt-6">
             <button
               type="button"
-              onClick={handleBack}
-              className="bg-gray-100 hover:bg-gray-200 cursor-pointer text-gray-800 font-semibold px-5 py-3 rounded-full transition flex gap-4"
+              onClick={() => setStep(1)}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-5 py-3 rounded-full transition flex gap-4"
             >
-              <ArrowLeftIcon width={24} height={24} />
+              <ArrowLeftIcon className="w-5 h-5" />
               Atrás
             </button>
             <button
               type="submit"
-              className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold px-5 py-3 rounded-full transition cursor-pointer"
+              className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold px-5 py-3 rounded-full transition"
             >
-              {employeeToEdit ? "Actualizar Empleado" : "Registrar Empleado"}
+              {promotionsToEdit ? "Actualizar promoción" : "Crear promoción"}
             </button>
           </div>
         </div>

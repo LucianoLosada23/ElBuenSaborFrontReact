@@ -20,6 +20,7 @@ export const getAllInsumosCategory = async () => {
   }
 };
 
+
 export const postInsumosCategory = async (
   category: IngredientCategoryCreate
 ) => {

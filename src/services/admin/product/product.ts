@@ -135,6 +135,8 @@ export const getProductsByCompany = async (companyId: string) => {
   try {
     const url = `http://localhost:8080/api/v1/products/public/${companyId}`;
     const { data } = await axios.get(url, { withCredentials: true });
+    console.log(data);
+    
     const result = safeParse(array(ProductSchema), data);
        if (!result.success) {
       console.error("Error de validación:", result.issues);
