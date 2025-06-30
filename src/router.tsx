@@ -48,7 +48,7 @@ export const router = createBrowserRouter([
         element: <LandingCompanies />,
       },
       {
-        path: "catalogo",
+        path: "/catalogo/:companyId",
         element: <Order />,
       },
       {

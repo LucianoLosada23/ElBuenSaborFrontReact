@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { getAllCompanies } from "../../services/landingCompanies/getCompanies";
 import { useNavigate } from "react-router-dom";
-import type { Company } from "../../types/Company/Company";
+import type { CompanyListItem } from "../../types/Company/Company";
 
 export default function ListCompanies() {
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companies, setCompanies] = useState<CompanyListItem[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function ListCompanies() {
   }, []);
 
   const handleViewCatalog = (companyId: number) => {
-    navigate(`/company/${companyId}/landing`);
+    navigate(`/catalogo/${companyId}`);
   };
 
   return (
