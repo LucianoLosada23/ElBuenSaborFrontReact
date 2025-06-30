@@ -55,18 +55,13 @@ export const postProduct = async (rawProduct: PostProduct, imageFile?: File | nu
     console.error("Error al crear producto:", error);
   }
 };
-export const putProduct = async (rawProduct: PostProduct , id : number) => {
-  console.log(rawProduct);
-  
+export const putProduct = async (rawProduct: PostProduct, id: number, imageFile?: File | null) => {
   try {
-    // Conversión a Product válido
     const parsedProduct: PostProduct = {
       company: rawProduct.company,
-      category: {
-        id: Number(rawProduct.category.id),
-      },
+      category: { id: Number(rawProduct.category.id) },
       title: rawProduct.title,
-      profit_percentage : rawProduct.profit_percentage,
+      profit_percentage: rawProduct.profit_percentage,
       description: rawProduct.description,
       estimatedTime: Number(rawProduct.estimatedTime),
       price: Number(rawProduct.price),
@@ -76,21 +71,30 @@ export const putProduct = async (rawProduct: PostProduct , id : number) => {
       })),
     };
 
-    // Validación con Valibot
     const result = safeParse(PostProductSchema, parsedProduct);
     if (!result.success) {
       console.error("Error de validación:", result.issues);
       return;
     }
 
-    // POST al backend
+    const formData = new FormData();
+    formData.append("product", JSON.stringify(result.output));
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
     const url = `http://localhost:8080/api/v1/products/${id}`;
-    const { data } = await axios.put(url, result.output ,{
-      withCredentials: true
+    const { data } = await axios.put(url, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
     });
+
     return data;
   } catch (error) {
-    console.error("Error al crear producto:", error);
+    console.error("Error al actualizar producto:", error);
   }
 };
 
@@ -101,6 +105,10 @@ export const getAllProduct = async () => {
       withCredentials: true
     });
     const result = safeParse(array(ProductSchema), data);
+       if (!result.success) {
+      console.error("Error de validación:", result.issues);
+      return;
+    }
     if (result.success) {
       return result.output;
     }
