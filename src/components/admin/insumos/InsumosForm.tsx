@@ -131,14 +131,13 @@ const InsumosForm: React.FC = () => {
       if (data.id) {
         await putIngredient(ingredientPayload, data.id);
         toast.success("Insumo actualizado con éxito");
-        setTimeout(() => window.location.reload(), 500);
       } else {
         await createIngredient(ingredientPayload);
         toast.success("Insumo creado con éxito");
-        setTimeout(() => window.location.reload(), 500);
       }
       toggle("isInsumosOpen");
       setEdit(null);
+      setTimeout(() => window.location.reload(), 500); // recarga tras cerrar modal
     } catch (error) {
       console.error(error);
       toast.error("Error guardando el insumo");
@@ -323,5 +322,6 @@ const InsumosForm: React.FC = () => {
     </form>
   );
 };
+
 
 export default InsumosForm;

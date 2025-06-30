@@ -57,10 +57,10 @@ export default function Insumos() {
   };
 
   const handleDelete = async (ingredient: Ingredient) => {
+    if (!window.confirm(`¿Está seguro de eliminar el insumo "${ingredient.name}"?`)) return;
     try {
       await deleteIngredient(ingredient.id);
-      const updatedIngredients = await getAllIngredients(); // refresca la tabla
-      setIngredients(updatedIngredients ?? []);
+      setTimeout(() => window.location.reload(), 500); // recarga tras eliminar
     } catch (error) {
       console.error("Error al eliminar el ingrediente:", error);
     }
@@ -80,3 +80,4 @@ export default function Insumos() {
     </>
   );
 }
+
