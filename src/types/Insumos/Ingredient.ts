@@ -44,7 +44,11 @@ export const ingredientSchema = object({
   currentStock: number(),
   maxStock: number(),
   categoryIngredient: IngredientCategorySchema,
-  toPrepare : optional(boolean())
+  toPrepare : optional(boolean()),
+  categoryIdProduct: optional(nullable(number())),
+  profit_percentage: optional(number()),
+  priceProduct: number(),
+  image: optional(nullable(string())),
 });
 export type Ingredient = InferOutput<typeof ingredientSchema>;
 

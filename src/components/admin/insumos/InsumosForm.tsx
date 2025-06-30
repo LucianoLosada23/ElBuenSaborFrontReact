@@ -121,6 +121,12 @@ const InsumosForm: React.FC = () => {
           setValue("categoryId", insumoEdit.categoryIngredient.id);
         }
       }
+      if (!insumoEdit.toPrepare) {
+        setValue("categoryIdProduct", insumoEdit.categoryIdProduct ?? undefined);
+        setValue("profit_percentage", insumoEdit.profit_percentage ?? 0);
+        setValue("priceProduct", insumoEdit.priceProduct ?? 0);
+        // Si querés mostrar imagen previa podés hacer un preview o setear en state para mostrarla
+      }
     } else {
       reset();
       setSelectedParentId(null);
@@ -170,6 +176,7 @@ const InsumosForm: React.FC = () => {
 
     try {
       if (data.id) {
+        console.log("vlorrr", data.price ) 
         await putIngredient(ingredientPayload, data.id);
         toast.success("Insumo actualizado con éxito");
       } else {

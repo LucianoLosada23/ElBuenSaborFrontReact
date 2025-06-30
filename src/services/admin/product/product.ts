@@ -90,7 +90,7 @@ export const putProduct = async (rawProduct: PostProduct, id: number, imageFile?
     }
 
     const url = `http://localhost:8080/api/v1/products/update/${id}`;
-    const { data } = await axios.post(url, formData, {
+    const { data } = await axios.put(url, formData, {
       withCredentials: true,
     });
 

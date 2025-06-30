@@ -107,8 +107,7 @@ export const createIngredient = async (data: IngredientCreate, imageFile?: File 
   }
 };
 
-
-export const putIngredient = async (data: IngredientCreate, id: number) => {
+export const putIngredient = async (data: IngredientCreate, id: number, imageFile?: File | null) => {
   const payload: IngredientCreate = {
     company: { id: Number(data.company.id) },
     name: data.name,
@@ -121,11 +120,11 @@ export const putIngredient = async (data: IngredientCreate, id: number) => {
     categoryIngredient: {
       id: Number(data.categoryIngredient.id),
     },
-    toPrepare: data.toPrepare, // Asegura que se pase el campo si existe
+    toPrepare: data.toPrepare,
     categoryIdProduct: data.categoryIdProduct ? Number(data.categoryIdProduct) : null,
     profit_percentage: data.profit_percentage ? Number(data.profit_percentage) : 0,
-    priceProduct: 0, // si aún no lo calculás en front
-    image: null, // se carga por FormData
+    priceProduct: Number(data.priceProduct) ?? 0,
+    image: null, // va por FormData
   };
 
   const result = safeParse(ingredientSchemaCreate, payload);
@@ -133,17 +132,29 @@ export const putIngredient = async (data: IngredientCreate, id: number) => {
     console.error("Error en los datos antes del PUT:", result.issues);
     throw new Error("Datos inválidos para actualizar ingrediente.");
   }
+
   try {
-    const url = `http://localhost:8080/api/v1/ingredients/${id}`;
-    const { data } = await axios.put(url, result.output, {
-      withCredentials: true
+    const formData = new FormData();
+    formData.append("ingredient", JSON.stringify(result.output));
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    console.log("LA DATAA", formData);
+    const url = `http://localhost:8080/api/v1/ingredients/update/${id}`;
+    const { data: responseData } = await axios.put(url, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
     });
-    return data;
+
+    return responseData;
   } catch (error) {
     console.error("Error al actualizar ingrediente:", error);
     throw error;
   }
 };
+
 
 export const deleteIngredient = async (id: Ingredient["id"]) => {
   console.log(id);
