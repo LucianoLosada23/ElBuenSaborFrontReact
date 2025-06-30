@@ -107,6 +107,7 @@ export const putIngredient = async (data: IngredientCreate, id: number) => {
     categoryIngredient: {
       id: Number(data.categoryIngredient.id),
     },
+    toPrepare: data.toPrepare // Asegura que se pase el campo si existe
   };
 
   const result = safeParse(ingredientSchemaCreate, payload);
@@ -116,7 +117,9 @@ export const putIngredient = async (data: IngredientCreate, id: number) => {
   }
   try {
     const url = `http://localhost:8080/api/v1/ingredients/${id}`;
-    const { data } = await axios.put(url, result.output);
+    const { data } = await axios.put(url, result.output, {
+      withCredentials: true
+    });
     return data;
   } catch (error) {
     console.error("Error al actualizar ingrediente:", error);
@@ -128,7 +131,7 @@ export const deleteIngredient = async (id: Ingredient["id"]) => {
   console.log(id);
   try {
     const url = `http://localhost:8080/api/v1/ingredients/${id}`;
-    const { data } = await axios.delete(url);
+    const { data } = await axios.delete(url, { withCredentials: true });
     return data;
   } catch (error) {
     console.error("Error al eliminar el ingrediente:", error);

@@ -59,6 +59,13 @@ const OrderGenericTable = <T extends object>({
     paginationDisplayMode: "pages",
   });
 
+  // Si tienes acciones de borrado en esta tabla, agrega confirmación similar a:
+  const handleDelete = (row: T) => {
+    if (window.confirm("¿Está seguro de eliminar este elemento?")) {
+      onDelete?.(row);
+    }
+  };
+
   return (
     <Stack sx={{ m: "2rem 0", bgcolor: "white", p: 6 }} spacing={2}>
       {/* Título */}

@@ -70,7 +70,11 @@ const GenericTable = <T extends object>({
             <PencilIcon width={16} height={16} />
           </button>
           <button
-            onClick={() => onDelete?.(row.original)}
+            onClick={() => {
+              if (window.confirm("¿Está seguro de eliminar este elemento?")) {
+                onDelete?.(row.original);
+              }
+            }}
             className="border border-admin-principal text-admin-principal hover:bg-gray-100 p-2 rounded-full cursor-pointer"
             aria-label="Eliminar"
           >

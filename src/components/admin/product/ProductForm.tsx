@@ -160,6 +160,9 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
     setFilteredIngredients(filtered);
   };
 
+  console.log(parentCategories);
+  
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-3 gap-8">

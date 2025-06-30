@@ -11,7 +11,11 @@ export default function InsumosModal() {
 
   return (
    <>
-      <Modal isOpen={isInsumosOpen} onClose={() => {toggle("isInsumosOpen") , setEdit(null) }} title="Añadir Insumos">
+      <Modal isOpen={isInsumosOpen} onClose={() => {
+        toggle("isInsumosOpen");
+        setEdit(null);
+        setTimeout(() => window.location.reload(), 500); // recarga tras cerrar
+      }} title="Añadir Insumos">
        <InsumosForm/>
       </Modal>
    </>

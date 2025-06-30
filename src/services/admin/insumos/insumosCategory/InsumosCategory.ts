@@ -60,3 +60,12 @@ export const putInsumosCategory = async (
     console.error("Error al actualizar la categoría de insumos:", error);
   }
 };
+export const deleteInsumosCategory = async (id: number) => {
+  try {
+    const url = `http://localhost:8080/api/v1/category-ingredients/${id}`;
+    const { data } = await axios.delete(url, { withCredentials: true });
+    return data;
+  } catch (error) {
+    console.error("Error al eliminar la categoría de insumos:", error);
+  }
+};

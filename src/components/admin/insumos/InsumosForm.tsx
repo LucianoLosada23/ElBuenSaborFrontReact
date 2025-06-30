@@ -32,6 +32,8 @@ const InsumosForm: React.FC = () => {
   const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
   const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
+  const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
   const { toggle } = useUIState();
   const { insumoEdit, setEdit } = useInsumoEdit();
@@ -45,6 +47,19 @@ const InsumosForm: React.FC = () => {
   } = useForm<InsumosFormFormData>();
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await getAllInsumosCategory();
+      if (Array.isArray(data)) {
+        setAllCategories(data);
+        setParentCategories(data.filter(cat => cat.parent === null));
+        setCategoriesLoaded(true);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (!categoriesLoaded) return;
     if (insumoEdit) {
       setValue("id", insumoEdit.id);
       setValue("name", insumoEdit.name);
@@ -56,30 +71,24 @@ const InsumosForm: React.FC = () => {
       setValue("toPrepare", insumoEdit.toPrepare ?? false);
 
       if (insumoEdit.categoryIngredient?.id) {
-        setValue("categoryId", insumoEdit.categoryIngredient.id);
+        // Si tiene parent, setear parent y child
         const cat = allCategories.find(c => c.id === insumoEdit.categoryIngredient.id);
         if (cat?.parent?.id) {
           setSelectedParentId(cat.parent.id);
+          setSelectedChildId(cat.id);
+          setValue("categoryId", cat.id);
         } else {
           setSelectedParentId(insumoEdit.categoryIngredient.id);
+          setSelectedChildId(null);
+          setValue("categoryId", insumoEdit.categoryIngredient.id);
         }
       }
     } else {
       reset();
       setSelectedParentId(null);
+      setSelectedChildId(null);
     }
-  }, [insumoEdit, setValue, reset, allCategories]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const data = await getAllInsumosCategory();
-      if (Array.isArray(data)) {
-        setAllCategories(data);
-        setParentCategories(data.filter(cat => cat.parent === null));
-      }
-    };
-    fetchCategories();
-  }, []);
+  }, [insumoEdit, setValue, reset, allCategories, categoriesLoaded]);
 
   useEffect(() => {
     if (selectedParentId !== null) {
@@ -87,14 +96,20 @@ const InsumosForm: React.FC = () => {
       setChildCategories(children);
       if (children.length === 0) {
         setValue("categoryId", selectedParentId);
+        setSelectedChildId(null);
       } else {
-        setValue("categoryId", 0);
+        // Si ya hay un child seleccionado y pertenece a estos hijos, mantenerlo
+        if (!children.some(c => c.id === selectedChildId)) {
+          setSelectedChildId(null);
+          setValue("categoryId", 0);
+        }
       }
     } else {
       setChildCategories([]);
       setValue("categoryId", 0);
+      setSelectedChildId(null);
     }
-  }, [selectedParentId, allCategories, setValue]);
+  }, [selectedParentId, allCategories, setValue, selectedChildId]);
 
   const onSubmit: SubmitHandler<InsumosFormFormData> = async (data) => {
     const ingredientPayload = {
@@ -116,19 +131,22 @@ const InsumosForm: React.FC = () => {
       if (data.id) {
         await putIngredient(ingredientPayload, data.id);
         toast.success("Insumo actualizado con éxito");
-        setTimeout(() => window.location.reload(), 500);
       } else {
         await createIngredient(ingredientPayload);
         toast.success("Insumo creado con éxito");
-        setTimeout(() => window.location.reload(), 500);
       }
       toggle("isInsumosOpen");
       setEdit(null);
+      setTimeout(() => window.location.reload(), 500); // recarga tras cerrar modal
     } catch (error) {
       console.error(error);
       toast.error("Error guardando el insumo");
     }
   };
+
+  if (!categoriesLoaded) {
+    return <div className="text-center py-8">Cargando categorías...</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -252,6 +270,12 @@ const InsumosForm: React.FC = () => {
               <select
                 {...register("categoryId", { required: "La subcategoría es obligatoria" })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                value={selectedChildId ?? ""}
+                onChange={e => {
+                  const id = parseInt(e.target.value);
+                  setSelectedChildId(isNaN(id) ? null : id);
+                  setValue("categoryId", isNaN(id) ? 0 : id, { shouldValidate: true });
+                }}
               >
                 <option value="">Seleccioná subcategoría</option>
                 {childCategories.map((cat) => (
@@ -266,6 +290,8 @@ const InsumosForm: React.FC = () => {
               <input
                 type="hidden"
                 {...register("categoryId", { required: true })}
+                value={selectedParentId ?? ""}
+                readOnly
               />
             )}
 
@@ -296,5 +322,6 @@ const InsumosForm: React.FC = () => {
     </form>
   );
 };
+
 
 export default InsumosForm;
