@@ -116,3 +116,13 @@ export const getAllProduct = async () => {
     console.error("Error al obtener los productos:", error);
   }
 };
+export const deleteProduct = async (id: number) => {
+  try {
+    const url = `http://localhost:8080/api/v1/products/${id}`;
+    const { data } = await axios.delete(url, { withCredentials: true });
+    return data;
+  } catch (error) {
+    console.error("Error eliminando el producto:", error);
+    throw error;
+  }
+};
