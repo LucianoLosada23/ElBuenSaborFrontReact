@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useUIState } from "../../../../hooks/ui/useUIState";
 import GenericTable from "../../../../components/ui/GenericTable";
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
-import { getAllProductCategory } from "../../../../services/admin/product/category/category";
+import { getAllProductCategory, deleteProductCategory } from "../../../../services/admin/product/category/category";
 import ProductCategoryModal from "../../../../components/admin/product/productCategory/ProductCategoryModal";
 import ProductSubCategoryModal from "../../../../components/admin/product/productCategory/productSubCategory/ProductSubCategoryModal";
 import { useInsumosCategory } from "../../../../hooks/insumosCategory/useInsumosCategory";
@@ -103,6 +103,33 @@ export default function ProductCategory() {
       toggle("isProductSubCategoryOpen");
     }
   };
+
+  const handleDelete = async (categoria: {
+    id: number;
+    name: string;
+    parent?: { id: number } | null;
+  }) => {
+    if (window.confirm(`¿Está seguro de eliminar la categoría ${categoria.name}?`)) {
+      try {
+        await deleteProductCategory(categoria.id);
+        // Actualiza el estado eliminando la categoría de las listas.
+        setIngredientCategory((prev) =>
+          prev.filter((cat) => cat.id !== categoria.id)
+        );
+        setParentCategories((prev) =>
+          prev.filter((cat) => cat.id !== categoria.id)
+        );
+        if (selectedParentId && categoria.parent?.id === selectedParentId) {
+          setChildCategories((prev) =>
+            prev.filter((cat) => cat.id !== categoria.id)
+          );
+        }
+      } catch (error) {
+        console.error("Error eliminando la categoría:", error);
+      }
+    }
+  };
+
   return (
     <>
       {selectedParentId !== null ? (
@@ -115,6 +142,7 @@ export default function ProductCategory() {
           addButtonText="Añadir Subcategoría"
           onAddClick={() => toggle("isProductSubCategoryOpen")}
           onEdit={handleEdit}
+          onDelete={handleDelete}
           extraHeaderButton={
             <button
               onClick={() => selectParentCategory(null)}
@@ -133,6 +161,7 @@ export default function ProductCategory() {
           addButtonText="Añadir Categoría"
           onAddClick={() => toggle("isProductCategoryOpen")}
           onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       )}
       <ProductCategoryModal />

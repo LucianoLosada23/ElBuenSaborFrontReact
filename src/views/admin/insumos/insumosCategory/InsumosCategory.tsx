@@ -153,6 +153,7 @@ export default function InsumosCategory() {
           addButtonText="Añadir Subcategoría"
           onAddClick={() => toggle("isInsumosSubCategoryOpen")}
           onEdit={handleEdit}
+          onDelete={handleDelete}
           extraHeaderButton={
             <button
               onClick={() => selectParentCategory(null)}
@@ -169,7 +170,7 @@ export default function InsumosCategory() {
           columns={parentColumns}
           data={parentCategories}
           addButtonText="Añadir Categoría"
-          onDelete={(handleDelete)}
+          onDelete={handleDelete}
           onAddClick={() => toggle("isInsumosCategoryOpen")}
           onEdit={handleEdit}
         />
