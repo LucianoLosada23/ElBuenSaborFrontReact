@@ -6,6 +6,7 @@ import {
   type InferOutput,
   array,
   optional,
+  nullable,
 } from "valibot";
 import { IngredientCategorySchema } from "./IngredientCategory";
 import { companySchema } from "../Company/Company";
@@ -22,7 +23,11 @@ export const ingredientSchemaCreate = object({
   categoryIngredient : object({
     id : number()
   }),
-  toPrepare : optional(boolean())
+  toPrepare : optional(boolean()),
+  categoryIdProduct: optional(nullable(number())),
+  profit_percentage: optional(number()),
+  priceProduct: number(),
+  image: optional(nullable(string())),
 });
 
 export type IngredientCreate = InferOutput<typeof ingredientSchemaCreate>;

@@ -59,21 +59,24 @@ export const getAllIngredientsNotToPrepare = async () => {
   }
 };
 
-
-export const createIngredient = async (data: IngredientCreate) => {
+export const createIngredient = async (data: IngredientCreate, imageFile?: File | null) => {
   const payload: IngredientCreate = {
     company: { id: Number(data.company.id) },
     name: data.name,
     price: Number(data.price),
     unitMeasure: data.unitMeasure.toUpperCase(),
-    status: Boolean(data.status),
+    status: true, // o según corresponda
     minStock: Number(data.minStock),
     currentStock: Number(data.currentStock),
     maxStock: Number(data.maxStock),
     categoryIngredient: {
       id: Number(data.categoryIngredient.id),
     },
-    toPrepare : data.toPrepare
+    toPrepare: data.toPrepare ?? true,
+    categoryIdProduct: data.categoryIdProduct ? Number(data.categoryIdProduct) : null,
+    profit_percentage: data.profit_percentage ? Number(data.profit_percentage) : 0,
+    priceProduct: data.priceProduct ?? 0, // si aún no lo calculás en front
+    image: null, // se carga por FormData
   };
 
   const result = safeParse(ingredientSchemaCreate, payload);
@@ -81,17 +84,28 @@ export const createIngredient = async (data: IngredientCreate) => {
     console.error("Error en los datos antes del POST:", result.issues);
     throw new Error("Datos inválidos para crear ingrediente.");
   }
+
   try {
-    const url = "http://localhost:8080/api/v1/ingredients";
-    const { data } = await axios.post(url, result.output , {
-      withCredentials: true
+    const formData = new FormData();
+    formData.append("ingredient", JSON.stringify(result.output));
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    const url = "http://localhost:8080/api/v1/ingredients/create";
+    const { data } = await axios.post(url, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
     });
+
     return data;
   } catch (error) {
     console.error("Error al crear ingrediente:", error);
     throw error;
   }
 };
+
 
 export const putIngredient = async (data: IngredientCreate, id: number) => {
   const payload: IngredientCreate = {
@@ -106,7 +120,11 @@ export const putIngredient = async (data: IngredientCreate, id: number) => {
     categoryIngredient: {
       id: Number(data.categoryIngredient.id),
     },
-    toPrepare: data.toPrepare // Asegura que se pase el campo si existe
+    toPrepare: data.toPrepare, // Asegura que se pase el campo si existe
+    categoryIdProduct: data.categoryIdProduct ? Number(data.categoryIdProduct) : null,
+    profit_percentage: data.profit_percentage ? Number(data.profit_percentage) : 0,
+    priceProduct: 0, // si aún no lo calculás en front
+    image: null, // se carga por FormData
   };
 
   const result = safeParse(ingredientSchemaCreate, payload);
