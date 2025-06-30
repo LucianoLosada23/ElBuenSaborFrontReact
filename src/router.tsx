@@ -18,6 +18,7 @@ import PrivateRoutes from "./components/routes/PrivateRoutes";
 import Employee from "./views/admin/employee/Employee";
 import Promotions from "./views/admin/promotions/Promotions";
 import PromotionsTypes from "./views/admin/promotions/promotionsTypes/PromotionsTypes";
+import Metrics from "./views/admin/metrics/Metrics";
 
 export const router = createBrowserRouter([
   {
@@ -100,6 +101,10 @@ export const router = createBrowserRouter([
           {
             path: "empleados",
             element: <Employee />,
+          },
+          {
+            path: "metricas",
+            element: <Metrics />,
           },
         ],
       },
