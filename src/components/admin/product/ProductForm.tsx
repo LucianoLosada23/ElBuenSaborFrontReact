@@ -41,12 +41,12 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
 
   const { toggle } = useUIState();
   const { productEdit } = useProduct();
-
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
+    watch,
   } = useForm<ProductFormData>();
 
   const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
@@ -57,7 +57,7 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
       description: data.description,
       estimatedTime: data.estimatedTime,
       price: finalPrice,
-      profit_percentage: profitMargin, // <- aquí el nombre correcto
+      profit_percentage: profitMargin,
       category: { id: data.categoryId },
       productIngredients: selectedIngredients.map((item) => ({
         ingredient: { id: item.ingredientId },
@@ -66,7 +66,7 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
     };
 
     const result = productEdit
-      ? await putProduct(product, productEdit.id)
+      ? await putProduct(product, productEdit.id , imageFile)
       : await postProduct(product, imageFile);
 
     if (result) {
@@ -94,39 +94,39 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
     if (selectedParentId !== null) {
       const children = categories.filter((cat) => cat.parent?.id === selectedParentId);
       setChildCategories(children);
-      setValue("categoryId", children.length === 0 ? selectedParentId : 0);
     } else {
       setChildCategories([]);
-      setValue("categoryId", 0);
     }
-  }, [selectedParentId, categories, setValue]);
+  }, [selectedParentId, categories]);
 
   useEffect(() => {
-    if (productEdit && categories.length > 0) {
-      setValue("title", productEdit.title);
-      setValue("description", productEdit.description);
-      setValue("estimatedTime", productEdit.estimatedTime);
+    if (!productEdit || categories.length === 0) return;
 
-      const categoryId = productEdit.category.id;
-      const parent = categories.find((cat) => cat.id === productEdit.category.parent?.id);
+    setValue("title", productEdit.title);
+    setValue("description", productEdit.description);
+    setValue("estimatedTime", productEdit.estimatedTime);
 
-      if (parent) {
-        setSelectedParentId(parent.id);
-        setChildCategories(categories.filter((cat) => cat.parent?.id === parent.id));
-        setValue("categoryId", categoryId);
-      } else {
-        setSelectedParentId(categoryId);
-        setChildCategories([]);
-        setValue("categoryId", categoryId);
-      }
+    const categoryId = productEdit.category.id;
+    const category = categories.find((cat) => cat.id === categoryId);
+    const parent = category?.parent;
 
-      const formattedIngredients = productEdit.productIngredients.map((pi: any) => ({
-        ingredientId: pi.ingredient.id,
-        quantity: pi.quantity,
-      }));
-      setSelectedIngredients(formattedIngredients);
-      setProfitMargin(productEdit.profit_percentage ?? 0);
+    if (parent) {
+      setSelectedParentId(parent.id);
+      const children = categories.filter((cat) => cat.parent?.id === parent.id);
+      setChildCategories(children);
+    } else {
+      setSelectedParentId(categoryId);
+      setChildCategories([]);
     }
+
+    setValue("categoryId", categoryId);
+
+    const formattedIngredients = productEdit.productIngredients.map((pi: any) => ({
+      ingredientId: pi.ingredient.id,
+      quantity: pi.quantity,
+    }));
+    setSelectedIngredients(formattedIngredients);
+    setProfitMargin(productEdit.profit_percentage ?? 0);
   }, [productEdit, categories, setValue]);
 
   useEffect(() => {
@@ -193,9 +193,7 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
             className="w-full border-b-2 border-zinc-300 py-1 text-gray-600 bg-gray-100"
           />
 
-          <label className="text-gray-700">
-            % Ganancia <span className="text-orange-500 text-lg">*</span>
-          </label>
+          <label className="text-gray-700">% Ganancia</label>
           <input
             type="number"
             min={0}
@@ -203,7 +201,6 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
             value={profitMargin}
             onChange={(e) => setProfitMargin(parseFloat(e.target.value))}
             className="w-full border-b-2 border-zinc-300 py-1"
-            placeholder="Porcentaje de ganancia"
           />
 
           <label className="text-gray-700">Precio final</label>
@@ -214,9 +211,7 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
             className="w-full border-b-2 border-zinc-300 py-1 text-gray-600 bg-gray-100"
           />
 
-          <label className="text-gray-700">
-            Imagen <span className="text-orange-500 text-lg">*</span>
-          </label>
+          <label className="text-gray-700">Imagen</label>
           <input
             type="file"
             accept="image/*"
@@ -228,7 +223,7 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
           />
         </div>
 
-        {/* Columna 2 - Categorías y tiempo */}
+        {/* Columna 2 */}
         <div className="flex flex-col gap-2">
           <label className="text-gray-700">
             Tiempo Estimado <span className="text-orange-500 text-lg">*</span>
@@ -246,6 +241,7 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
             onChange={(e) => {
               const id = parseInt(e.target.value);
               setSelectedParentId(isNaN(id) ? null : id);
+              setValue("categoryId", 0); // reset subcategoría
             }}
             value={selectedParentId ?? ""}
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -258,11 +254,11 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
             ))}
           </select>
 
-          {childCategories.length > 0 && (
+          {childCategories.length > 0 ? (
             <>
               <label className="text-gray-700">Subcategoría</label>
               <select
-                {...register("categoryId", { required: "La subcategoría es obligatoria" })}
+                {...register("categoryId", { required: "La subcategoría es obligatoria", valueAsNumber: true })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="">Seleccioná subcategoría</option>
@@ -272,14 +268,14 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
                   </option>
                 ))}
               </select>
-              {errors.categoryId && (
-                <p className="text-red-500">{errors.categoryId.message}</p>
-              )}
+              {errors.categoryId && <p className="text-red-500">{errors.categoryId.message}</p>}
             </>
+          ) : (
+            <input type="hidden" {...register("categoryId", { valueAsNumber: true })} />
           )}
         </div>
 
-        {/* Columna 3 - Ingredientes */}
+        {/* Columna 3 */}
         <div className="flex flex-col justify-between h-full">
           <div className="flex flex-col gap-2">
             <label className="text-gray-700">
@@ -335,7 +331,6 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
                     type="number"
                     min={0}
                     step={0.01}
-                    placeholder="Cantidad"
                     value={item.quantity}
                     onChange={(e) =>
                       handleIngredientChange(item.ingredientId, parseFloat(e.target.value))
