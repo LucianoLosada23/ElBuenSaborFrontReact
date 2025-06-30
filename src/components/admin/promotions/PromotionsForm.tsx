@@ -36,13 +36,10 @@ export default function PromotionForm({
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
   } = useForm<CreatePromotions>();
 
   const [step, setStep] = useState(1);
-  const [productValues, setProductValues] = useState<Record<string, number>>(
-    {}
-  );
+  const [productValues, setProductValues] = useState<Record<string, number>>({});
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [promotionTypes, setPromotionTypes] = useState<
     { id: number; name: string }[]
@@ -52,7 +49,7 @@ export default function PromotionForm({
   const [selectedProducts, setSelectedProducts] = useState<ProductItem[]>([]);
   const { toggle } = useUIState();
 
-  // 1. Cargar productos y tipos
+  // Cargar productos y tipos
   useEffect(() => {
     const fetchInitialData = async () => {
       const [products, types] = await Promise.all([
@@ -73,7 +70,7 @@ export default function PromotionForm({
     fetchInitialData();
   }, []);
 
-  // 2. Prellenar si se edita
+  // Prellenar formulario si se edita
   useEffect(() => {
     if (promotionsToEdit) {
       const {
@@ -85,6 +82,7 @@ export default function PromotionForm({
         timeTo,
         dayOfWeeks,
         promotionTypeDTO,
+        productPromotions,
       } = promotionsToEdit;
 
       reset({
@@ -98,7 +96,32 @@ export default function PromotionForm({
       });
 
       setSelectedDays(dayOfWeeks || []);
-      // NOTA: productos y precios asociados no están en Promotions, deberías cargarlos si querés prellenarlos.
+
+      if (productPromotions && productPromotions.length > 0) {
+        const productsForForm: ProductItem[] = productPromotions
+          .map((pp) => {
+            if (pp.product) {
+              return {
+                id: pp.product.id,
+                title: pp.product.title,
+                price: pp.product.price,
+              };
+            }
+            return null;
+          })
+          .filter(Boolean) as ProductItem[];
+
+        setSelectedProducts(productsForForm);
+
+        const promoPrices: Record<string, number> = {};
+        productPromotions.forEach((pp) => {
+          if (pp.productId && pp.value !== undefined) {
+            promoPrices[pp.product.id] = pp.value;
+          }
+        });
+
+        setProductValues(promoPrices);
+      }
     }
   }, [promotionsToEdit, reset]);
 
@@ -119,12 +142,27 @@ export default function PromotionForm({
     try {
       let success = false;
       if (promotionsToEdit) {
-        const result = await updatePromotion(promotionsToEdit.id, {
+        // Actualizar productPromotions con los valores nuevos
+        const updatedProductPromotions = promotionsToEdit.productPromotions.map(
+          (pp) => {
+            const updatedValue = productValues[pp.productId ?? ""] ?? pp.value;
+            return {
+              ...pp,
+              value: updatedValue,
+            };
+          }
+        );
+
+        const payloadToSend = {
           ...payload,
           id: promotionsToEdit.id,
           companyId: promotionsToEdit.companyId,
+          isActive: promotionsToEdit.isActive,
+          productPromotions: updatedProductPromotions,
           promotionTypeDTO: promotionsToEdit.promotionTypeDTO,
-        });
+        };
+
+        const result = await updatePromotion(promotionsToEdit.id, payloadToSend);
         success = Boolean(result);
         toast.success("Promoción actualizada");
       } else {
@@ -306,9 +344,7 @@ export default function PromotionForm({
                   >
                     <div className="flex justify-between">
                       <span>{product.title}</span>
-                      <span className="text-sm text-gray-500">
-                        ${product.price}
-                      </span>
+                      <span className="text-sm text-gray-500">${product.price}</span>
                     </div>
                   </button>
                 ))}
@@ -368,7 +404,7 @@ export default function PromotionForm({
               type="submit"
               className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold px-5 py-3 rounded-full transition"
             >
-              Crear promoción
+              {promotionsToEdit ? "Actualizar promoción" : "Crear promoción"}
             </button>
           </div>
         </div>

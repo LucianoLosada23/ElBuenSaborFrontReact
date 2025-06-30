@@ -1,4 +1,4 @@
-import { array, null_, number, object, record, string, union, type InferOutput } from "valibot";
+import { array, boolean, null_, number, object, record, string, union, value, type InferOutput } from "valibot";
 
 /* --TYPE PROMOCIONES-- */
 
@@ -43,23 +43,50 @@ export const createPromotionsSchema = object({
 export type CreatePromotions = InferOutput<typeof createPromotionsSchema>
 
 //schema para obtener una promocion
+// Producto dentro de cada productPromotion
+const productSchema = object({
+  id: number(),
+  title: string(),
+  price: number(),
+  isActive: boolean(),
+  companyId: union([number(), null_()]),
+});
+
+// Elemento del array productPromotions
+const productPromotionSchema = object({
+  id: number(),
+  isActive: boolean(),
+  productId: union([number(), null_()]),
+  promotionId: union([number(), null_()]),
+  product: productSchema,
+  value: number()
+});
+
+// promotionTypeDTO
+const promotionTypeSchema = object({
+  id: number(),
+  name: string(),
+  behavior: string(),
+  companyId: union([number(), null_()]),
+  isActive: boolean(),
+});
+
+// Schema principal
 export const promotionsSchema = object({
-    id: number(),
-    companyId: number(),
-    title: string(),
-    dateFrom: string(),
-    dateTo: string(),
-    timeFrom: string(),
-    timeTo: string(),
-    dayOfWeeks: array(string()),
-    discountDescription: string(),
-    promotionTypeDTO: object({
-        id: number(),
-        name: string(),
-        behavior: string(),
-        companyId: union([number(), null_()]),
-    })
-})
+  id: number(),
+  companyId: number(),
+  title: string(),
+  dateFrom: string(),
+  dateTo: string(),
+  timeFrom: string(),
+  timeTo: string(),
+  dayOfWeeks: array(string()),
+  discountDescription: string(),
+  isActive: boolean(),
+  productPromotions: array(productPromotionSchema),
+  promotionTypeDTO: promotionTypeSchema,
+});
+
 
 //schema para obtener todas promociones
 export const allPromotionsSchema = array(promotionsSchema)

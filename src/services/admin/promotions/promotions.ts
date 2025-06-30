@@ -11,7 +11,6 @@ export const getAllPromotions = async () => {
     const { data } = await axios.get(url, {
       withCredentials: true,
     });
-    console.log(data);
     const result = safeParse(allPromotionsSchema, data);
     if (!result.success) {
       console.error("Error de validación:", result.issues);
@@ -47,12 +46,16 @@ export const createPromotion = async (promotion : CreatePromotions) => {
 
 //PUT 
 export const updatePromotion = async (id : number , promotion: Promotions) => {
+  console.log(promotion);
+  
   try {
     const result = safeParse(promotionsSchema , promotion)
       if (!result.success) {
       console.error("Error de validación:", result.issues);
       return;
     }
+    console.log(result);
+    
      const url = `http://localhost:8080/api/v1/promotions/${promotion.id}`;
       const { data } = await axios.put(url, result.output ,{
       withCredentials : true
