@@ -126,3 +126,21 @@ export const deleteProduct = async (id: number) => {
     throw error;
   }
 };
+
+export const getProductsByCompany = async (companyId: string) => {
+  try {
+    const url = `http://localhost:8080/api/v1/products/public/${companyId}`;
+    const { data } = await axios.get(url, { withCredentials: true });
+    const result = safeParse(array(ProductSchema), data);
+       if (!result.success) {
+      console.error("Error de validación:", result.issues);
+      return;
+    }
+    if (result.success) {
+      return result.output;
+    }
+  } catch (error) {
+    console.error("Error al obtener los productos por compañía:", error);
+  }
+};
+

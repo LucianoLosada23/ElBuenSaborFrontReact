@@ -3,30 +3,33 @@ import { ProductPopup } from "./ProductPopUp";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useProduct } from "../../hooks/useProduct";
 import { useUIState } from "../../hooks/ui/useUIState";
-import { getAllProduct } from "../../services/admin/product/product";
+import { getAllProduct, getProductsByCompany } from "../../services/admin/product/product";
 import type { Product } from "../../types/product/product";
 
-export default function Product() {
-  // State
-    const [products, setProducts] = useState<Product[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [isPageChangeTriggered, setIsPageChangeTriggered] = useState(false);
 
-  // Redux hooks
-    const { setProduct, product } = useProduct();
-    const {toggle} = useUIState()
-    const itemsPerPage = 7;
+interface ProductProps {
+  companyId?: string;  // puede venir undefined
+}
+
+export default function Product({ companyId }: ProductProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isPageChangeTriggered, setIsPageChangeTriggered] = useState(false);
+
+  const { setProduct, product } = useProduct();
+  const { toggle } = useUIState();
+  const itemsPerPage = 7;
 
   useEffect(() => {
+    if (!companyId) return;  // si no hay id no hace nada
+
     const callproducts = async () => {
-      const data = await getAllProduct();
-      console.log(data)
-      if(data){
-        setProducts(data);
-      }
+      const data = await getProductsByCompany(companyId);
+      if (data) setProducts(data);
     };
+
     callproducts();
-  }, []);
+  }, [companyId]);
 
   // Scroll solo si se hizo clic en paginación
   useEffect(() => {

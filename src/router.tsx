@@ -18,6 +18,7 @@ import PrivateRoutes from "./components/routes/PrivateRoutes";
 import Employee from "./views/admin/employee/Employee";
 import Promotions from "./views/admin/promotions/Promotions";
 import PromotionsTypes from "./views/admin/promotions/promotionsTypes/PromotionsTypes";
+import LandingCompanies from "./views/landingCompanies/landingCompanies";
 
 export const router = createBrowserRouter([
   {
@@ -43,7 +44,11 @@ export const router = createBrowserRouter([
         element: <Landing />,
       },
       {
-        path: "catalogo",
+        path: "/companies",
+        element: <LandingCompanies />,
+      },
+      {
+        path: "/catalogo/:companyId",
         element: <Order />,
       },
       {
