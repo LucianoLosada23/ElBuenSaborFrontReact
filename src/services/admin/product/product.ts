@@ -59,6 +59,7 @@ export const postProduct = async (rawProduct: PostProduct, imageFile?: File | nu
     console.error("Error al crear producto:", error);
   }
 };
+
 export const putProduct = async (rawProduct: PostProduct, id: number, imageFile?: File | null) => {
   try {
     const parsedProduct: PostProduct = {
@@ -88,11 +89,8 @@ export const putProduct = async (rawProduct: PostProduct, id: number, imageFile?
       formData.append("image", imageFile);
     }
 
-    const url = `http://localhost:8080/api/v1/products/${id}`;
-    const { data } = await axios.put(url, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+    const url = `http://localhost:8080/api/v1/products/update/${id}`;
+    const { data } = await axios.post(url, formData, {
       withCredentials: true,
     });
 
