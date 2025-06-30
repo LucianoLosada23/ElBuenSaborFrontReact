@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import {
   createIngredient,
@@ -11,6 +11,7 @@ import { useUIState } from "../../../hooks/ui/useUIState";
 import { useInsumoEdit } from "../../../hooks/insumos/useInsumoEdit";
 import { toast } from "react-toastify";
 import { PlusIcon, PencilSquareIcon } from "@heroicons/react/24/solid";
+import { getAllProductCategory } from "../../../services/admin/product/category/category";
 
 interface InsumosFormFormData {
   id?: number;
@@ -22,18 +23,32 @@ interface InsumosFormFormData {
   currentStock: number;
   maxStock: number;
   categoryId: number;
-  toPrepare?: boolean; // nuevo campo
+  toPrepare?: boolean;
+  categoryIdProduct?: number;
+  profit_percentage?: number;
+  priceProduct?: number; // Asegúrate de incluir priceProduct en la interfaz
+  image?: FileList;
 }
 
 const unidades = ["KILOGRAM", "UNIT", "GRAM", "LITER", "MILLILITER"];
 
+const unidadLabels: Record<string, string> = {
+  KILOGRAM: "Kilogramo",
+  UNIT: "Unidad",
+  GRAM: "Gramo",
+  LITER: "Litro",
+  MILLILITER: "Mililitro",
+};
+
 const InsumosForm: React.FC = () => {
   const [allCategories, setAllCategories] = useState<IngredientCategory[]>([]);
+  const [categories, setCategories] = useState<IngredientCategory[]>([]);
   const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
   const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
   const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { toggle } = useUIState();
   const { insumoEdit, setEdit } = useInsumoEdit();
@@ -43,20 +58,44 @@ const InsumosForm: React.FC = () => {
     handleSubmit,
     setValue,
     reset,
+    control,
+    watch,
     formState: { errors },
-  } = useForm<InsumosFormFormData>();
+  } = useForm<InsumosFormFormData>({
+    defaultValues: {
+      toPrepare: true,
+      profit_percentage: 0,
+      priceProduct: 0,
+    },
+  });
+
+  const toPrepare = useWatch({ control, name: "toPrepare" });
+  const price = useWatch({ control, name: "price" });
+  const profit_percentage = useWatch({ control, name: "profit_percentage" });
 
   useEffect(() => {
     const fetchCategories = async () => {
       const data = await getAllInsumosCategory();
+      const cats = await getAllProductCategory();
+
       if (Array.isArray(data)) {
         setAllCategories(data);
         setParentCategories(data.filter(cat => cat.parent === null));
         setCategoriesLoaded(true);
       }
+      if (cats) {
+        setCategories(cats);
+      }
     };
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const subtotal = Number(price) || 0;
+    const profit = Number(profit_percentage) || 0;
+    const final = subtotal + subtotal * (profit / 100);
+    setValue("priceProduct", Number(final.toFixed(2)));
+  }, [price, profit_percentage, setValue]);
 
   useEffect(() => {
     if (!categoriesLoaded) return;
@@ -71,7 +110,6 @@ const InsumosForm: React.FC = () => {
       setValue("toPrepare", insumoEdit.toPrepare ?? false);
 
       if (insumoEdit.categoryIngredient?.id) {
-        // Si tiene parent, setear parent y child
         const cat = allCategories.find(c => c.id === insumoEdit.categoryIngredient.id);
         if (cat?.parent?.id) {
           setSelectedParentId(cat.parent.id);
@@ -98,7 +136,6 @@ const InsumosForm: React.FC = () => {
         setValue("categoryId", selectedParentId);
         setSelectedChildId(null);
       } else {
-        // Si ya hay un child seleccionado y pertenece a estos hijos, mantenerlo
         if (!children.some(c => c.id === selectedChildId)) {
           setSelectedChildId(null);
           setValue("categoryId", 0);
@@ -113,7 +150,7 @@ const InsumosForm: React.FC = () => {
 
   const onSubmit: SubmitHandler<InsumosFormFormData> = async (data) => {
     const ingredientPayload = {
-      company: { id: 1 }, // reemplazar si tenés otro ID real
+      company: { id: 1 },
       name: data.name,
       price: data.price,
       unitMeasure: data.unitMeasure.toUpperCase(),
@@ -124,7 +161,11 @@ const InsumosForm: React.FC = () => {
       categoryIngredient: {
         id: data.categoryId,
       },
-      toPrepare: data.toPrepare ?? false, // nuevo campo
+      toPrepare: data.toPrepare ?? true,
+      categoryIdProduct: data.categoryIdProduct ? Number(data.categoryIdProduct) : null,
+      profit_percentage: data.profit_percentage ?? 0,
+      priceProduct: data.priceProduct ?? 0,
+      image: null,
     };
 
     try {
@@ -132,9 +173,10 @@ const InsumosForm: React.FC = () => {
         await putIngredient(ingredientPayload, data.id);
         toast.success("Insumo actualizado con éxito");
       } else {
-        await createIngredient(ingredientPayload);
+        await createIngredient(ingredientPayload, imageFile);
         toast.success("Insumo creado con éxito");
       }
+      setTimeout(() => window.location.reload(), 500);
       toggle("isInsumosOpen");
       setEdit(null);
       setTimeout(() => window.location.reload(), 500); // recarga tras cerrar modal
@@ -193,7 +235,7 @@ const InsumosForm: React.FC = () => {
               <option value="">Unidad de medida</option>
               {unidades.map((u) => (
                 <option key={u} value={u}>
-                  {u}
+                  {unidadLabels[u]}
                 </option>
               ))}
             </select>
@@ -209,6 +251,72 @@ const InsumosForm: React.FC = () => {
             />
             <label className="text-gray-700 text-sm">¿Es un insumo para preparar?</label>
           </div>
+
+          {/* Si no es para preparar, mostrar campos para crear producto */}
+          {!toPrepare && (
+            <div className="col-span-2 border-t pt-4 space-y-4">
+              <h3 className="font-semibold text-gray-700">Datos de Producto</h3>
+
+              {/* Categoría de producto */}
+              <div>
+                <label className="text-gray-700 text-sm">Categoría de producto</label>
+                <select
+                  {...register("categoryIdProduct", {
+                    validate: (value) =>
+                      !toPrepare || (!!value && value !== 0) || "Seleccioná categoría de producto",
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Seleccioná categoría</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.categoryIdProduct && (
+                  <p className="text-red-500">{errors.categoryIdProduct.message}</p>
+                )}
+              </div>
+
+              {/* Porcentaje de ganancia */}
+              <div>
+                <label className="text-gray-700 text-sm">% Ganancia</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  {...register("profit_percentage", { min: 0 })}
+                  placeholder="% Ganancia"
+                  className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+                />
+              </div>
+
+              {/* Precio de venta calculado */}
+              <div>
+                <label className="text-gray-700 text-sm">Precio final</label>
+                <input
+                  type="number"
+                  readOnly
+                  {...register("priceProduct")}
+                  className="w-full border-b-2 border-zinc-300 py-1 text-gray-600 bg-gray-100"
+                />
+              </div>
+
+              {/* Imagen */}
+              <div>
+                <label className="text-gray-700">Imagen</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setImageFile(file);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Columna Derecha */}
@@ -299,7 +407,6 @@ const InsumosForm: React.FC = () => {
           </div>
         </div>
       </div>
-
       {/* Botón */}
       <div className="flex justify-end mt-4">
         <button

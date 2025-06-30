@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import type { ListaDeOrdenes } from "../../types/user/UserOrder";
 import { getAllUserOrder } from "../../services/user/UserOrder";
+import type { OrderList } from "../../types/user/UserOrder";
 
 export default function UserOrders() {
-  const [userOrder, setUserOrder] = useState<ListaDeOrdenes>([]);
+  const [userOrder, setUserOrder] = useState<OrderList>([]);
   useEffect(() => {
     const fetchOrdenes = async () => {
       const data = await getAllUserOrder();
+      console.log("Ordenes de usuario:", data);
+      
       if (data) {
         setUserOrder(data);
       }
@@ -26,13 +28,13 @@ export default function UserOrders() {
           >
             <h3 className="text-xl font-semibold mb-2">Orden #{order.id}</h3>
             <p className="text-sm text-gray-500 mb-2">
-              Fecha: {new Date(order.fecha).toLocaleDateString()}
+              Fecha: {new Date(order.initAt).toLocaleDateString()}
             </p>
-            <p className="text-sm text-gray-500 mb-2">Estado: {order.estado}</p>
+            <p className="text-sm text-gray-500 mb-2">Estado: {order.status}</p>
             <ul className="list-disc pl-5">
-              {order.detalle.map((item, index) => (
+              {order.orderProducts.map((item, index) => (
                 <li key={index} className="text-sm text-gray-700">
-                  {item}
+                  {item.title} - Cantidad: {item.quantity} - Precio: ${item.price}
                 </li>
               ))}
             </ul>
