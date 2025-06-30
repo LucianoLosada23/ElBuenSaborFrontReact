@@ -1,9 +1,15 @@
-import { number, object, string, type InferOutput } from "valibot";
+import { number, object, string, optional, type InferOutput } from "valibot";
 
+// Esquema para el listado de compañías que usás en el front
 export const companySchema = object({
   id: number(),
+  name: string(),
+  image: optional(string()),
 });
 
+export type Company = InferOutput<typeof companySchema>;
+
+// Ya tenés el createCompanySchema para creación con más campos
 export const createCompanySchema = object({
   name: string(),
   email: string(),
@@ -21,4 +27,4 @@ export const createCompanySchema = object({
   }),
 });
 
-export type  CreateCompany = InferOutput<typeof createCompanySchema>
+export type CreateCompany = InferOutput<typeof createCompanySchema>;
