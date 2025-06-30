@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 
 import type {
   CreatetypePromotion,
@@ -108,15 +108,6 @@ export default function PromotionTypeForm({
 
       {/* Botones */}
       <div className="flex justify-end gap-4">
-        {typePromotionToEdit && (
-          <button
-            type="button"
-            onClick={() => setTypePromotionToEdit(null)}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-5 py-3 rounded-full transition"
-          >
-            Cancelar
-          </button>
-        )}
         <button
           type="submit"
           className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold cursor-pointer px-5 py-3 rounded-full transition"

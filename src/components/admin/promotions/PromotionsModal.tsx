@@ -1,27 +1,27 @@
 import { useUIState } from "../../../hooks/ui/useUIState";
-import type { Employee } from "../../../types/auth/register/RegisterEmployee";
+import type { Promotions } from "../../../types/promotions/Promotions";
 import Modal from "../../ui/Modal";
 import PromotionsForm from "./PromotionsForm";
 
 type EmployeeModalProps = {
   onRefresh: () => void;
-  employeeToEdit?: Employee | null;
-  setEmployeeToEdit: React.Dispatch<React.SetStateAction<Employee | null>>;
+  promotionsToEdit?: Promotions | null;
+  setPromotionsToEdit: React.Dispatch<React.SetStateAction<Promotions| null>>;
 }
 
-export default function PromotionsModal({onRefresh , employeeToEdit , setEmployeeToEdit}: EmployeeModalProps) {
+export default function PromotionsModal({onRefresh , promotionsToEdit , setPromotionsToEdit}: EmployeeModalProps) {
   const { isPromotionsOpen , toggle } = useUIState();
   return (
     <>
       <Modal
         isOpen={isPromotionsOpen}
-        onClose={() => {toggle("isPromotionsOpen") , setEmployeeToEdit(null)}}
-        title={employeeToEdit ? "Editar un Empleado" : "Añadir una Promocion"}
+        onClose={() => {toggle("isPromotionsOpen") , setPromotionsToEdit(null)}}
+        title={promotionsToEdit ? "Editar una Promoción" : "Añadir una Promoción"}
       >
         <PromotionsForm
           onRefresh={onRefresh}
-          employeeToEdit={employeeToEdit}
-          setEmployeeToEdit={setEmployeeToEdit}
+          promotionsToEdit={promotionsToEdit}
+          setPromotionsToEdit={setPromotionsToEdit}
         />
       </Modal>
     </>

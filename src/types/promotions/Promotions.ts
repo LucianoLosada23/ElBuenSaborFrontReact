@@ -1,4 +1,4 @@
-import { array, number, object, record, string, type InferOutput } from "valibot";
+import { array, null_, number, object, record, string, union, type InferOutput } from "valibot";
 
 /* --TYPE PROMOCIONES-- */
 
@@ -36,7 +36,7 @@ export const createPromotionsSchema = object({
     discountDescription: string(),
     promotionTypeId: number(),
     dayOfWeeks: array(string()),
-    productIds: array(string()),
+    productIds: array(number()),
     productValues: record(string() , number())
 })
 
@@ -57,7 +57,7 @@ export const promotionsSchema = object({
         id: number(),
         name: string(),
         behavior: string(),
-        companyId: number(),
+        companyId: union([number(), null_()]),
     })
 })
 
