@@ -18,8 +18,8 @@ import PrivateRoutes from "./components/routes/PrivateRoutes";
 import Employee from "./views/admin/employee/Employee";
 import Promotions from "./views/admin/promotions/Promotions";
 import PromotionsTypes from "./views/admin/promotions/promotionsTypes/PromotionsTypes";
-import Metrics from "./views/admin/metrics/Metrics";
 import LandingCompanies from "./views/landingCompanies/landingCompanies";
+import Metrics from "./views/admin/metrics/Metrics";
 
 export const router = createBrowserRouter([
   {
@@ -72,13 +72,18 @@ export const router = createBrowserRouter([
     element: <PrivateRoutes allowedRoles={["COMPANY"]} />,
     children: [
       {
-        path: "", 
+        path: "",
         element: <AdminLayaout />,
         children: [
+          {
+            path: "",
+            element: <Metrics />,
+          },
           {
             path: "promociones",
             element: <Promotions />,
           },
+
           {
             path: "promociones-tipos",
             element: <PromotionsTypes />,
@@ -106,10 +111,6 @@ export const router = createBrowserRouter([
           {
             path: "empleados",
             element: <Employee />,
-          },
-          {
-            path: "metricas",
-            element: <Metrics />,
           },
         ],
       },

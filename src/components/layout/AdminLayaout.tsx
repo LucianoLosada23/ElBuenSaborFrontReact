@@ -109,12 +109,6 @@ export default function AdminLayout() {
       icon: IdentificationIconOutline,
       iconSolid: IdentificationIconSolid,
     },
-    {
-      label: "Metricas",
-      path: "/admin/metricas",
-      icon: IdentificationIconOutline,
-      iconSolid: IdentificationIconSolid,
-    },
   ];
 
   const isActive = (path: string, label?: string) => {
