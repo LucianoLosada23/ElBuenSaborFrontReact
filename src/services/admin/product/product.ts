@@ -38,6 +38,10 @@ export const postProduct = async (rawProduct: PostProduct, imageFile?: File | nu
       formData.append("image", imageFile);
     }
 
+    console.log("PRODUCTOOO");
+    console.log(formData);
+    
+
     // POST al backend con multipart/form-data
     const { data } = await axios.post(
       "http://localhost:8080/api/v1/products/create",

@@ -19,6 +19,7 @@ import Employee from "./views/admin/employee/Employee";
 import Promotions from "./views/admin/promotions/Promotions";
 import PromotionsTypes from "./views/admin/promotions/promotionsTypes/PromotionsTypes";
 import LandingCompanies from "./views/landingCompanies/landingCompanies";
+import Metrics from "./views/admin/metrics/Metrics";
 
 export const router = createBrowserRouter([
   {
@@ -71,13 +72,18 @@ export const router = createBrowserRouter([
     element: <PrivateRoutes allowedRoles={["COMPANY"]} />,
     children: [
       {
-        path: "", 
+        path: "",
         element: <AdminLayaout />,
         children: [
+          {
+            path: "",
+            element: <Metrics />,
+          },
           {
             path: "promociones",
             element: <Promotions />,
           },
+
           {
             path: "promociones-tipos",
             element: <PromotionsTypes />,
