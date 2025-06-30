@@ -18,6 +18,21 @@ export const getAllProductCategory = async () => {
   }
 };
 
+export const getAllProductCategorybyId = async (id : number) => {
+  try {
+    const url = `http://localhost:8080/api/v1/category/public/${id}`;
+    const { data } = await axios.get(url , {
+      withCredentials: true
+    });
+    const result = safeParse(ingredientCategoryListSchema, data);
+    if (result.success) {
+      return result.output;
+    }
+  } catch (error) {
+    console.error("Error al obtener las categorías de insumos:", error);
+  }
+};
+
 export const postProductCategory = async (category: IngredientCategoryCreate) => {
   try {
     const result = safeParse(IngredientCategoryCreate, category);

@@ -52,7 +52,8 @@ const BaseProductSchema = {
   estimatedTime: number(),
   price: number(),
   profit_percentage : number(),
-  image: optional(union([string(), null_()]))
+  image: optional(union([string(), null_()])),
+  promotionalPrice : optional(union([number() , null_()]))
 };
 
 // Producto completo con IDs

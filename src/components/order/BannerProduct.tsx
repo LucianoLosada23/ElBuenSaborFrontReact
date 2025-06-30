@@ -12,11 +12,11 @@ export default function BannerProduct() {
             Platos irresistibles, postres deliciosos, desayunos nutritivos y
             bebidas refrescantes — todo al mejor precio.
           </p>
-          <div className="mt-8">
+          {/*<div className="mt-8">
             <button className="px-8 py-3 bg-green-700 cursor-pointer text-white rounded-full shadow-md hover:bg-green-800 transition-colors duration-200 font-semibold text-lg focus:outline-none focus:ring-4 focus:ring-green-300">
               Ver productos
             </button>
-          </div>
+          </div>*/}
         </div>
 
         {/* Imagen de producto */}
