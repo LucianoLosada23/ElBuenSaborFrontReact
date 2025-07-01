@@ -9,13 +9,11 @@ import { useProduct } from "../../../hooks/useProduct";
 import type { Product } from "../../../types/product/product";
 
 const columns: MRT_ColumnDef<Product>[] = [
-  { accessorKey: "id", header: "ID" },
   { accessorKey: "title", header: "Nombre" },
   { accessorKey: "description", header: "Descripción" },
   { accessorKey: "price", header: "Precio" },
   { accessorKey: "estimatedTime", header: "Tiempo estimado" },
   { accessorKey: "category.name", header: "Categoría" },
-  { accessorKey: "company.id", header: "ID Empresa" },
 ];
 export default function Product() {
 

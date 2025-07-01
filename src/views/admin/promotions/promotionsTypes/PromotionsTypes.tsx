@@ -5,11 +5,12 @@ import GenericTable from "../../../../components/ui/GenericTable";
 import PromotionsTypesModal from "../../../../components/admin/promotions/promotionsTypes/PromotionsTypesModal";
 import type { TypePromotion } from "../../../../types/promotions/Promotions";
 import { deletePromotionType, getAllPromotionsTypes } from "../../../../services/admin/promotions/promotionsTypes";
+import { translatePromotionBehavior } from "../../../../utils/statusTranslations";
 
 
 const columns: MRT_ColumnDef<TypePromotion>[] = [
   { accessorKey: "name", header: "Nombre" },
-  { accessorKey: "behavior", header: "Tipo Promoción" },
+  { accessorKey: "behavior", header: "Tipo Promoción", Cell: ({ cell }) => translatePromotionBehavior(cell.getValue<string>()) },
 ];
 export default function PromotionsTypes() {
   // State
