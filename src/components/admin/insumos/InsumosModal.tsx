@@ -3,7 +3,11 @@ import { useUIState } from "../../../hooks/ui/useUIState";
 import Modal from "../../ui/Modal";
 import InsumosForm from "./InsumosForm";
 
-export default function InsumosModal() {
+type InsumosModalProps = {
+  onRefresh: () => void
+}
+
+export default function InsumosModal({onRefresh}:InsumosModalProps) {
 
   // Redux hooks
   const {isInsumosOpen , toggle} = useUIState()
@@ -11,12 +15,10 @@ export default function InsumosModal() {
 
   return (
    <>
-      <Modal isOpen={isInsumosOpen} onClose={() => {
-        toggle("isInsumosOpen");
-        setEdit(null);
-        setTimeout(() => window.location.reload(), 500); // recarga tras cerrar
-      }} title="Añadir Insumos">
-       <InsumosForm/>
+      <Modal isOpen={isInsumosOpen} onClose={() => {toggle("isInsumosOpen"), setEdit(null), onRefresh()}} title="Añadir Insumos">
+       <InsumosForm
+        onRefresh={onRefresh}
+       />
       </Modal>
    </>
   )

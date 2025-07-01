@@ -1,17 +1,26 @@
 import { useUIState } from "../../../../hooks/ui/useUIState";
+import { useCategorias } from "../../../../hooks/useCategorias";
 import Modal from "../../../ui/Modal";
 import InsumosCategoryForm from "./InsumosCategoryForm";
 
-export default function InsumosCategoryModal() {
+type InsumosCategoryModalProps = {
+  onRefresh: () => void;
+}
+
+export default function InsumosCategoryModal({onRefresh} : InsumosCategoryModalProps) {
   const { isInsumosCategoryOpen, toggle } = useUIState();
+    const {limpiarCategoria} = useCategorias();
+  
   return (
     <>
       <Modal
         isOpen={isInsumosCategoryOpen}
-        onClose={() => toggle("isInsumosCategoryOpen")}
+        onClose={() => {toggle("isInsumosCategoryOpen") , limpiarCategoria()}}
         title="Añadir Categorías Insumos"
       >
-        <InsumosCategoryForm/>
+        <InsumosCategoryForm
+          onRefresh={onRefresh}
+        />
       </Modal>
     </>
   );

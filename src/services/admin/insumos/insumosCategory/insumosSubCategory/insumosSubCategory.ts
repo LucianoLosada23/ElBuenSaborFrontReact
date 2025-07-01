@@ -16,8 +16,8 @@ export const postInsumosSubCategory = async (subCategoryData: IngredientSubCateg
     const { data } = await axios.post(url, subCategoryData ,{
       withCredentials: true
     });
-    if (data.success) {
-      return data.output;
+    if(data) {
+      return data;
     } else {
       console.error("Error en la validación de la subcategoría de insumos:");
     }

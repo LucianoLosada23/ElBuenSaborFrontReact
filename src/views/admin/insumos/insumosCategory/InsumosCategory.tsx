@@ -15,15 +15,16 @@ import type {
 } from "../../../../types/Insumos/IngredientCategory";
 
 export default function InsumosCategory() {
-  const [ingredientCategory, setIngredientCategory] =
-    useState<IngredientCategoryList>([]);
-  const [parentCategories, setParentCategories] = useState<
-    IngredientCategory[]
-  >([]);
-  const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
-    []
-  );
+  //state
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [ingredientCategory, setIngredientCategory] = useState<IngredientCategoryList>([]);
+  const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
+  const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
 
+  //funciones
+  const refreshEmployees = () => setRefreshTrigger((prev) => prev + 1);
+
+  //hooks
   const { toggle } = useUIState();
   const { selectedParentId, selectParentCategory } = useInsumosCategory();
 
@@ -47,7 +48,7 @@ export default function InsumosCategory() {
     };
 
     fetchIngredients();
-  }, []);
+  }, [refreshTrigger]);
 
   useEffect(() => {
     if (selectedParentId !== null) {
@@ -176,8 +177,12 @@ export default function InsumosCategory() {
         />
       )}
 
-      <InsumosCategoryModal />
-      <InsumosSubCategoryModal />
+      <InsumosCategoryModal 
+        onRefresh={refreshEmployees}
+      />
+      <InsumosSubCategoryModal 
+        onRefresh={refreshEmployees}
+      />
     </>
   );
 }

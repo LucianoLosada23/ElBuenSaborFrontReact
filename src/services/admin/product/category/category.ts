@@ -9,6 +9,8 @@ export const getAllProductCategory = async () => {
     const { data } = await axios.get(url , {
       withCredentials: true
     });
+    console.log(data);
+    
     const result = safeParse(ingredientCategoryListSchema, data);
     if (result.success) {
       return result.output;
@@ -52,7 +54,7 @@ export const postProductCategory = async (category: IngredientCategoryCreate) =>
 
 export const putProductCategory = async (id: number,category: IngredientCategoryCreate) => {
   const url = `http://localhost:8080/api/v1/category/${id}`;
-  const { data } = await axios.put(url, category);
+  const { data } = await axios.put(url, category, {withCredentials : true});
   const result = safeParse(IngredientCategoryCreate, data);
   if (result.success) {
     return result.output;

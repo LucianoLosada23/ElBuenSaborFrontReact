@@ -31,8 +31,13 @@ const columns: MRT_ColumnDef<Ingredient>[] = [
 ];
 
 export default function Insumos() {
+
   // State
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+
+  //funciones 
+  const refreshEmployees = () => setRefreshTrigger((prev) => prev + 1);
 
   //Redux hooks
   const {setEdit} = useInsumoEdit()
@@ -42,6 +47,8 @@ export default function Insumos() {
     const fetchIngredients = async () => {
       try {
         const data = await getAllIngredients();
+        console.log(data);
+        
         setIngredients(data ?? []);
       } catch (error) {
         console.error("Error fetching ingredients:", error);
@@ -49,7 +56,7 @@ export default function Insumos() {
     };
 
     fetchIngredients();
-  }, []);
+  }, [refreshTrigger]);
 
   const handleEdit = (insumo : Ingredient) => {
     toggle("isInsumosOpen");
@@ -60,7 +67,6 @@ export default function Insumos() {
     if (!window.confirm(`¿Está seguro de eliminar el insumo "${ingredient.name}"?`)) return;
     try {
       await deleteIngredient(ingredient.id);
-      setTimeout(() => window.location.reload(), 500); // recarga tras eliminar
     } catch (error) {
       console.error("Error al eliminar el ingrediente:", error);
     }
@@ -76,7 +82,9 @@ export default function Insumos() {
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
-      <InsumosModal />
+      <InsumosModal 
+        onRefresh={refreshEmployees}
+      />
     </>
   );
 }

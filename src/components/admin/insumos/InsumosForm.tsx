@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import {
@@ -26,9 +26,13 @@ interface InsumosFormFormData {
   toPrepare?: boolean;
   categoryIdProduct?: number;
   profit_percentage?: number;
-  priceProduct?: number; // Asegúrate de incluir priceProduct en la interfaz
+  priceProduct?: number;
   image?: FileList;
 }
+
+type InsumosFormProps = {
+  onRefresh: () => void;
+};
 
 const unidades = ["KILOGRAM", "UNIT", "GRAM", "LITER", "MILLILITER"];
 
@@ -40,11 +44,15 @@ const unidadLabels: Record<string, string> = {
   MILLILITER: "Mililitro",
 };
 
-const InsumosForm: React.FC = () => {
+const InsumosForm = ({ onRefresh }: InsumosFormProps) => {
   const [allCategories, setAllCategories] = useState<IngredientCategory[]>([]);
   const [categories, setCategories] = useState<IngredientCategory[]>([]);
-  const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
-  const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
+  const [parentCategories, setParentCategories] = useState<
+    IngredientCategory[]
+  >([]);
+  const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
+    []
+  );
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
   const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
@@ -59,7 +67,6 @@ const InsumosForm: React.FC = () => {
     setValue,
     reset,
     control,
-    watch,
     formState: { errors },
   } = useForm<InsumosFormFormData>({
     defaultValues: {
@@ -80,7 +87,7 @@ const InsumosForm: React.FC = () => {
 
       if (Array.isArray(data)) {
         setAllCategories(data);
-        setParentCategories(data.filter(cat => cat.parent === null));
+        setParentCategories(data.filter((cat) => cat.parent === null));
         setCategoriesLoaded(true);
       }
       if (cats) {
@@ -99,6 +106,7 @@ const InsumosForm: React.FC = () => {
 
   useEffect(() => {
     if (!categoriesLoaded) return;
+
     if (insumoEdit) {
       setValue("id", insumoEdit.id);
       setValue("name", insumoEdit.name);
@@ -109,23 +117,25 @@ const InsumosForm: React.FC = () => {
       setValue("maxStock", insumoEdit.maxStock);
       setValue("toPrepare", insumoEdit.toPrepare ?? false);
 
-      if (insumoEdit.categoryIngredient?.id) {
-        const cat = allCategories.find(c => c.id === insumoEdit.categoryIngredient.id);
-        if (cat?.parent?.id) {
-          setSelectedParentId(cat.parent.id);
-          setSelectedChildId(cat.id);
-          setValue("categoryId", cat.id);
-        } else {
-          setSelectedParentId(insumoEdit.categoryIngredient.id);
-          setSelectedChildId(null);
-          setValue("categoryId", insumoEdit.categoryIngredient.id);
-        }
+      const cat = allCategories.find(
+        (c) => c.id === insumoEdit.categoryIngredient?.id
+      );
+
+      if (cat?.parent?.id) {
+        setSelectedParentId(cat.parent.id); // El hijo lo seteamos en otro useEffect
+      } else if (cat) {
+        setSelectedParentId(cat.id);
+        setSelectedChildId(null);
+        setValue("categoryId", cat.id);
       }
+
       if (!insumoEdit.toPrepare) {
-        setValue("categoryIdProduct", insumoEdit.categoryIdProduct ?? undefined);
+        setValue(
+          "categoryIdProduct",
+          insumoEdit.categoryIdProduct ?? undefined
+        );
         setValue("profit_percentage", insumoEdit.profit_percentage ?? 0);
         setValue("priceProduct", insumoEdit.priceProduct ?? 0);
-        // Si querés mostrar imagen previa podés hacer un preview o setear en state para mostrarla
       }
     } else {
       reset();
@@ -134,25 +144,35 @@ const InsumosForm: React.FC = () => {
     }
   }, [insumoEdit, setValue, reset, allCategories, categoriesLoaded]);
 
+  // 2. Cuando cambia el parent, filtramos hijos y seteamos el hijo si corresponde
   useEffect(() => {
-    if (selectedParentId !== null) {
-      const children = allCategories.filter(cat => cat.parent?.id === selectedParentId);
-      setChildCategories(children);
-      if (children.length === 0) {
-        setValue("categoryId", selectedParentId);
-        setSelectedChildId(null);
-      } else {
-        if (!children.some(c => c.id === selectedChildId)) {
-          setSelectedChildId(null);
-          setValue("categoryId", 0);
-        }
-      }
-    } else {
-      setChildCategories([]);
-      setValue("categoryId", 0);
-      setSelectedChildId(null);
+    if (!selectedParentId || !categoriesLoaded) return;
+
+    const children = allCategories.filter(
+      (cat) => cat.parent?.id === selectedParentId
+    );
+    setChildCategories(children);
+
+    // Caso 1: estás editando y ya tenemos el hijo y su parent
+    if (insumoEdit?.categoryIngredient?.parent?.id === selectedParentId) {
+      const subCatId = insumoEdit.categoryIngredient.id;
+      setSelectedChildId(subCatId);
+      setValue("categoryId", subCatId);
+      return;
     }
-  }, [selectedParentId, allCategories, setValue, selectedChildId]);
+
+    // Caso 2: no hay hijos → se usa el padre directamente
+    if (children.length === 0) {
+      setValue("categoryId", selectedParentId);
+      setSelectedChildId(null);
+    } else {
+      // Caso 3: hay hijos pero el hijo anterior no pertenece a este padre
+      if (!children.some((c) => c.id === selectedChildId)) {
+        setSelectedChildId(null);
+        setValue("categoryId", 0);
+      }
+    }
+  }, [selectedParentId, categoriesLoaded, allCategories]);
 
   const onSubmit: SubmitHandler<InsumosFormFormData> = async (data) => {
     const ingredientPayload = {
@@ -168,7 +188,9 @@ const InsumosForm: React.FC = () => {
         id: data.categoryId,
       },
       toPrepare: data.toPrepare ?? true,
-      categoryIdProduct: data.categoryIdProduct ? Number(data.categoryIdProduct) : null,
+      categoryIdProduct: data.categoryIdProduct
+        ? Number(data.categoryIdProduct)
+        : null,
       profit_percentage: data.profit_percentage ?? 0,
       priceProduct: data.priceProduct ?? 0,
       image: null,
@@ -176,29 +198,27 @@ const InsumosForm: React.FC = () => {
 
     try {
       if (data.id) {
-        console.log("vlorrr", data.price ) 
-        await putIngredient(ingredientPayload, data.id);
+        const result = await putIngredient(ingredientPayload, data.id, imageFile ?? undefined);
+        if (!result) throw new Error("Error al actualizar un insumo");
+        onRefresh();
+        toggle("isInsumosOpen");
         toast.success("Insumo actualizado con éxito");
+        setEdit(null);
       } else {
-        await createIngredient(ingredientPayload, imageFile);
+        const result = await createIngredient(ingredientPayload, imageFile);
+        if (!result) throw new Error("Error al crear un insumo");
+        onRefresh();
+        toggle("isInsumosOpen");
         toast.success("Insumo creado con éxito");
       }
-      setTimeout(() => window.location.reload(), 500);
-      toggle("isInsumosOpen");
-      setEdit(null);
-      setTimeout(() => window.location.reload(), 500); // recarga tras cerrar modal
     } catch (error) {
       console.error(error);
       toast.error("Error guardando el insumo");
     }
   };
 
-  if (!categoriesLoaded) {
-    return <div className="text-center py-8">Cargando categorías...</div>;
-  }
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2">
       <div className="grid grid-cols-2 gap-8">
         {/* Columna Izquierda */}
         <div className="flex flex-col gap-2">
@@ -212,7 +232,9 @@ const InsumosForm: React.FC = () => {
               placeholder="Denominación del insumo"
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
-            {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="text-red-500">{errors.name.message}</p>
+            )}
           </div>
 
           {/* Precio */}
@@ -223,20 +245,28 @@ const InsumosForm: React.FC = () => {
             <input
               type="number"
               step="0.01"
-              {...register("price", { required: "El precio es obligatorio", min: 0 })}
+              {...register("price", {
+                required: "El precio es obligatorio",
+                min: 0,
+              })}
               placeholder="Precio"
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
-            {errors.price && <p className="text-red-500">{errors.price.message}</p>}
+            {errors.price && (
+              <p className="text-red-500">{errors.price.message}</p>
+            )}
           </div>
 
           {/* Unidad de medida */}
           <div className="flex flex-col gap-2">
             <label className="text-gray-700 text-sm">
-              Unidad de Medida <span className="text-orange-500 text-lg">*</span>
+              Unidad de Medida{" "}
+              <span className="text-orange-500 text-lg">*</span>
             </label>
             <select
-              {...register("unitMeasure", { required: "La unidad es obligatoria" })}
+              {...register("unitMeasure", {
+                required: "La unidad es obligatoria",
+              })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="">Unidad de medida</option>
@@ -246,7 +276,9 @@ const InsumosForm: React.FC = () => {
                 </option>
               ))}
             </select>
-            {errors.unitMeasure && <p className="text-red-500">{errors.unitMeasure.message}</p>}
+            {errors.unitMeasure && (
+              <p className="text-red-500">{errors.unitMeasure.message}</p>
+            )}
           </div>
 
           {/* ¿Es para preparar? */}
@@ -256,7 +288,9 @@ const InsumosForm: React.FC = () => {
               {...register("toPrepare")}
               className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
             />
-            <label className="text-gray-700 text-sm">¿Es un insumo para preparar?</label>
+            <label className="text-gray-700 text-sm">
+              ¿Es un insumo para preparar?
+            </label>
           </div>
 
           {/* Si no es para preparar, mostrar campos para crear producto */}
@@ -266,11 +300,15 @@ const InsumosForm: React.FC = () => {
 
               {/* Categoría de producto */}
               <div>
-                <label className="text-gray-700 text-sm">Categoría de producto</label>
+                <label className="text-gray-700 text-sm">
+                  Categoría de producto
+                </label>
                 <select
                   {...register("categoryIdProduct", {
                     validate: (value) =>
-                      !toPrepare || (!!value && value !== 0) || "Seleccioná categoría de producto",
+                      !toPrepare ||
+                      (!!value && value !== 0) ||
+                      "Seleccioná categoría de producto",
                   })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
@@ -282,7 +320,9 @@ const InsumosForm: React.FC = () => {
                   ))}
                 </select>
                 {errors.categoryIdProduct && (
-                  <p className="text-red-500">{errors.categoryIdProduct.message}</p>
+                  <p className="text-red-500">
+                    {errors.categoryIdProduct.message}
+                  </p>
                 )}
               </div>
 
@@ -310,17 +350,41 @@ const InsumosForm: React.FC = () => {
               </div>
 
               {/* Imagen */}
-              <div>
-                <label className="text-gray-700">Imagen</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) setImageFile(file);
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
+              <div className="flex flex-col gap-2">
+                <label className="text-gray-700 text-sm">Imagen</label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setImageFile(file);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+
+                  {/* Preview de imagen nueva */}
+                  {imageFile && (
+                    <img
+                      src={URL.createObjectURL(imageFile)}
+                      alt="Preview"
+                      width={80}
+                      height={80}
+                      className="rounded-md object-cover"
+                    />
+                  )}
+
+                  {/* Imagen actual (solo si no hay nueva seleccionada) */}
+                  {!imageFile && insumoEdit?.image && (
+                    <img
+                      src={insumoEdit.image}
+                      alt={insumoEdit.name}
+                      width={80}
+                      height={80}
+                      className="rounded-md object-cover"
+                    />
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -336,26 +400,37 @@ const InsumosForm: React.FC = () => {
             <div className="flex gap-2">
               <input
                 type="number"
-                {...register("minStock", { required: "Stock mínimo obligatorio", min: 0 })}
+                {...register("minStock", {
+                  required: "Stock mínimo obligatorio",
+                  min: 0,
+                })}
                 placeholder="Stock Mínimo"
                 className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               />
               <input
                 type="number"
-                {...register("currentStock", { required: "Stock actual obligatorio", min: 0 })}
+                {...register("currentStock", {
+                  required: "Stock actual obligatorio",
+                  min: 0,
+                })}
                 placeholder="Stock Actual"
                 className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               />
               <input
                 type="number"
-                {...register("maxStock", { required: "Stock máximo obligatorio", min: 0 })}
+                {...register("maxStock", {
+                  required: "Stock máximo obligatorio",
+                  min: 0,
+                })}
                 placeholder="Stock Máximo"
                 className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               />
             </div>
             {(errors.minStock || errors.currentStock || errors.maxStock) && (
               <p className="text-red-500">
-                {errors.minStock?.message || errors.currentStock?.message || errors.maxStock?.message}
+                {errors.minStock?.message ||
+                  errors.currentStock?.message ||
+                  errors.maxStock?.message}
               </p>
             )}
           </div>
@@ -383,13 +458,17 @@ const InsumosForm: React.FC = () => {
 
             {childCategories.length > 0 && (
               <select
-                {...register("categoryId", { required: "La subcategoría es obligatoria" })}
+                {...register("categoryId", {
+                  required: "La subcategoría es obligatoria",
+                })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 value={selectedChildId ?? ""}
-                onChange={e => {
+                onChange={(e) => {
                   const id = parseInt(e.target.value);
                   setSelectedChildId(isNaN(id) ? null : id);
-                  setValue("categoryId", isNaN(id) ? 0 : id, { shouldValidate: true });
+                  setValue("categoryId", isNaN(id) ? 0 : id, {
+                    shouldValidate: true,
+                  });
                 }}
               >
                 <option value="">Seleccioná subcategoría</option>
@@ -410,7 +489,9 @@ const InsumosForm: React.FC = () => {
               />
             )}
 
-            {errors.categoryId && <p className="text-red-500">{errors.categoryId.message}</p>}
+            {errors.categoryId && (
+              <p className="text-red-500">{errors.categoryId.message}</p>
+            )}
           </div>
         </div>
       </div>
@@ -436,6 +517,5 @@ const InsumosForm: React.FC = () => {
     </form>
   );
 };
-
 
 export default InsumosForm;
