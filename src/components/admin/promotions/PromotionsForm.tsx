@@ -13,6 +13,7 @@ import {
   updatePromotion,
 } from "../../../services/admin/promotions/promotions";
 import { useUIState } from "../../../hooks/ui/useUIState";
+import { translateDayOfWeek } from "../../../utils/statusTranslations";
 
 type PromotionFormProps = {
   onRefresh: () => void;
@@ -40,6 +41,7 @@ export default function PromotionForm({
 
   const [step, setStep] = useState(1);
   const [productValues, setProductValues] = useState<Record<string, number>>({});
+  const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [promotionTypes, setPromotionTypes] = useState<
     { id: number; name: string }[]
@@ -288,15 +290,7 @@ export default function PromotionForm({
           <div className="col-span-2">
             <label className="text-sm font-medium">Días de la semana</label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {[
-                "MONDAY",
-                "TUESDAY",
-                "WEDNESDAY",
-                "THURSDAY",
-                "FRIDAY",
-                "SATURDAY",
-                "SUNDAY",
-              ].map((day) => (
+              {daysOfWeek.map((day) => (
                 <button
                   key={day}
                   type="button"
@@ -307,7 +301,7 @@ export default function PromotionForm({
                       : "border-zinc-300 text-gray-700"
                   }`}
                 >
-                  {day.slice(0, 3)}
+                  {translateDayOfWeek(day).slice(0, 3)}
                 </button>
               ))}
             </div>
