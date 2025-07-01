@@ -33,6 +33,7 @@ export default function Product() {
       try {
         const data = await getAllProduct();
         setProducts(data ?? []);
+        
       } catch (error) {
         console.error("Error fetching product:", error);
       }
