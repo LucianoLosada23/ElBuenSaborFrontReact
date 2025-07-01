@@ -4,6 +4,7 @@ import Modal from "../ui/Modal";
 import { useCart } from "../../hooks/useCart";
 import { postOrder } from "../../services/shop/OrderServices";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export default function FacturacionPopUp() {
   const { cart, formaDePago, tipoEntrega } = useCart();
@@ -38,8 +39,17 @@ export default function FacturacionPopUp() {
           toggle("isFacturacionOpen");
         }, 2000);
       }
-    } catch (error) {
+    } catch (error:any) {
       console.error("Error al crear la orden", error);
+
+      // 👉 Mostrar error desde backend o error genérico
+      if (error.response && error.response.data) {
+        const backendMsg = error.response.data;
+        toast.error(backendMsg);
+      } else {
+        toast.error("Error desconocido al crear la orden.");
+      }
+
     } finally {
       setIsLoading(false);
     }

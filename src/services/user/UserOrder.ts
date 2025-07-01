@@ -8,9 +8,11 @@ export const getAllUserOrder = async () => {
     const { data } = await axios.get(url, { withCredentials: true });
     console.log(data);
     const result = safeParse(listaDeOrdenesSchema, data);
-    if (result.success) {
-      return result.output;
+    if (!result.success) {
+      console.error("Error de validación:", result.issues);
+      return;
     }
+    return result.output;
   } catch (error) {
     console.error("Error al obtener las ordenes de usuario:", error);
   }

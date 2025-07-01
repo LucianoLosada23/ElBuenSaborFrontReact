@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAllUserOrder } from "../../services/user/UserOrder";
 import type { OrderList } from "../../types/user/UserOrder";
+import { translateStatus } from "../../utils/statusTranslations";
 
 export default function UserOrders() {
   const [userOrder, setUserOrder] = useState<OrderList>([]);
@@ -30,11 +31,11 @@ export default function UserOrders() {
             <p className="text-sm text-gray-500 mb-2">
               Fecha: {new Date(order.initAt).toLocaleDateString()}
             </p>
-            <p className="text-sm text-gray-500 mb-2">Estado: {order.status}</p>
+            <p className="text-sm text-gray-500 mb-2">Estado: {translateStatus(order.status)}</p>
             <ul className="list-disc pl-5">
               {order.orderProducts.map((item, index) => (
                 <li key={index} className="text-sm text-gray-700">
-                  {item.title} - Cantidad: {item.quantity} - Precio: ${item.price}
+                  {item.productTitle} - Cantidad: {item.quantity} - Precio: ${item.price}
                 </li>
               ))}
             </ul>

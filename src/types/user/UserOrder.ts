@@ -13,12 +13,15 @@ import {
 
 // Enum para status
 const statusEnum = union([
-  literal("TOCONFIRM"),
   literal("PENDING_PAYMENT"),
+  literal("TOCONFIRM"),
+  literal("INKITCHEN"),
+  literal("READY"),
+  literal("DELIVERY"),
   literal("DELIVERED"),
   literal("CANCELLED"),
-  // Agrega otros estados posibles aquí si los hay
 ]);
+
 
 // Enum para deliveryType
 const deliveryTypeEnum = union([
@@ -35,7 +38,7 @@ export const clientSchema = object({
 
 export const orderProductSchema = object({
   id: number(),
-  title: string(),
+  productTitle: string(),
   isActive: boolean(),
   orderId: number(),
   productId: number(),
