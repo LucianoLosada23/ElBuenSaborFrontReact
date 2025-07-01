@@ -5,9 +5,10 @@ import { useProduct } from "../../hooks/useProduct";
 import { useUIState } from "../../hooks/ui/useUIState";
 import { getProductsByCompany } from "../../services/admin/product/product";
 import type { Product } from "../../types/product/product";
+import { useCategoryFilter } from "../../hooks/useCategoryFilter"; // ✅ IMPORTANTE
 
 interface ProductProps {
-  companyId?: string; // puede venir undefined
+  companyId?: string;
 }
 
 export default function Product({ companyId }: ProductProps) {
@@ -15,40 +16,49 @@ export default function Product({ companyId }: ProductProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isPageChangeTriggered, setIsPageChangeTriggered] = useState(false);
 
+  const { selectedCategoryId } = useCategoryFilter(); // ✅ USO DEL HOOK
   const { setProduct, product } = useProduct();
   const { toggle } = useUIState();
   const itemsPerPage = 7;
 
   useEffect(() => {
-    if (!companyId) return; // si no hay id no hace nada
+    if (!companyId) return;
 
     const callproducts = async () => {
       const data = await getProductsByCompany(companyId);
-
       if (data) setProducts(data);
     };
 
     callproducts();
   }, [companyId]);
 
-  // Scroll solo si se hizo clic en paginación
   useEffect(() => {
     if (!isPageChangeTriggered) return;
 
     const element = document.getElementById("product");
     if (element) {
-      const yOffset = -0; // ajustá según tu navbar
-      const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+      const y = element.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
 
     setIsPageChangeTriggered(false);
   }, [currentPage, isPageChangeTriggered]);
 
+  const filteredProducts = selectedCategoryId
+    ? products.filter(
+        (p) =>
+          p.category.id === selectedCategoryId ||
+          p.category.parent?.id === selectedCategoryId
+      )
+    : products;
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const currentItems = filteredProducts.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -66,13 +76,14 @@ export default function Product({ companyId }: ProductProps) {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto py-8" id="product">
+      <div className="max-w-7xl mx-auto py-24" id="product">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {currentItems.map((product) => (
             <div
               key={product.id}
-             onClick={() => {
-                const priceWithPromotion = product.promotionalPrice ?? product.price;
+              onClick={() => {
+                const priceWithPromotion =
+                  product.promotionalPrice ?? product.price;
                 setProduct({ ...product, price: priceWithPromotion });
                 toggle("isProductModal");
               }}
