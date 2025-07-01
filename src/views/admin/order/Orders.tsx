@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import type { MRT_ColumnDef } from "material-react-table";
 import { useUIState } from "../../../hooks/ui/useUIState";
-import ProductModal from "../../../components/admin/product/ProductModal";
-import { useProduct } from "../../../hooks/useProduct";
-import { getAllOrdersByCompany, putOrderStatus } from "../../../services/admin/order/order";
-import type { OrderByCompany } from "../../../types/shop/order/Order";
+import {
+  getAllOrdersByCompany,
+  putOrderStatus,
+} from "../../../services/admin/order/order";
 import OrderGenericTable from "../../../components/ui/OrderGenericTable";
 import {
   Box,
@@ -15,7 +15,8 @@ import {
   type SelectChangeEvent,
 } from "@mui/material";
 
-// Traducciones de estado
+import type { Order } from "../../../types/user/UserOrder";
+
 const statusOptions = [
   "PENDING_PAYMENT",
   "TOCONFIRM",
@@ -36,24 +37,25 @@ const statusLabels: Record<string, string> = {
   CANCELLED: "Cancelado",
 };
 
-// Traducciones del tipo de entrega
 const deliveryTypeLabels: Record<string, string> = {
   TAKEAWAY: "Local",
   DELIVERY: "Domicilio",
 };
 
-// Formateador de fecha
-const formatDate = (dateStr: string | null) => {
+const formatHour = (dateStr: string | null) => {
   if (!dateStr) return "";
   const date = new Date(dateStr);
-  return date.toLocaleDateString("es-AR");
+  return date.toLocaleTimeString("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 };
 
 export default function Orders() {
-  const [orders, setOrders] = useState<OrderByCompany[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [statusFilter, setStatusFilter] = useState("Todos");
 
-  const { setProductEdit } = useProduct();
   const { toggle } = useUIState();
 
   useEffect(() => {
@@ -74,16 +76,26 @@ export default function Orders() {
       ? orders
       : orders.filter((order) => order.status === statusFilter);
 
-  const handleEdit = (order: OrderByCompany) => {
-    toggle("isProductOpen");
-    // setProductEdit(order);
-  };
-
   const handleStatusChangeFilter = (event: SelectChangeEvent) => {
     setStatusFilter(event.target.value);
   };
 
-  const handleStatusChange = async (orderId: number | string, newStatus: string) => {
+  const handleStatusChange = async (
+    orderId: number | string,
+    currentStatus: string,
+    newStatus: string
+  ) => {
+    // Si cambia a CANCELLED o DELIVERED, pedir confirmación
+    if (
+      (newStatus === "CANCELLED" || newStatus === "DELIVERED") &&
+      currentStatus !== newStatus
+    ) {
+      const confirmChange = window.confirm(
+        `¿Estás seguro que querés cambiar el estado a "${statusLabels[newStatus]}"?`
+      );
+      if (!confirmChange) return;
+    }
+
     try {
       await putOrderStatus(orderId.toString(), newStatus);
       await fetchOrders();
@@ -92,23 +104,36 @@ export default function Orders() {
     }
   };
 
-  const columns: MRT_ColumnDef<OrderByCompany>[] = [
-    { accessorKey: "id", header: "ID Pedido" },
-    { accessorKey: "client.id", header: "ID Cliente" },
+  const columns: MRT_ColumnDef<Order>[] = [
+    {
+      accessorKey: "orderProducts",
+      header: "Orden",
+      Cell: ({ row }) => {
+        const products = row.original.orderProducts;
+        return products
+          .map((p) => `${p.productTitle} (x${p.quantity})`)
+          .join(", ");
+      },
+    },
     { accessorKey: "client.name", header: "Nombre Cliente" },
-    { accessorKey: "companyId", header: "ID Empresa" },
-    { accessorKey: "description", header: "Descripción" },
     {
       accessorKey: "status",
       header: "Estado",
       Cell: ({ row }) => {
         const currentStatus = row.original.status;
         const orderId = row.original.id;
+
+        // Deshabilitar select si el estado es CANCELLED o DELIVERED
+        const isDisabled = currentStatus === "CANCELLED" || currentStatus === "DELIVERED";
+
         return (
           <FormControl fullWidth size="small" variant="standard">
             <Select
               value={currentStatus}
-              onChange={(e) => handleStatusChange(orderId, e.target.value)}
+              onChange={(e) =>
+                handleStatusChange(orderId, currentStatus, e.target.value)
+              }
+              disabled={isDisabled}
             >
               {statusOptions.map((status) => (
                 <MenuItem key={status} value={status}>
@@ -122,21 +147,27 @@ export default function Orders() {
     },
     {
       accessorKey: "initAt",
-      header: "Fecha de inicio",
-      Cell: ({ row }) => formatDate(row.original.initAt),
+      header: "Hora de inicio",
+      Cell: ({ row }) => formatHour(row.original.initAt),
     },
     {
       accessorKey: "finalizedAt",
-      header: "Fecha de finalización",
-      Cell: ({ row }) => formatDate(row.original.finalizedAt),
+      header: "Hora de finalización",
+      Cell: ({ row }) =>
+        row.original.finalizedAt ? formatHour(row.original.finalizedAt) : "-",
     },
     {
       accessorKey: "deliveryType",
       header: "Tipo de entrega",
       Cell: ({ row }) =>
-        deliveryTypeLabels[row.original.deliveryType] || row.original.deliveryType,
+        deliveryTypeLabels[row.original.deliveryType] ||
+        row.original.deliveryType,
     },
-    { accessorKey: "total", header: "Total" },
+    {
+      accessorKey: "total",
+      header: "Total",
+      Cell: ({ row }) => `$${row.original.total.toFixed(2)}`,
+    },
   ];
 
   const StatusFilterSelect = (
@@ -169,10 +200,8 @@ export default function Orders() {
         data={filteredOrders}
         addButtonText="Añadir"
         onAddClick={() => toggle("isProductOpen")}
-        onEdit={handleEdit}
         extraHeaderButton={StatusFilterSelect}
       />
-      <ProductModal />
     </>
   );
 }

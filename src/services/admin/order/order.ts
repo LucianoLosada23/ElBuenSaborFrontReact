@@ -1,6 +1,6 @@
 import axios from "axios";
 import { safeParse } from "valibot";
-import { orderByCompanyListSchema, orderSchema} from "../../../types/shop/order/Order";
+import { listaDeOrdenesSchema } from "../../../types/user/UserOrder";
 
 export const getAllOrdersByCompany = async () => {
   try {
@@ -9,8 +9,7 @@ export const getAllOrdersByCompany = async () => {
       withCredentials: true
     });
       console.log(data);
-
-    const result = safeParse(orderByCompanyListSchema, data);
+    const result = safeParse(listaDeOrdenesSchema, data);
     if (result.success) {
       return result.output;
     }

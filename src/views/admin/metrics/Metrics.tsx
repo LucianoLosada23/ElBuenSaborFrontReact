@@ -16,6 +16,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar, Line, Pie } from "react-chartjs-2";
+import { translateStatus } from "../../../utils/statusTranslations";
 
 ChartJS.register(
   CategoryScale,
@@ -119,7 +120,7 @@ export default function Metrics() {
         const allStatuses = Array.from(new Set(filteredOrders.map((o: any) => o.status)));
 
         const chartDatasets = allStatuses.map((status, index) => ({
-          label: status,
+          label: translateStatus(status),
           data: uniqueDates.map(
             (date) => groupedByDateAndStatus[date]?.[status] || 0
           ),
@@ -130,7 +131,7 @@ export default function Metrics() {
         }));
 
         const pieChartData = {
-          labels: allStatuses,
+          labels: allStatuses.map(translateStatus),
           datasets: [
             {
               label: "Órdenes por estado",

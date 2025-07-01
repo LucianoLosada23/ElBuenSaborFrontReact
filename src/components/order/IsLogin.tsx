@@ -13,7 +13,7 @@ export default function IsLogin() {
         title={""}
       >
         <div className="flex flex-col justify-center items-center gap-6">
-          <img src="alert.svg" alt="alerta" width={200} height={200} />
+          <img src="/alert.svg" alt="alerta" width={200} height={200} />
           <h3 className="font-semibold text-2xl">
             No tienes un usuario registrado
           </h3>

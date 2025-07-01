@@ -5,6 +5,7 @@ import { useUIState } from "../../../hooks/ui/useUIState";
 import PromotionsModal from "../../../components/admin/promotions/PromotionsModal";
 import { getAllPromotions } from "../../../services/admin/promotions/promotions";
 import type { Promotions } from "../../../types/promotions/Promotions";
+import { translateDayOfWeek } from "../../../utils/statusTranslations";
 
 const columns: MRT_ColumnDef<Promotions>[] = [
   { accessorKey: "title", header: "Título" },
@@ -17,7 +18,10 @@ const columns: MRT_ColumnDef<Promotions>[] = [
   {
     accessorKey: "dayOfWeeks",
     header: "Días",
-    Cell: ({ cell }) => cell.getValue<string[]>().join(", "),
+    Cell: ({ cell }) => {
+      const days = cell.getValue<string[]>();
+      return days.map(day => translateDayOfWeek(day)).join(", ");
+    },
   },
 ];
 export default function Promotions() {

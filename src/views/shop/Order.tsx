@@ -11,10 +11,10 @@ export default function Order() {
         <section>
           <Category />
         </section>
+        <section>
+          <Product companyId={companyId} />
+        </section>
       </div>
-      <section className="bg-white">
-        <Product companyId={companyId} />
-      </section>
       <FacturacionPopUp />
     </>
   );

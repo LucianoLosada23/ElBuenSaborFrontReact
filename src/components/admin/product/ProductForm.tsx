@@ -13,6 +13,7 @@ import { useUIState } from "../../../hooks/ui/useUIState";
 import { toast } from "react-toastify";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useProduct } from "../../../hooks/useProduct";
+import { translateUnitMeasure } from "../../../utils/statusTranslations";
 
 interface ProductFormData {
   title: string;
@@ -405,7 +406,9 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
                     }
                     className="w-18 border border-gray-300 rounded-md"
                   />
-                  <span>{ingredient?.unitMeasure}</span>
+                  {ingredient?.unitMeasure && (
+                    <span>{translateUnitMeasure(ingredient.unitMeasure)}</span>
+                  )}
                   <button
                     type="button"
                     onClick={() =>
