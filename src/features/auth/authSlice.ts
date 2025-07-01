@@ -24,9 +24,6 @@ const authSlice = createSlice({
       state.user = null;
       // Eliminar el usuario del localStorage cuando el usuario haga logout
       localStorage.removeItem('user');
-      setTimeout(() => {
-            window.location.reload();
-          }, 500); 
     },
   },
 });

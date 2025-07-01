@@ -11,6 +11,7 @@ export const userSchema = object({
     lastname: string(),
     genero: string(),
     born_date: string(),
+    roleEmployee : string()
   }),
   message: string(),
 });

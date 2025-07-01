@@ -93,16 +93,16 @@ export default function AdminLayout() {
     },
     {
       label: "Clientes",
-      path: "#",
+      path: "/admin/clientes",
       icon: UserGroupIconOutline,
       iconSolid: UserGroupIconSolid,
     },
-    {
+    /*{
       label: "Compras",
       path: "#",
       icon: InboxArrowDownIconOutline,
       iconSolid: InboxArrowDownIconSolid,
-    },
+    },*/
     {
       label: "Empleados",
       path: "/admin/empleados",

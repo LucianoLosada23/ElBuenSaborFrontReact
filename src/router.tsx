@@ -20,6 +20,7 @@ import Promotions from "./views/admin/promotions/Promotions";
 import PromotionsTypes from "./views/admin/promotions/promotionsTypes/PromotionsTypes";
 import LandingCompanies from "./views/landingCompanies/landingCompanies";
 import Metrics from "./views/admin/metrics/Metrics";
+import Clients from "./views/admin/clients/Clients";
 
 export const router = createBrowserRouter([
   {
@@ -69,7 +70,7 @@ export const router = createBrowserRouter([
   // Rutas protegidas solo para admin
   {
     path: "/admin",
-    element: <PrivateRoutes allowedRoles={["COMPANY"]} />,
+    element: <PrivateRoutes allowedRoles={["COMPANY" , "DELIVERY"]} />,
     children: [
       {
         path: "",
@@ -107,6 +108,10 @@ export const router = createBrowserRouter([
           {
             path: "ordenes",
             element: <Orders />,
+          },
+          {
+            path: "clientes",
+            element: <Clients />,
           },
           {
             path: "empleados",

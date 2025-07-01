@@ -51,39 +51,47 @@ const GenericTable = <T extends object>({
   onDelete,
   extraHeaderButton,
 }: Props<T>) => {
+  // location
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isClientPage = location.pathname === "/admin/clientes";
   // Agregamos la columna de acciones al final
-  const columnsWithActions = [
-    ...columns,
-    {
-      id: "actions",
-      header: "Acciones",
-      enableSorting: false,
-      enableColumnFilter: false,
-      size: 100,
-      Cell: ({ row }: { row: MRT_Row<T> }) => (
-        <div className="flex justify-center gap-2">
-          <button
-            onClick={() => onEdit?.(row.original)}
-            className=" border border-admin-principal text-admin-principal hover:bg-gray-100 p-2 rounded-full cursor-pointer"
-            aria-label="Editar"
-          >
-            <PencilIcon width={16} height={16} />
-          </button>
-          <button
-            onClick={() => {
-              if (window.confirm("¿Está seguro de eliminar este elemento?")) {
-                onDelete?.(row.original);
-              }
-            }}
-            className="border border-admin-principal text-admin-principal hover:bg-gray-100 p-2 rounded-full cursor-pointer"
-            aria-label="Eliminar"
-          >
-            <ArchiveBoxXMarkIcon width={16} height={16} />
-          </button>
-        </div>
-      ),
-    },
-  ];
+  const columnsWithActions = isClientPage
+    ? columns
+    : [
+        ...columns,
+        {
+          id: "actions",
+          header: "Acciones",
+          enableSorting: false,
+          enableColumnFilter: false,
+          size: 100,
+          Cell: ({ row }: { row: MRT_Row<T> }) => (
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={() => onEdit?.(row.original)}
+                className=" border border-admin-principal text-admin-principal hover:bg-gray-100 p-2 rounded-full cursor-pointer"
+                aria-label="Editar"
+              >
+                <PencilIcon width={16} height={16} />
+              </button>
+              <button
+                onClick={() => {
+                  if (
+                    window.confirm("¿Está seguro de eliminar este elemento?")
+                  ) {
+                    onDelete?.(row.original);
+                  }
+                }}
+                className="border border-admin-principal text-admin-principal hover:bg-gray-100 p-2 rounded-full cursor-pointer"
+                aria-label="Eliminar"
+              >
+                <ArchiveBoxXMarkIcon width={16} height={16} />
+              </button>
+            </div>
+          ),
+        },
+      ];
 
   const table = useMaterialReactTable({
     columns: columnsWithActions,
@@ -99,9 +107,6 @@ const GenericTable = <T extends object>({
     },
     paginationDisplayMode: "pages",
   });
-  // location
-  const location = useLocation();
-  const navigate = useNavigate();
 
   return (
     <Stack sx={{ m: "2rem 0", bgcolor: "white", p: 6 }} spacing={2}>
@@ -165,7 +170,7 @@ const GenericTable = <T extends object>({
               )}
             </>
           )}
-          {onAddClick && (
+          {onAddClick && !isClientPage && (
             <button
               className="bg-admin-principal flex text-white items-center text-center gap-1 px-4 py-3 rounded-full hover:bg-admin-principal/50 hover:text-white transition-colors cursor-pointer"
               onClick={onAddClick}
