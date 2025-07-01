@@ -25,7 +25,10 @@ const columns: MRT_ColumnDef<Ingredient>[] = [
     header: "Unidad de Medida",
     Cell: ({ cell }) => translateUnitMeasure(cell.getValue<string>()),
   },
-  { accessorKey: "currentStock", header: "Stock" },
+  { accessorKey: "currentStock", header: "Stock", Cell: ({ cell }) => {
+    const value = cell.getValue<number>();
+    return Number(value.toFixed(3));
+  }, },
   {
     header: "Categoría",
     accessorFn: (row) =>

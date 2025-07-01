@@ -27,35 +27,28 @@ export const getAllEmployees = async () => {
 
   }
 }
-
 // POST
-export const createEmployee = async (employeeData: RegisterEmployee) => {
+export const createEmployee = async (employeeData: UpdateEmployee) => {
   try {
-    const dataEmployee : RegisterEmployee = {
-      name: employeeData.name,
-      email: employeeData.email,
-      password: employeeData.password,
+    const dataEmployee = {
+      ...employeeData,
+      password: employeeData.password!,
       phone: Number(employeeData.phone),
-      lastname: employeeData.lastname,
-      born_date: new Date(employeeData.born_date).toISOString(), // formato ISO
-      genero: employeeData.genero,
-      roleEmployee: employeeData.roleEmployee,
+      born_date: new Date(employeeData.born_date).toISOString(),
       addressBasicDTO: {
+        id: 0,  // porque es nuevo
+        isActive: true,
         street: employeeData.addressBasicDTO.street,
         number: Number(employeeData.addressBasicDTO.number),
         postalCode: Number(employeeData.addressBasicDTO.postalCode),
-        cityId: Number(employeeData.addressBasicDTO.cityId),
+        city: {
+          id: Number(employeeData.addressBasicDTO.city.id),
+        },
       },
     };
-    const result = safeParse(registerEmployeeSchema, dataEmployee);
-    if (!result.success) {
-      console.error("Error de validación:", result.issues);
-      return;
-    }
+
     const url = "http://localhost:8080/public/auth/register/employee";
-    const { data } = await axios.post(url, result.output ,{
-      withCredentials : true
-    });
+    const { data } = await axios.post(url, dataEmployee, { withCredentials: true });
     return data;
   } catch (error) {
     console.log(error);
@@ -66,39 +59,31 @@ export const createEmployee = async (employeeData: RegisterEmployee) => {
 // PUT
 export const updateEmployee = async (id: number, employeeData: UpdateEmployee) => {
   try {
-    // Formateamos fecha y aseguramos tipos numéricos
-    const formattedData = {
+    const dataEmployee = {
       ...employeeData,
       phone: Number(employeeData.phone),
       born_date: new Date(employeeData.born_date).toISOString(),
       addressBasicDTO: {
-        ...employeeData.addressBasicDTO,
         id: Number(employeeData.addressBasicDTO.id),
+        isActive: true,  // lo agrego fijo
+        street: employeeData.addressBasicDTO.street,
         number: Number(employeeData.addressBasicDTO.number),
         postalCode: Number(employeeData.addressBasicDTO.postalCode),
-        cityId: Number(employeeData.addressBasicDTO.cityId),
+        city: {
+          id: Number(employeeData.addressBasicDTO.city.id),
+        },
       },
     };
 
-    // Validación con schema
-    const result = safeParse(editEmployeeSchema, formattedData);
-    if (!result.success) {
-      console.error("Error de validación:", result.issues);
-      return;
-    }
-
-    // Request PUT
     const url = `http://localhost:8080/api/v1/employee/bycompany/${id}`;
-    const { data } = await axios.put(url, result.output, {
-      withCredentials: true,
-    });
-
+    const { data } = await axios.put(url, dataEmployee, { withCredentials: true });
     return data;
   } catch (error) {
-    console.error("Error al actualizar empleado:", error);
+    console.log(error);
     throw error;
   }
 };
+
 
 // DELETE
 export const deleteEmployee = async (employeeId: number) => {

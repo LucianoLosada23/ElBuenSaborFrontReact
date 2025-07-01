@@ -53,7 +53,7 @@ export default function EmployeeForm({ onRefresh, employeeToEdit , setEmployeeTo
 
   useEffect(() => {
     if (employeeToEdit) {
-      const cityId = employeeToEdit.addressBasicDTO.cityId;
+      const cityId = employeeToEdit.addressBasicDTO.city.id;
       const city = cities.find((c) => c.id === cityId);
       const provinceId = city?.province?.id;
 
@@ -67,7 +67,7 @@ export default function EmployeeForm({ onRefresh, employeeToEdit , setEmployeeTo
       setValue("addressBasicDTO.street", employeeToEdit.addressBasicDTO.street);
       setValue("addressBasicDTO.number", employeeToEdit.addressBasicDTO.number);
       setValue("addressBasicDTO.postalCode", employeeToEdit.addressBasicDTO.postalCode);
-      setValue("addressBasicDTO.cityId", cityId);
+      setValue("addressBasicDTO.city.id", employeeToEdit.addressBasicDTO.id);
       setValue("addressBasicDTO.id", employeeToEdit.addressBasicDTO.id);
 
       if (provinceId) {
@@ -279,7 +279,7 @@ export default function EmployeeForm({ onRefresh, employeeToEdit , setEmployeeTo
               onChange={(e) => {
                 const id = Number(e.target.value);
                 setSelectedProvinceId(id);
-                setValue("addressBasicDTO.cityId", 0);
+                setValue("addressBasicDTO.city.id", 0);
               }}
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             >
@@ -306,12 +306,12 @@ export default function EmployeeForm({ onRefresh, employeeToEdit , setEmployeeTo
           <div>
             <label className="text-sm font-medium">Ciudad *</label>
             <select
-              {...register("addressBasicDTO.cityId", {
+              {...register("addressBasicDTO.city.id", {
                 required: true,
                 valueAsNumber: true,
               })}
-              value={watch("addressBasicDTO.cityId") ?? ""}
-              onChange={(e) => setValue("addressBasicDTO.cityId", Number(e.target.value))}
+              value={watch("addressBasicDTO.city.id") ?? ""}
+              onChange={(e) => setValue("addressBasicDTO.city.id", Number(e.target.value))}
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             >
               <option value="" disabled>

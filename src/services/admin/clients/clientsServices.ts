@@ -5,7 +5,7 @@ import { clientListSchema } from "../../../types/clients/Clients";
 // GET 
 export const getAllClients = async () => {
   try { 
-    const url = "http://localhost:8080/api/v1/client";
+    const url = "http://localhost:8080/api/v1/client/bycompany";
     const { data } = await axios.get(url, {
       withCredentials: true,
     });

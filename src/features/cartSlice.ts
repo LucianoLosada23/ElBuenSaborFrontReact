@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import type { Carrito } from "../types/shop/carrito/Carrito";
+import { getAppliedPrice } from "../utils/getAppliedPrice";
 
 export type DeliveryType = "TAKEAWAY" | "DELIVERY";
 export type PayType = "EFECTIVO" | "MERCADO_PAGO";
@@ -30,10 +31,11 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action: PayloadAction<Carrito>) => {
-      const { product, quantity, clarifications } = action.payload;
-      const existingItem = state.cart.find(
-        (item) => item.product.id === product.id
-      );
+      const { product, quantity, clarifications, appliedPrice } = action.payload;
+      const existingItem = state.cart.find(item => item.product.id === product.id);
+
+      // 👉 Si ya viene aplicado lo uso, si no lo calculo acá
+      const priceToApply = appliedPrice ?? getAppliedPrice(product, quantity);
 
       if (existingItem) {
         existingItem.quantity += quantity;
@@ -42,12 +44,14 @@ const cartSlice = createSlice({
           product,
           quantity,
           clarifications,
+          appliedPrice: priceToApply,
         });
         toast.success("Agregado al carrito con éxito");
       }
 
       calculateTotals(state);
     },
+
 
     incrementAmount: (state, action: PayloadAction<{ productId: number }>) => {
       const item = state.cart.find(
@@ -93,7 +97,7 @@ const cartSlice = createSlice({
 
 function calculateTotals(state: CartItem) {
   state.subtotal = state.cart.reduce(
-    (acc, item) => acc + item.product.price * item.quantity,
+    (acc, item) => acc + item.appliedPrice * item.quantity,
     0
   );
 
@@ -110,6 +114,7 @@ function calculateTotals(state: CartItem) {
 
   state.total = state.subtotal - state.descuento + state.recargo;
 }
+
 
 export const {
   addToCart,

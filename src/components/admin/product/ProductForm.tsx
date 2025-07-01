@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
-import { getAllIngredientsToPrepare } from "../../../services/admin/insumos/Ingredients";
+import {
+  getAllIngredientsNotToPrepare,
+  getAllIngredientsToPrepare,
+} from "../../../services/admin/insumos/Ingredients";
 import { getAllProductCategory } from "../../../services/admin/product/category/category";
 import {
   postProduct,
@@ -94,14 +97,30 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
   useEffect(() => {
     const fetchData = async () => {
       const cats = await getAllProductCategory();
-      const ingr = await getAllIngredientsToPrepare();
-      if (cats && ingr) {
+
+      const [toPrepareRaw, notToPrepareRaw]: [
+        Ingredient[] | undefined,
+        Ingredient[] | undefined
+      ] = await Promise.all([
+        getAllIngredientsToPrepare(),
+        getAllIngredientsNotToPrepare(),
+      ]);
+
+      const toPrepare = Array.isArray(toPrepareRaw) ? toPrepareRaw : [];
+      const notToPrepare = Array.isArray(notToPrepareRaw)
+        ? notToPrepareRaw
+        : [];
+
+      const allIngredients = [...toPrepare, ...notToPrepare];
+
+      if (cats) {
         setCategories(cats);
-        setIngredients(ingr);
+        setIngredients(allIngredients);
         setFilteredIngredients([]);
         setParentCategories(cats.filter((cat) => cat.parent === null));
       }
     };
+
     fetchData();
   }, []);
 
@@ -145,13 +164,33 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
       })
     );
     setSelectedIngredients(formattedIngredients);
+    if (formattedIngredients.length === 0) {
+      const matchingIngredient = ingredients.find(
+        (ing) => ing.name === productEdit.title
+      );
+      if (matchingIngredient) {
+        // Usar el precio del insumo como subtotal y calcular final
+        const basePrice = matchingIngredient.price;
+        setSubtotal(basePrice);
+        const final =
+          basePrice + (basePrice * (productEdit.profit_percentage ?? 0)) / 100;
+        setFinalPrice(Number(final.toFixed(2)));
+        setValue("price", final);
+      }
+    }
     setProfitMargin(productEdit.profit_percentage ?? 0);
   }, [productEdit, categories, setValue]);
 
   useEffect(() => {
     const total = selectedIngredients.reduce((acc, item) => {
       const ingredient = ingredients.find((i) => i.id === item.ingredientId);
-      if (!ingredient) return acc;
+      if (!ingredient) {
+        console.warn(
+          "❌ Ingrediente no encontrado para ID:",
+          item.ingredientId
+        );
+        return acc;
+      }
       return acc + ingredient.price * item.quantity;
     }, 0);
     setSubtotal(total);
@@ -272,7 +311,7 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
           </label>
           <input
             type="number"
-            {...register("estimatedTime", { required: true, min: 1 })}
+            {...register("estimatedTime", { required: true, min: 0 })}
             placeholder="Tiempo estimado en minutos"
             className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
           />

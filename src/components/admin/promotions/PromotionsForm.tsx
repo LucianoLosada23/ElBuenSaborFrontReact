@@ -41,15 +41,25 @@ export default function PromotionForm({
 
   const [step, setStep] = useState(1);
   const [productValues, setProductValues] = useState<Record<string, number>>({});
-  const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
+  const daysOfWeek = [
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+    "SUNDAY",
+  ];
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [promotionTypes, setPromotionTypes] = useState<
-    { id: number; name: string }[]
+    { id: number; name: string; behavior: string }[]
   >([]);
   const [productList, setProductList] = useState<ProductItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProducts, setSelectedProducts] = useState<ProductItem[]>([]);
   const { toggle } = useUIState();
+
+  const [selectedBehavior, setSelectedBehavior] = useState<string | null>(null);
 
   // Cargar productos y tipos
   useEffect(() => {
@@ -98,8 +108,10 @@ export default function PromotionForm({
       });
 
       setSelectedDays(dayOfWeeks || []);
+      setSelectedBehavior(promotionTypeDTO.behavior);
 
       if (productPromotions && productPromotions.length > 0) {
+        // Mapear productos seleccionados
         const productsForForm: ProductItem[] = productPromotions
           .map((pp) => {
             if (pp.product) {
@@ -115,10 +127,19 @@ export default function PromotionForm({
 
         setSelectedProducts(productsForForm);
 
+        // Armar objeto productValues con value y extraValue
         const promoPrices: Record<string, number> = {};
+
         productPromotions.forEach((pp) => {
-          if (pp.productId && pp.value !== undefined) {
+          if (pp.productId) {
             promoPrices[pp.product.id] = pp.value;
+            if (
+              promotionTypeDTO.behavior === "X_POR_Y" &&
+              pp.extraValue !== null &&
+              pp.extraValue !== undefined
+            ) {
+              promoPrices[`${pp.product.id}-y`] = pp.extraValue;
+            }
           }
         });
 
@@ -134,23 +155,43 @@ export default function PromotionForm({
   };
 
   const onSubmit = async (data: CreatePromotions) => {
+    // Separar valores normales y extra (X_POR_Y)
+    const normalValues = Object.fromEntries(
+      Object.entries(productValues).filter(([key]) => /^\d+$/.test(key))
+    );
+
+    const extraValues = Object.entries(productValues)
+      .filter(([key]) => key.includes("-y"))
+      .reduce((acc, [key, value]) => {
+        const productId = Number(key.split("-")[0]);
+        acc[productId] = value;
+        return acc;
+      }, {} as Record<number, number>);
+
     const payload: CreatePromotions = {
       ...data,
       dayOfWeeks: selectedDays,
-      productIds: Object.keys(productValues).map((id) => Number(id)),
-      productValues,
+      productIds: Object.keys(normalValues).map(Number),
+      productValues: normalValues,
+      extraValues,
     };
 
     try {
       let success = false;
       if (promotionsToEdit) {
-        // Actualizar productPromotions con los valores nuevos
+        // Actualizar productPromotions con value y extraValue
         const updatedProductPromotions = promotionsToEdit.productPromotions.map(
           (pp) => {
             const updatedValue = productValues[pp.productId ?? ""] ?? pp.value;
+            const updatedExtraValue =
+              selectedBehavior === "X_POR_Y"
+                ? productValues[`${pp.productId}-y`] ?? pp.extraValue
+                : null;
+
             return {
               ...pp,
               value: updatedValue,
+              extraValue: updatedExtraValue,
             };
           }
         );
@@ -188,6 +229,7 @@ export default function PromotionForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {step === 1 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* ... campos paso 1, igual que antes */}
           <div>
             <label className="text-sm font-medium">Título *</label>
             <input
@@ -257,6 +299,11 @@ export default function PromotionForm({
               })}
               className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               defaultValue=""
+              onChange={(e) => {
+                const selectedId = Number(e.target.value);
+                const type = promotionTypes.find((t) => t.id === selectedId);
+                setSelectedBehavior(type?.behavior || null);
+              }}
             >
               <option value="" disabled>
                 Selecciona tipo
@@ -352,18 +399,73 @@ export default function PromotionForm({
                       Precio actual: ${product.price}
                     </div>
                   </div>
-                  <input
-                    type="number"
-                    placeholder="Precio promo"
-                    className="border-b-2 border-zinc-300 py-1 w-32"
-                    value={productValues[product.id] ?? ""}
-                    onChange={(e) =>
-                      setProductValues((prev) => ({
-                        ...prev,
-                        [product.id]: Number(e.target.value),
-                      }))
-                    }
-                  />
+
+                  {/* PRECIO_FIJO */}
+                  {selectedBehavior === "PRECIO_FIJO" && (
+                    <input
+                      type="number"
+                      placeholder="Precio promo"
+                      className="border-b-2 border-zinc-300 py-1 w-32"
+                      value={productValues[product.id] ?? ""}
+                      onChange={(e) =>
+                        setProductValues((prev) => ({
+                          ...prev,
+                          [product.id]: Number(e.target.value),
+                        }))
+                      }
+                    />
+                  )}
+
+                  {/* DESCUENTO_PORCENTAJE */}
+                  {selectedBehavior === "DESCUENTO_PORCENTAJE" && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        placeholder="% descuento"
+                        className="border-b-2 border-zinc-300 py-1 w-24 text-right"
+                        value={productValues[product.id] ?? ""}
+                        onChange={(e) =>
+                          setProductValues((prev) => ({
+                            ...prev,
+                            [product.id]: Number(e.target.value),
+                          }))
+                        }
+                      />
+                      <span className="text-sm text-gray-600">%</span>
+                    </div>
+                  )}
+
+                  {/* X_POR_Y */}
+                  {selectedBehavior === "X_POR_Y" && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        placeholder="Cantidad X"
+                        className="border-b-2 border-zinc-300 py-1 w-20"
+                        value={productValues[product.id] ?? ""}
+                        onChange={(e) =>
+                          setProductValues((prev) => ({
+                            ...prev,
+                            [product.id]: Number(e.target.value),
+                          }))
+                        }
+                      />
+                      <span className="text-sm">por</span>
+                      <input
+                        type="number"
+                        placeholder="Cantidad Y"
+                        className="border-b-2 border-zinc-300 py-1 w-20"
+                        value={productValues[product.id + "-y"] ?? ""}
+                        onChange={(e) =>
+                          setProductValues((prev) => ({
+                            ...prev,
+                            [product.id + "-y"]: Number(e.target.value),
+                          }))
+                        }
+                      />
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
@@ -373,6 +475,7 @@ export default function PromotionForm({
                       setProductValues((prev) => {
                         const newValues = { ...prev };
                         delete newValues[product.id];
+                        delete newValues[product.id + "-y"];
                         return newValues;
                       });
                     }}

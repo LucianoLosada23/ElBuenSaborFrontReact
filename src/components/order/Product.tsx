@@ -78,56 +78,93 @@ export default function Product({ companyId }: ProductProps) {
     <>
       <div className="max-w-7xl mx-auto py-24" id="product">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {currentItems.map((product) => (
-            <div
-              key={product.id}
-              onClick={() => {
-                const priceWithPromotion =
-                  product.promotionalPrice ?? product.price;
-                setProduct({ ...product, price: priceWithPromotion });
-                toggle("isProductModal");
-              }}
-              className="shadow-xs cursor-pointer flex justify-between items-center rounded-md gap-6 px-3 bg-white hover:border"
-            >
-              <div className="flex flex-col items-start">
-                <h2 className="text-[14px] font-medium text-gray-700">
-                  {product.title}
-                </h2>
-                <p className="text-[12px] text-gray-600">
-                  {product.description}
-                </p>
-                <p className="text-[12px] text-gray-600 hover:underline hover:text-black">
-                  ver más...
-                </p>
-                <div className="mt-2">
-                  {product.promotionalPrice ? (
-                    <div className="flex gap-2 items-center">
-                      <span className="text-sm text-gray-500 line-through">
-                        ${product.price.toFixed(2)}
-                      </span>
-                      <span className="text-base font-bold text-red-600">
-                        ${product.promotionalPrice.toFixed(2)}
-                      </span>
-                    </div>
-                  ) : (
-                    <h3 className="font-bold">${product.price.toFixed(2)}</h3>
-                  )}
+          {currentItems.map((product) => {
+            const hasPromotion = !!product.promotionType;
+            const behavior = product.promotionType;
+            const promoPrice = product.promotionalPrice;
+            const extraValue = product.promotionalExtraValue;
+
+            let priceDisplay = product.price;
+            let promoText = "";
+
+            switch (behavior) {
+              case "PRECIO_FIJO":
+                if (promoPrice != null) {
+                  priceDisplay = promoPrice;
+                }
+                break;
+              case "DESCUENTO_PORCENTAJE":
+                if (promoPrice != null) {
+                  priceDisplay = promoPrice;
+                  promoText = product.promotionDescription || "";
+                }
+                break;
+              case "X_POR_Y":
+                promoText = product.promotionDescription || "";
+                break;
+              default:
+                priceDisplay = product.price;
+            }
+
+            return (
+              <div
+                key={product.id}
+                onClick={() => {
+                  setProduct({ ...product, price: priceDisplay });
+                  toggle("isProductModal");
+                }}
+                className="shadow-xs cursor-pointer flex justify-between items-center rounded-md gap-6 px-3 bg-white hover:border"
+              >
+                <div className="flex flex-col items-start">
+                  <h2 className="text-[14px] font-medium text-gray-700">{product.title}</h2>
+                  <p className="text-[12px] text-gray-600">{product.description}</p>
+                  <p className="text-[12px] text-gray-600 hover:underline hover:text-black">ver más...</p>
+
+                  <div className="mt-2 flex items-center gap-2">
+                    {hasPromotion ? (
+                      <>
+                        {behavior === "X_POR_Y" ? (
+                          <>
+                            <span className="text-base font-bold">${product.price.toFixed(2)}</span>
+                            <span className="text-sm text-green-600 font-semibold">{promoText}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-sm text-gray-500 line-through">
+                              ${product.price.toFixed(2)}
+                            </span>
+                            <span className="text-base font-bold text-red-600">
+                              ${priceDisplay.toFixed(2)}
+                            </span>
+                            {promoText && (
+                              <span className="text-sm text-green-600 ml-2">{promoText}</span>
+                            )}
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <h3 className="font-bold">${product.price.toFixed(2)}</h3>
+                    )}
+                  </div>
                 </div>
+
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    loading="lazy"
+                    className="w-32 h-32 object-cover"
+                    alt={product.title}
+                  />
+                ) : (
+                  <div className="w-32 h-32 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                    Sin imagen
+                  </div>
+                )}
               </div>
-              {product.image ? (
-                <img
-                  src={product.image}
-                  loading="lazy"
-                  className="w-32 h-32 object-cover"
-                  alt={product.title}
-                />
-              ) : (
-                <div className="w-32 h-32 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-                  Sin imagen
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
+
+
         </div>
       </div>
 

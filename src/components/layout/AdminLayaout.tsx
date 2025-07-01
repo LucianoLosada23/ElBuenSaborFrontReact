@@ -1,5 +1,8 @@
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../hooks/auth/useAuth";
+import useAddress from "../../hooks/address/useAddress";
+import { getAllCities, getAllProvinces } from "../../services/address/Address";
 
 // Outline Icons
 import {
@@ -8,12 +11,13 @@ import {
   ArchiveBoxIcon as ArchiveBoxIconOutline,
   ClipboardDocumentListIcon as ClipboardDocumentListIconOutline,
   ClipboardIcon as ClipboardIconOutline,
-  InboxArrowDownIcon as InboxArrowDownIconOutline,
   CalendarDateRangeIcon as CalendarDateRangeIconLine,
   ChevronLeftIcon,
   ChevronRightIcon,
   UserGroupIcon as UserGroupIconOutline,
   ListBulletIcon as ListBulletIconOutline,
+  PresentationChartLineIcon as PresentationChartLineIconOutline,
+  ArrowLeftCircleIcon,
 } from "@heroicons/react/24/outline";
 
 // Solid Icons
@@ -24,12 +28,10 @@ import {
   ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
   ClipboardIcon as ClipboardIconSolid,
   CalendarDateRangeIcon,
-  InboxArrowDownIcon as InboxArrowDownIconSolid,
   UserGroupIcon as UserGroupIconSolid,
   ListBulletIcon as ListBulletIconSolid,
+  PresentationChartLineIcon as PresentationChartLineIconSolid,
 } from "@heroicons/react/24/solid";
-import useAddress from "../../hooks/address/useAddress";
-import { getAllCities, getAllProvinces } from "../../services/address/Address";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -39,6 +41,13 @@ export default function AdminLayout() {
   const toggleSidebar = () => setCollapsed(!collapsed);
 
   const { setProvinces, setCities } = useAddress();
+  const { user, logoutUser } = useAuth();
+
+  const userRole = (
+    user?.user?.User.roleEmployee ??
+    user?.user?.User.role ??
+    ""
+  ).toLowerCase();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,54 +69,63 @@ export default function AdminLayout() {
       path: "/admin",
       icon: Squares2X2IconOutline,
       iconSolid: Squares2X2IconSolid,
+      allowedRoles: ["company", "delivery", "cook", "cashier"],
     },
     {
       label: "Promociones",
       path: "/admin/promociones",
       icon: CalendarDateRangeIconLine,
       iconSolid: CalendarDateRangeIcon,
+      allowedRoles: ["company"],
     },
     {
       label: "Categorías",
       path: "/admin/productos-categorias",
       icon: ListBulletIconOutline,
       iconSolid: ListBulletIconSolid,
+      allowedRoles: ["company", "cook"],
     },
     {
       label: "Productos",
       path: "/admin/productos",
       icon: ArchiveBoxIconOutline,
       iconSolid: ArchiveBoxIconSolid,
+      allowedRoles: ["company", "cook"],
     },
     {
       label: "Insumos",
       path: "/admin/insumos",
       icon: ClipboardIconOutline,
       iconSolid: ClipboardIconSolid,
+      allowedRoles: ["company", "cook"],
     },
     {
       label: "Órdenes",
       path: "/admin/ordenes",
       icon: ClipboardDocumentListIconOutline,
       iconSolid: ClipboardDocumentListIconSolid,
+      allowedRoles: ["company", "delivery", "cook", "cashier"],
     },
     {
       label: "Clientes",
       path: "/admin/clientes",
       icon: UserGroupIconOutline,
       iconSolid: UserGroupIconSolid,
+      allowedRoles: ["company", "cashier"],
     },
-    /*{
-      label: "Compras",
-      path: "#",
-      icon: InboxArrowDownIconOutline,
-      iconSolid: InboxArrowDownIconSolid,
-    },*/
     {
       label: "Empleados",
       path: "/admin/empleados",
       icon: IdentificationIconOutline,
       iconSolid: IdentificationIconSolid,
+      allowedRoles: ["company"],
+    },
+    {
+      label: "Estadística",
+      path: "/admin/estadistica",
+      icon: PresentationChartLineIconOutline,
+      iconSolid: PresentationChartLineIconSolid,
+      allowedRoles: ["company"],
     },
   ];
 
@@ -178,18 +196,30 @@ export default function AdminLayout() {
           {menuItems.map((item) => {
             const active = isActive(item.path, item.label);
             const Icon = active ? item.iconSolid : item.icon;
+            const hasAccess = item.allowedRoles.includes(userRole);
 
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
-                className={`flex items-center cursor-pointer gap-3 px-3 py-2 w-full transition-all duration-200
+                onClick={() => {
+                  if (hasAccess) navigate(item.path);
+                }}
+                disabled={!hasAccess}
+                className={`flex items-center gap-3 px-3 py-2 w-full transition-all duration-200
                   ${
                     active
                       ? "border-l-4 border-l-admin-principal text-admin-principal"
                       : "hover:bg-gray-100 text-gray-800"
-                  }`}
-                title={collapsed ? item.label : undefined}
+                  }
+                  ${
+                    !hasAccess
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }
+                `}
+                title={
+                  !hasAccess ? "No tenés permiso para acceder" : item.label
+                }
               >
                 <Icon className="w-5 h-5 text-admin-principal" />
                 {!collapsed && (
@@ -198,6 +228,15 @@ export default function AdminLayout() {
               </button>
             );
           })}
+          <button
+            type="button"
+            onClick={logoutUser}
+            className="flex items-center gap-3 bg-admin-principal text-white px-3 py-2 w-full cursor-pointer hover:bg-admin-principal/80 transition"
+            title="Cerrar sesión"
+          >
+            <ArrowLeftCircleIcon className="w-5 h-5" />
+            {!collapsed && <span>Cerrar Sesión</span>}
+          </button>
         </nav>
       </div>
 
