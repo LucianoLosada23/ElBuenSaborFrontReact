@@ -1,13 +1,4 @@
-import {
-  optional,
-  object,
-  number,
-  string,
-  array,
-  null_,
-  union,
-  type InferOutput,
-} from "valibot";
+import { optional, object, number, string, array, null_, union, type InferOutput } from "valibot";
 import { companySchema } from "../Company/Company";
 
 // Ingredient
@@ -51,9 +42,9 @@ const BaseProductSchema = {
   description: string(),
   estimatedTime: number(),
   price: number(),
-  profit_percentage : number(),
+  profit_percentage: number(),
   image: optional(union([string(), null_()])),
-  promotionalPrice : optional(union([number() , null_()]))
+  promotionalPrice: optional(union([number(), null_()])),
 };
 
 // Producto completo con IDs
@@ -61,6 +52,11 @@ export const ProductSchema = object({
   id: number(),
   ...BaseProductSchema,
   productIngredients: array(ProductIngredientSchema),
+
+  promotionType: optional(union([string(), null_()])),
+  promotionalPrice: optional(union([number(), null_()])),
+  promotionalExtraValue: optional(union([number(), null_()])),
+  promotionDescription: optional(union([string(), null_()])),
 });
 
 // Producto para POST sin IDs

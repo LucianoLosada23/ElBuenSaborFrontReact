@@ -37,7 +37,8 @@ export const createPromotionsSchema = object({
     promotionTypeId: number(),
     dayOfWeeks: array(string()),
     productIds: array(number()),
-    productValues: record(string() , number())
+    productValues: record(string() , number()),
+    extraValues: record(string(), number())
 })
 
 export type CreatePromotions = InferOutput<typeof createPromotionsSchema>
@@ -59,7 +60,8 @@ const productPromotionSchema = object({
   productId: union([number(), null_()]),
   promotionId: union([number(), null_()]),
   product: productSchema,
-  value: number()
+  value: number(),
+  extraValue: union([number(), null_()]),
 });
 
 // promotionTypeDTO
