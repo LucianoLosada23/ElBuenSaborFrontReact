@@ -3,30 +3,33 @@ import { ProductPopup } from "./ProductPopUp";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useProduct } from "../../hooks/useProduct";
 import { useUIState } from "../../hooks/ui/useUIState";
-import { getAllProduct } from "../../services/admin/product/product";
+import { getProductsByCompany } from "../../services/admin/product/product";
 import type { Product } from "../../types/product/product";
 
-export default function Product() {
-  // State
-    const [products, setProducts] = useState<Product[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [isPageChangeTriggered, setIsPageChangeTriggered] = useState(false);
+interface ProductProps {
+  companyId?: string; // puede venir undefined
+}
 
-  // Redux hooks
-    const { setProduct, product } = useProduct();
-    const {toggle} = useUIState()
-    const itemsPerPage = 7;
+export default function Product({ companyId }: ProductProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isPageChangeTriggered, setIsPageChangeTriggered] = useState(false);
+
+  const { setProduct, product } = useProduct();
+  const { toggle } = useUIState();
+  const itemsPerPage = 7;
 
   useEffect(() => {
+    if (!companyId) return; // si no hay id no hace nada
+
     const callproducts = async () => {
-      const data = await getAllProduct();
-      console.log(data)
-      if(data){
-        setProducts(data);
-      }
+      const data = await getProductsByCompany(companyId);
+
+      if (data) setProducts(data);
     };
+
     callproducts();
-  }, []);
+  }, [companyId]);
 
   // Scroll solo si se hizo clic en paginación
   useEffect(() => {
@@ -68,7 +71,11 @@ export default function Product() {
           {currentItems.map((product) => (
             <div
               key={product.id}
-              onClick={() =>{setProduct(product) , toggle("isProductModal")}}
+             onClick={() => {
+                const priceWithPromotion = product.promotionalPrice ?? product.price;
+                setProduct({ ...product, price: priceWithPromotion });
+                toggle("isProductModal");
+              }}
               className="shadow-xs cursor-pointer flex justify-between items-center rounded-md gap-6 px-3 bg-white hover:border"
             >
               <div className="flex flex-col items-start">
@@ -81,7 +88,20 @@ export default function Product() {
                 <p className="text-[12px] text-gray-600 hover:underline hover:text-black">
                   ver más...
                 </p>
-                <h3 className="font-bold mt-2">${product.price.toFixed(2)}</h3>
+                <div className="mt-2">
+                  {product.promotionalPrice ? (
+                    <div className="flex gap-2 items-center">
+                      <span className="text-sm text-gray-500 line-through">
+                        ${product.price.toFixed(2)}
+                      </span>
+                      <span className="text-base font-bold text-red-600">
+                        ${product.promotionalPrice.toFixed(2)}
+                      </span>
+                    </div>
+                  ) : (
+                    <h3 className="font-bold">${product.price.toFixed(2)}</h3>
+                  )}
+                </div>
               </div>
               {product.image ? (
                 <img

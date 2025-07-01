@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useUIState } from "../../../../hooks/ui/useUIState";
 import { toast } from "react-toastify";
@@ -13,13 +13,17 @@ import {
 } from "../../../../services/admin/product/category/category";
 import { useCategorias } from "../../../../hooks/useCategorias"; // Asumo que acá tienes el selector global
 
+type InsumosCategoryFormProps = {
+  onRefresh: () => void;
+}
+
 interface CategoryFormData {
   name: string;
 }
 
-const InsumosCategoryForm: React.FC = () => {
+const InsumosCategoryForm = ({onRefresh}:InsumosCategoryFormProps ) => {
   const location = useLocation();
-  const { selectedCategory } = useCategorias(); // Obtener categoría seleccionada del estado global
+  const { selectedCategory  , limpiarCategoria} = useCategorias();
   const {
     register,
     handleSubmit,
@@ -61,6 +65,9 @@ const InsumosCategoryForm: React.FC = () => {
               selectedCategory.id,
               categoryToSend
             );
+            if (!result) throw new Error("Error al actualizar una category insumo");
+            limpiarCategoria()
+            onRefresh()
           }
           toggle("isInsumosCategoryOpen");
         } else if (location.pathname === "/admin/productos-categorias") {
@@ -69,6 +76,9 @@ const InsumosCategoryForm: React.FC = () => {
               selectedCategory.id,
               categoryToSend
             );
+            if (!result) throw new Error("Error al actualizar una category producto");
+            limpiarCategoria()
+            onRefresh()
           }
           toggle("isProductCategoryOpen");
         }
@@ -79,17 +89,16 @@ const InsumosCategoryForm: React.FC = () => {
         // CREAR
         if (location.pathname === "/admin/insumos-categorias") {
           result = await postInsumosCategory(categoryToSend);
+          if (!result) throw new Error("Error al crear una category insumo");
+          onRefresh()
           toggle("isInsumosCategoryOpen");
         } else if (location.pathname === "/admin/productos-categorias") {
           result = await postProductCategory(categoryToSend);
+          if (!result) throw new Error("Error al crear una category producto");
+          onRefresh()
           toggle("isProductCategoryOpen");
         }
-        if (result) {
-          toast.success(selectedCategory ? "Categoría actualizada con éxito" : "Categoría creada con éxito");
-          setTimeout(() => {
-            window.location.reload();
-          }, 500); // le doy 500ms para que se vea bien el toast
-        }
+        toast.success(selectedCategory ? "Categoría actualizada con éxito" : "Categoría creada con éxito");
       }
     } catch (error) {
       console.error("Error al guardar la categoría:", error);
@@ -106,7 +115,7 @@ const InsumosCategoryForm: React.FC = () => {
         <input
           {...register("name", { required: "El nombre es obligatorio" })}
           placeholder="Denominación de la categoría"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
         />
         {errors.name && (
           <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>

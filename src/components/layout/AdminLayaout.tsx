@@ -1,15 +1,15 @@
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Outline Icons
 import {
   Squares2X2Icon as Squares2X2IconOutline,
-  Cog8ToothIcon as Cog8ToothIconOutline,
   IdentificationIcon as IdentificationIconOutline,
   ArchiveBoxIcon as ArchiveBoxIconOutline,
   ClipboardDocumentListIcon as ClipboardDocumentListIconOutline,
   ClipboardIcon as ClipboardIconOutline,
   InboxArrowDownIcon as InboxArrowDownIconOutline,
+  CalendarDateRangeIcon as CalendarDateRangeIconLine,
   ChevronLeftIcon,
   ChevronRightIcon,
   UserGroupIcon as UserGroupIconOutline,
@@ -19,15 +19,17 @@ import {
 // Solid Icons
 import {
   Squares2X2Icon as Squares2X2IconSolid,
-  Cog8ToothIcon as Cog8ToothIconSolid,
   IdentificationIcon as IdentificationIconSolid,
   ArchiveBoxIcon as ArchiveBoxIconSolid,
   ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
   ClipboardIcon as ClipboardIconSolid,
+  CalendarDateRangeIcon,
   InboxArrowDownIcon as InboxArrowDownIconSolid,
   UserGroupIcon as UserGroupIconSolid,
   ListBulletIcon as ListBulletIconSolid,
 } from "@heroicons/react/24/solid";
+import useAddress from "../../hooks/address/useAddress";
+import { getAllCities, getAllProvinces } from "../../services/address/Address";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -36,12 +38,34 @@ export default function AdminLayout() {
 
   const toggleSidebar = () => setCollapsed(!collapsed);
 
+  const { setProvinces, setCities } = useAddress();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const provincesData = await getAllProvinces();
+        const citiesData = await getAllCities();
+        setProvinces(provincesData);
+        setCities(citiesData);
+      } catch (error) {
+        console.error("Error cargando provincias o ciudades:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const menuItems = [
     {
       label: "Dashboard",
       path: "/admin",
       icon: Squares2X2IconOutline,
       iconSolid: Squares2X2IconSolid,
+    },
+    {
+      label: "Promociones",
+      path: "/admin/promociones",
+      icon: CalendarDateRangeIconLine,
+      iconSolid: CalendarDateRangeIcon,
     },
     {
       label: "Categorías",
@@ -85,12 +109,6 @@ export default function AdminLayout() {
       icon: IdentificationIconOutline,
       iconSolid: IdentificationIconSolid,
     },
-    {
-      label: "Configuración",
-      path: "#",
-      icon: Cog8ToothIconOutline,
-      iconSolid: Cog8ToothIconSolid,
-    },
   ];
 
   const isActive = (path: string, label?: string) => {
@@ -100,10 +118,18 @@ export default function AdminLayout() {
         location.pathname === "/admin/insumos-categorias"
       );
     }
+    if (label === "Promociones") {
+      return (
+        location.pathname === "/admin/promociones" ||
+        location.pathname === "/admin/promociones-tipos"
+      );
+    }
 
     if (path === "/admin") return location.pathname === "/admin";
 
-    return location.pathname === path || location.pathname.startsWith(path + "/");
+    return (
+      location.pathname === path || location.pathname.startsWith(path + "/")
+    );
   };
 
   return (

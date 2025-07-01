@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import {
   createIngredient,
   putIngredient,
-
 } from "../../../services/admin/insumos/Ingredients";
 import { getAllInsumosCategory } from "../../../services/admin/insumos/insumosCategory/InsumosCategory";
 import type { IngredientCategory } from "../../../types/Insumos/IngredientCategory";
@@ -12,9 +11,10 @@ import { useUIState } from "../../../hooks/ui/useUIState";
 import { useInsumoEdit } from "../../../hooks/insumos/useInsumoEdit";
 import { toast } from "react-toastify";
 import { PlusIcon, PencilSquareIcon } from "@heroicons/react/24/solid";
+import { getAllProductCategory } from "../../../services/admin/product/category/category";
 
 interface InsumosFormFormData {
-  id?: number; // Para editar (opcional)
+  id?: number;
   name: string;
   price: number;
   unitMeasure: string;
@@ -23,15 +23,40 @@ interface InsumosFormFormData {
   currentStock: number;
   maxStock: number;
   categoryId: number;
+  toPrepare?: boolean;
+  categoryIdProduct?: number;
+  profit_percentage?: number;
+  priceProduct?: number;
+  image?: FileList;
 }
+
+type InsumosFormProps = {
+  onRefresh: () => void;
+};
 
 const unidades = ["KILOGRAM", "UNIT", "GRAM", "LITER", "MILLILITER"];
 
-const InsumosForm: React.FC = () => {
+const unidadLabels: Record<string, string> = {
+  KILOGRAM: "Kilogramo",
+  UNIT: "Unidad",
+  GRAM: "Gramo",
+  LITER: "Litro",
+  MILLILITER: "Mililitro",
+};
+
+const InsumosForm = ({ onRefresh }: InsumosFormProps) => {
   const [allCategories, setAllCategories] = useState<IngredientCategory[]>([]);
-  const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
-  const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
+  const [categories, setCategories] = useState<IngredientCategory[]>([]);
+  const [parentCategories, setParentCategories] = useState<
+    IngredientCategory[]
+  >([]);
+  const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
+    []
+  );
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
+  const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { toggle } = useUIState();
   const { insumoEdit, setEdit } = useInsumoEdit();
@@ -41,11 +66,47 @@ const InsumosForm: React.FC = () => {
     handleSubmit,
     setValue,
     reset,
+    control,
     formState: { errors },
-  } = useForm<InsumosFormFormData>();
+  } = useForm<InsumosFormFormData>({
+    defaultValues: {
+      toPrepare: true,
+      profit_percentage: 0,
+      priceProduct: 0,
+    },
+  });
 
-  // Setear valores cuando cambia insumoEdit (editar o limpiar)
+  const toPrepare = useWatch({ control, name: "toPrepare" });
+  const price = useWatch({ control, name: "price" });
+  const profit_percentage = useWatch({ control, name: "profit_percentage" });
+
   useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await getAllInsumosCategory();
+      const cats = await getAllProductCategory();
+
+      if (Array.isArray(data)) {
+        setAllCategories(data);
+        setParentCategories(data.filter((cat) => cat.parent === null));
+        setCategoriesLoaded(true);
+      }
+      if (cats) {
+        setCategories(cats);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const subtotal = Number(price) || 0;
+    const profit = Number(profit_percentage) || 0;
+    const final = subtotal + subtotal * (profit / 100);
+    setValue("priceProduct", Number(final.toFixed(2)));
+  }, [price, profit_percentage, setValue]);
+
+  useEffect(() => {
+    if (!categoriesLoaded) return;
+
     if (insumoEdit) {
       setValue("id", insumoEdit.id);
       setValue("name", insumoEdit.name);
@@ -54,55 +115,68 @@ const InsumosForm: React.FC = () => {
       setValue("minStock", insumoEdit.minStock);
       setValue("currentStock", insumoEdit.currentStock);
       setValue("maxStock", insumoEdit.maxStock);
+      setValue("toPrepare", insumoEdit.toPrepare ?? false);
 
-      if (insumoEdit.categoryIngredient?.id) {
-        setValue("categoryId", insumoEdit.categoryIngredient.id);
-        const cat = allCategories.find(c => c.id === insumoEdit.categoryIngredient.id);
-        if (cat?.parent?.id) {
-          setSelectedParentId(cat.parent.id);
-        } else {
-          setSelectedParentId(insumoEdit.categoryIngredient.id);
-        }
+      const cat = allCategories.find(
+        (c) => c.id === insumoEdit.categoryIngredient?.id
+      );
+
+      if (cat?.parent?.id) {
+        setSelectedParentId(cat.parent.id); // El hijo lo seteamos en otro useEffect
+      } else if (cat) {
+        setSelectedParentId(cat.id);
+        setSelectedChildId(null);
+        setValue("categoryId", cat.id);
+      }
+
+      if (!insumoEdit.toPrepare) {
+        setValue(
+          "categoryIdProduct",
+          insumoEdit.categoryIdProduct ?? undefined
+        );
+        setValue("profit_percentage", insumoEdit.profit_percentage ?? 0);
+        setValue("priceProduct", insumoEdit.priceProduct ?? 0);
       }
     } else {
       reset();
       setSelectedParentId(null);
+      setSelectedChildId(null);
     }
-  }, [insumoEdit, setValue, reset, allCategories]);
+  }, [insumoEdit, setValue, reset, allCategories, categoriesLoaded]);
 
-  // Traer categorías
+  // 2. Cuando cambia el parent, filtramos hijos y seteamos el hijo si corresponde
   useEffect(() => {
-    const fetchCategories = async () => {
-      const data = await getAllInsumosCategory();
-      if (Array.isArray(data)) {
-        setAllCategories(data);
-        setParentCategories(data.filter(cat => cat.parent === null));
-      }
-    };
-    fetchCategories();
-  }, []);
+    if (!selectedParentId || !categoriesLoaded) return;
 
-  // Manejo de subcategorías según padre seleccionado
-  useEffect(() => {
-    if (selectedParentId !== null) {
-      const children = allCategories.filter(cat => cat.parent?.id === selectedParentId);
-      setChildCategories(children);
+    const children = allCategories.filter(
+      (cat) => cat.parent?.id === selectedParentId
+    );
+    setChildCategories(children);
 
-      if (children.length === 0) {
-        setValue("categoryId", selectedParentId);
-      } else {
+    // Caso 1: estás editando y ya tenemos el hijo y su parent
+    if (insumoEdit?.categoryIngredient?.parent?.id === selectedParentId) {
+      const subCatId = insumoEdit.categoryIngredient.id;
+      setSelectedChildId(subCatId);
+      setValue("categoryId", subCatId);
+      return;
+    }
+
+    // Caso 2: no hay hijos → se usa el padre directamente
+    if (children.length === 0) {
+      setValue("categoryId", selectedParentId);
+      setSelectedChildId(null);
+    } else {
+      // Caso 3: hay hijos pero el hijo anterior no pertenece a este padre
+      if (!children.some((c) => c.id === selectedChildId)) {
+        setSelectedChildId(null);
         setValue("categoryId", 0);
       }
-    } else {
-      setChildCategories([]);
-      setValue("categoryId", 0);
     }
-  }, [selectedParentId, allCategories, setValue]);
+  }, [selectedParentId, categoriesLoaded, allCategories]);
 
   const onSubmit: SubmitHandler<InsumosFormFormData> = async (data) => {
-    console.log(data.id)
     const ingredientPayload = {
-      company: { id: 1 }, // cambiar por el id real si hace falta
+      company: { id: 1 },
       name: data.name,
       price: data.price,
       unitMeasure: data.unitMeasure.toUpperCase(),
@@ -113,24 +187,30 @@ const InsumosForm: React.FC = () => {
       categoryIngredient: {
         id: data.categoryId,
       },
+      toPrepare: data.toPrepare ?? true,
+      categoryIdProduct: data.categoryIdProduct
+        ? Number(data.categoryIdProduct)
+        : null,
+      profit_percentage: data.profit_percentage ?? 0,
+      priceProduct: data.priceProduct ?? 0,
+      image: null,
     };
 
     try {
       if (data.id) {
-        await putIngredient(ingredientPayload , data.id);
+        const result = await putIngredient(ingredientPayload, data.id, imageFile ?? undefined);
+        if (!result) throw new Error("Error al actualizar un insumo");
+        onRefresh();
+        toggle("isInsumosOpen");
         toast.success("Insumo actualizado con éxito");
-        setTimeout(() => {
-            window.location.reload();
-        }, 500); 
+        setEdit(null);
       } else {
-        await createIngredient(ingredientPayload);
+        const result = await createIngredient(ingredientPayload, imageFile);
+        if (!result) throw new Error("Error al crear un insumo");
+        onRefresh();
+        toggle("isInsumosOpen");
         toast.success("Insumo creado con éxito");
-        setTimeout(() => {
-            window.location.reload();
-        }, 500); 
       }
-      toggle("isInsumosOpen");
-      setEdit(null);
     } catch (error) {
       console.error(error);
       toast.error("Error guardando el insumo");
@@ -138,21 +218,23 @@ const InsumosForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-2 gap-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2">
+      <div className="grid grid-cols-2 gap-8">
         {/* Columna Izquierda */}
         <div className="flex flex-col gap-2">
           {/* Nombre */}
           <div className="flex flex-col gap-2">
             <label className="text-gray-700 text-sm">
               Denominación <span className="text-orange-500 text-lg">*</span>
-            </label>º
+            </label>
             <input
               {...register("name", { required: "El nombre es obligatorio" })}
               placeholder="Denominación del insumo"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
-            {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="text-red-500">{errors.name.message}</p>
+            )}
           </div>
 
           {/* Precio */}
@@ -163,31 +245,149 @@ const InsumosForm: React.FC = () => {
             <input
               type="number"
               step="0.01"
-              {...register("price", { required: "El precio es obligatorio", min: 0 })}
+              {...register("price", {
+                required: "El precio es obligatorio",
+                min: 0,
+              })}
               placeholder="Precio"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
             />
-            {errors.price && <p className="text-red-500">{errors.price.message}</p>}
+            {errors.price && (
+              <p className="text-red-500">{errors.price.message}</p>
+            )}
           </div>
 
           {/* Unidad de medida */}
           <div className="flex flex-col gap-2">
             <label className="text-gray-700 text-sm">
-              Unidad de Medida <span className="text-orange-500 text-lg">*</span>
+              Unidad de Medida{" "}
+              <span className="text-orange-500 text-lg">*</span>
             </label>
             <select
-              {...register("unitMeasure", { required: "La unidad es obligatoria" })}
+              {...register("unitMeasure", {
+                required: "La unidad es obligatoria",
+              })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="">Unidad de medida</option>
               {unidades.map((u) => (
                 <option key={u} value={u}>
-                  {u}
+                  {unidadLabels[u]}
                 </option>
               ))}
             </select>
-            {errors.unitMeasure && <p className="text-red-500">{errors.unitMeasure.message}</p>}
+            {errors.unitMeasure && (
+              <p className="text-red-500">{errors.unitMeasure.message}</p>
+            )}
           </div>
+
+          {/* ¿Es para preparar? */}
+          <div className="flex items-center gap-2 mt-4">
+            <input
+              type="checkbox"
+              {...register("toPrepare")}
+              className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+            />
+            <label className="text-gray-700 text-sm">
+              ¿Es un insumo para preparar?
+            </label>
+          </div>
+
+          {/* Si no es para preparar, mostrar campos para crear producto */}
+          {!toPrepare && (
+            <div className="col-span-2 border-t pt-4 space-y-4">
+              <h3 className="font-semibold text-gray-700">Datos de Producto</h3>
+
+              {/* Categoría de producto */}
+              <div>
+                <label className="text-gray-700 text-sm">
+                  Categoría de producto
+                </label>
+                <select
+                  {...register("categoryIdProduct", {
+                    validate: (value) =>
+                      !toPrepare ||
+                      (!!value && value !== 0) ||
+                      "Seleccioná categoría de producto",
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Seleccioná categoría</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.categoryIdProduct && (
+                  <p className="text-red-500">
+                    {errors.categoryIdProduct.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Porcentaje de ganancia */}
+              <div>
+                <label className="text-gray-700 text-sm">% Ganancia</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  {...register("profit_percentage", { min: 0 })}
+                  placeholder="% Ganancia"
+                  className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+                />
+              </div>
+
+              {/* Precio de venta calculado */}
+              <div>
+                <label className="text-gray-700 text-sm">Precio final</label>
+                <input
+                  type="number"
+                  readOnly
+                  {...register("priceProduct")}
+                  className="w-full border-b-2 border-zinc-300 py-1 text-gray-600 bg-gray-100"
+                />
+              </div>
+
+              {/* Imagen */}
+              <div className="flex flex-col gap-2">
+                <label className="text-gray-700 text-sm">Imagen</label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setImageFile(file);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+
+                  {/* Preview de imagen nueva */}
+                  {imageFile && (
+                    <img
+                      src={URL.createObjectURL(imageFile)}
+                      alt="Preview"
+                      width={80}
+                      height={80}
+                      className="rounded-md object-cover"
+                    />
+                  )}
+
+                  {/* Imagen actual (solo si no hay nueva seleccionada) */}
+                  {!imageFile && insumoEdit?.image && (
+                    <img
+                      src={insumoEdit.image}
+                      alt={insumoEdit.name}
+                      width={80}
+                      height={80}
+                      className="rounded-md object-cover"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Columna Derecha */}
@@ -200,31 +400,42 @@ const InsumosForm: React.FC = () => {
             <div className="flex gap-2">
               <input
                 type="number"
-                {...register("minStock", { required: "Stock mínimo obligatorio", min: 0 })}
+                {...register("minStock", {
+                  required: "Stock mínimo obligatorio",
+                  min: 0,
+                })}
                 placeholder="Stock Mínimo"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               />
               <input
                 type="number"
-                {...register("currentStock", { required: "Stock actual obligatorio", min: 0 })}
+                {...register("currentStock", {
+                  required: "Stock actual obligatorio",
+                  min: 0,
+                })}
                 placeholder="Stock Actual"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               />
               <input
                 type="number"
-                {...register("maxStock", { required: "Stock máximo obligatorio", min: 0 })}
+                {...register("maxStock", {
+                  required: "Stock máximo obligatorio",
+                  min: 0,
+                })}
                 placeholder="Stock Máximo"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
               />
             </div>
             {(errors.minStock || errors.currentStock || errors.maxStock) && (
               <p className="text-red-500">
-                {errors.minStock?.message || errors.currentStock?.message || errors.maxStock?.message}
+                {errors.minStock?.message ||
+                  errors.currentStock?.message ||
+                  errors.maxStock?.message}
               </p>
             )}
           </div>
 
-          {/* Categoría Padre y Subcategoría */}
+          {/* Categorías */}
           <div className="flex flex-col gap-2">
             <label className="text-gray-700 text-sm">
               Categorías <span className="text-orange-500 text-lg">*</span>
@@ -247,8 +458,18 @@ const InsumosForm: React.FC = () => {
 
             {childCategories.length > 0 && (
               <select
-                {...register("categoryId", { required: "La subcategoría es obligatoria" })}
+                {...register("categoryId", {
+                  required: "La subcategoría es obligatoria",
+                })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                value={selectedChildId ?? ""}
+                onChange={(e) => {
+                  const id = parseInt(e.target.value);
+                  setSelectedChildId(isNaN(id) ? null : id);
+                  setValue("categoryId", isNaN(id) ? 0 : id, {
+                    shouldValidate: true,
+                  });
+                }}
               >
                 <option value="">Seleccioná subcategoría</option>
                 {childCategories.map((cat) => (
@@ -263,15 +484,18 @@ const InsumosForm: React.FC = () => {
               <input
                 type="hidden"
                 {...register("categoryId", { required: true })}
+                value={selectedParentId ?? ""}
+                readOnly
               />
             )}
 
-            {errors.categoryId && <p className="text-red-500">{errors.categoryId.message}</p>}
+            {errors.categoryId && (
+              <p className="text-red-500">{errors.categoryId.message}</p>
+            )}
           </div>
         </div>
       </div>
-
-      {/* Botón Submit */}
+      {/* Botón */}
       <div className="flex justify-end mt-4">
         <button
           type="submit"

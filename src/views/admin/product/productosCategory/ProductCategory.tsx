@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useUIState } from "../../../../hooks/ui/useUIState";
 import GenericTable from "../../../../components/ui/GenericTable";
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
-import { getAllProductCategory } from "../../../../services/admin/product/category/category";
+import { getAllProductCategory, deleteProductCategory } from "../../../../services/admin/product/category/category";
 import ProductCategoryModal from "../../../../components/admin/product/productCategory/ProductCategoryModal";
 import ProductSubCategoryModal from "../../../../components/admin/product/productCategory/productSubCategory/ProductSubCategoryModal";
 import { useInsumosCategory } from "../../../../hooks/insumosCategory/useInsumosCategory";
@@ -14,34 +14,46 @@ import type {
 import { useCategorias } from "../../../../hooks/useCategorias";
 
 export default function ProductCategory() {
-  const [ingredientCategory, setIngredientCategory] =
-    useState<IngredientCategoryList>([]);
-  const [parentCategories, setParentCategories] = useState<
-    IngredientCategory[]
-  >([]);
-  const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
-    []
-  );
 
+  //state
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [ingredientCategory, setIngredientCategory] =useState<IngredientCategoryList>([]);
+  const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
+  const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
+
+  //funciones
+  const refreshEmployees = () => setRefreshTrigger((prev) => prev + 1);
+
+  //hooks
   const { toggle } = useUIState();
   const { selectedParentId, selectParentCategory } = useInsumosCategory();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getAllProductCategory();
-        if (data) {
-          setIngredientCategory(data);
-          const parents = data.filter((cat) => cat.parent === null);
-          setParentCategories(parents);
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
+  const fetchProducts = async () => {
+    try {
+      const data = await getAllProductCategory();
+      if (data) {
+        setIngredientCategory(data);
+        const parents = data.filter((cat) => cat.parent === null);
+        setParentCategories(parents);
 
-    fetchProducts();
-  }, []);
+        if (selectedParentId !== null) {
+          const children = data.filter(
+            (cat) => cat.parent?.id === selectedParentId
+          );
+          setChildCategories(children);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setIngredientCategory([]);
+      setParentCategories([]);
+      setChildCategories([]); 
+    }
+  };
+
+  fetchProducts();
+}, [refreshTrigger]);
 
   const parentColumns: MRT_ColumnDef<IngredientCategory>[] = [
     {
@@ -103,6 +115,33 @@ export default function ProductCategory() {
       toggle("isProductSubCategoryOpen");
     }
   };
+
+  const handleDelete = async (categoria: {
+    id: number;
+    name: string;
+    parent?: { id: number } | null;
+  }) => {
+    if (window.confirm(`¿Está seguro de eliminar la categoría ${categoria.name}?`)) {
+      try {
+        await deleteProductCategory(categoria.id);
+        // Actualiza el estado eliminando la categoría de las listas.
+        setIngredientCategory((prev) =>
+          prev.filter((cat) => cat.id !== categoria.id)
+        );
+        setParentCategories((prev) =>
+          prev.filter((cat) => cat.id !== categoria.id)
+        );
+        if (selectedParentId && categoria.parent?.id === selectedParentId) {
+          setChildCategories((prev) =>
+            prev.filter((cat) => cat.id !== categoria.id)
+          );
+        }
+      } catch (error) {
+        console.error("Error eliminando la categoría:", error);
+      }
+    }
+  };
+
   return (
     <>
       {selectedParentId !== null ? (
@@ -115,6 +154,7 @@ export default function ProductCategory() {
           addButtonText="Añadir Subcategoría"
           onAddClick={() => toggle("isProductSubCategoryOpen")}
           onEdit={handleEdit}
+          onDelete={handleDelete}
           extraHeaderButton={
             <button
               onClick={() => selectParentCategory(null)}
@@ -133,10 +173,16 @@ export default function ProductCategory() {
           addButtonText="Añadir Categoría"
           onAddClick={() => toggle("isProductCategoryOpen")}
           onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       )}
-      <ProductCategoryModal />
-      <ProductSubCategoryModal />
+      <ProductCategoryModal 
+        onRefresh={refreshEmployees}
+      
+      />
+      <ProductSubCategoryModal 
+        onRefresh={refreshEmployees}
+      />
     </>
   );
 }

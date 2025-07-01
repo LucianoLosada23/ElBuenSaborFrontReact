@@ -15,9 +15,9 @@ export default function Banner() {
             comodidad de tu casa.
           </p>
           <div className="mt-8">
-            <Link to={"/catalogo"}>
+            <Link to={"/companies"}>
               <button className="px-8 py-3 bg-principal cursor-pointer text-white rounded-full shadow-md hover:bg-principal/70 transition-colors duration-200 font-semibold text-lg ">
-                Explorar Menú
+                Explorar las compañias
               </button>
             </Link>
           </div>

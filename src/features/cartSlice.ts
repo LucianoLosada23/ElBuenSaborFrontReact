@@ -91,7 +91,6 @@ const cartSlice = createSlice({
   },
 });
 
-// ✅ función interna para recalcular totales
 function calculateTotals(state: CartItem) {
   state.subtotal = state.cart.reduce(
     (acc, item) => acc + item.product.price * item.quantity,

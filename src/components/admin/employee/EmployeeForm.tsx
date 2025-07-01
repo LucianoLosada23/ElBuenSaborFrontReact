@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   EyeIcon,
@@ -6,43 +6,107 @@ import {
   ArrowRightIcon,
   ArrowLeftIcon,
 } from "@heroicons/react/24/solid";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAddress from "../../../hooks/address/useAddress";
-import type { RegisterEmployee } from "../../../types/auth/register/RegisterEmployee";
+import type {
+  UpdateEmployee,
+  Employee,
+} from "../../../types/auth/register/RegisterEmployee";
 import { toast } from "react-toastify";
-import { createEmployee } from "../../../services/admin/employee/employeeServices";
+import {
+  createEmployee,
+  updateEmployee,
+} from "../../../services/admin/employee/employeeServices";
+import { useUIState } from "../../../hooks/ui/useUIState";
 
-export default function EmployeeForm() {
+type EmployeeFormProps = {
+  onRefresh: () => void;
+  employeeToEdit?: Employee | null;
+  setEmployeeToEdit: React.Dispatch<React.SetStateAction<Employee | null>>;
+};
+
+export default function EmployeeForm({ onRefresh, employeeToEdit , setEmployeeToEdit}: EmployeeFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
     trigger,
-  } = useForm<RegisterEmployee>();
+  } = useForm<UpdateEmployee>();
 
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(
-    null
-  );
-  const { provinces, cities} = useAddress();
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(null);
 
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { provinces, cities } = useAddress();
+  const { toggle } = useUIState();
 
+  const rolEmployee = [
+    { value: "CASHIER", name: "Cajero" },
+    { value: "COOK", name: "Cocinero" },
+    { value: "DELIVERY", name: "Repartidor" },
+  ];
 
   const filteredCities = selectedProvinceId
     ? cities.filter((city) => city.province.id === selectedProvinceId)
     : [];
 
-  const onSubmit = async (data: RegisterEmployee) => {
+  useEffect(() => {
+    if (employeeToEdit) {
+      const cityId = employeeToEdit.addressBasicDTO.cityId;
+      const city = cities.find((c) => c.id === cityId);
+      const provinceId = city?.province?.id;
+
+      setValue("name", employeeToEdit.name);
+      setValue("lastname", employeeToEdit.lastname);
+      setValue("email", employeeToEdit.email);
+      setValue("phone", Number(employeeToEdit.phone));
+      setValue("born_date", employeeToEdit.born_date.split("T")[0]);
+      setValue("genero", employeeToEdit.genero);
+      setValue("roleEmployee", employeeToEdit.roleEmployee);
+      setValue("addressBasicDTO.street", employeeToEdit.addressBasicDTO.street);
+      setValue("addressBasicDTO.number", employeeToEdit.addressBasicDTO.number);
+      setValue("addressBasicDTO.postalCode", employeeToEdit.addressBasicDTO.postalCode);
+      setValue("addressBasicDTO.cityId", cityId);
+      setValue("addressBasicDTO.id", employeeToEdit.addressBasicDTO.id);
+
+      if (provinceId) {
+        setSelectedProvinceId(provinceId);
+      }
+    }
+  }, [employeeToEdit, setValue, cities]);
+
+  const onSubmit = async (data: UpdateEmployee) => {
     try {
-      await createEmployee(data);
-      const from = (location.state as any)?.from?.pathname || "/";
-      navigate(from, { replace: true });
+      if (employeeToEdit) {
+        const result = await updateEmployee(employeeToEdit.id, {
+          ...data,
+          addressBasicDTO: {
+            ...data.addressBasicDTO,
+            id: employeeToEdit.addressBasicDTO.id,
+          },
+        });
+        if (!result) throw new Error("Error al actualizar el empleado");
+        toast.success("Empleado actualizado exitosamente");
+        setEmployeeToEdit(null)
+      } else {
+        if (!data.password) {
+          toast.error("La contraseña es obligatoria para crear un empleado");
+          return;
+        }
+
+        const result = await createEmployee({
+          ...data,
+          password: data.password,
+        });
+        if (!result) throw new Error("Error al registrar el empleado");
+        toast.success("Empleado registrado exitosamente");
+      }
+
+      toggle("isEmployeeModalOpen");
+      onRefresh();
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Error al registrar empleado");
+      toast.error(error.response?.data?.error || "Ocurrió un error");
     }
   };
 
@@ -60,130 +124,104 @@ export default function EmployeeForm() {
     if (isValid) setStep(2);
   };
 
-  const handleBack = () => {
-    setStep(1);
-  };
+  const handleBack = () => setStep(1);
 
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {step === 1 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="text-sm font-medium">
-                Nombre <span className="text-orange-500">*</span>
-              </label>
-              <input
-                {...register("name", { required: true })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="Nombre"
-              />
-              {errors.name && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {step === 1 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Datos personales */}
+          <div>
+            <label className="text-sm font-medium">Nombre *</label>
+            <input
+              {...register("name", { required: true })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              placeholder="Nombre"
+            />
+            {errors.name && <span className="text-red-500 text-sm">Campo requerido</span>}
+          </div>
 
-            <div>
-              <label className="text-sm font-medium">
-                Apellido <span className="text-orange-500">*</span>
-              </label>
-              <input
-                {...register("lastname", { required: true })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="Apellido"
-              />
-              {errors.lastname && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
+          <div>
+            <label className="text-sm font-medium">Apellido *</label>
+            <input
+              {...register("lastname", { required: true })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              placeholder="Apellido"
+            />
+            {errors.lastname && <span className="text-red-500 text-sm">Campo requerido</span>}
+          </div>
 
-            <div>
-              <label className="text-sm font-medium">
-                Email <span className="text-orange-500">*</span>
-              </label>
-              <input
-                type="email"
-                {...register("email", { required: true })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="Email"
-              />
-              {errors.email && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
+          <div>
+            <label className="text-sm font-medium">Email *</label>
+            <input
+              type="email"
+              {...register("email", { required: true })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              placeholder="Email"
+            />
+            {errors.email && <span className="text-red-500 text-sm">Campo requerido</span>}
+          </div>
 
-            <div>
-              <label className="text-sm font-medium">
-                Teléfono <span className="text-orange-500">*</span>
-              </label>
-              <input
-                type="tel"
-                {...register("phone", { required: true, valueAsNumber: true })}
-                onInput={(e) => {
-                  const input = e.target as HTMLInputElement;
-                  input.value = input.value.replace(/\D/g, "");
-                }}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="Teléfono"
-              />
-              {errors.phone && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
+          <div>
+            <label className="text-sm font-medium">Teléfono *</label>
+            <input
+              type="tel"
+              {...register("phone", { required: true, valueAsNumber: true })}
+              onInput={(e) => {
+                const input = e.target as HTMLInputElement;
+                input.value = input.value.replace(/\D/g, "");
+              }}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              placeholder="Teléfono"
+            />
+            {errors.phone && <span className="text-red-500 text-sm">Campo requerido</span>}
+          </div>
 
-            <div>
-              <label className="text-sm font-medium">
-                Fecha de nacimiento <span className="text-orange-500">*</span>
-              </label>
-              <input
-                type="date"
-                {...register("born_date", { required: true })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-              />
-              {errors.born_date && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
+          <div>
+            <label className="text-sm font-medium">Fecha de nacimiento *</label>
+            <input
+              type="date"
+              {...register("born_date", { required: true })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+            />
+            {errors.born_date && <span className="text-red-500 text-sm">Campo requerido</span>}
+          </div>
 
-            <div>
-              <label className="text-sm font-medium">
-                Género <span className="text-orange-500">*</span>
-              </label>
-              <select
-                {...register("genero", { required: true })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                defaultValue=""
-              >
-                <option value="" disabled>
-                  Selecciona un género
+          <div>
+            <label className="text-sm font-medium">Género *</label>
+            <select
+              {...register("genero", { required: true })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              defaultValue=""
+            >
+              <option value="" disabled>Selecciona un género</option>
+              <option value="MASCULINO">Masculino</option>
+              <option value="FEMENINO">Femenino</option>
+              <option value="OTRO">Otro</option>
+            </select>
+            {errors.genero && <span className="text-red-500 text-sm">Campo requerido</span>}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Rol *</label>
+            <select
+              {...register("roleEmployee", { required: true })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              defaultValue=""
+            >
+              <option value="" disabled>Selecciona un rol</option>
+              {rolEmployee.map((rol) => (
+                <option key={rol.value} value={rol.value}>
+                  {rol.name}
                 </option>
-                <option value="MASCULINO">Masculino</option>
-                <option value="FEMENINO">Femenino</option>
-                <option value="OTRO">Otro</option>
-              </select>
-              {errors.genero && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
+              ))}
+            </select>
+            {errors.roleEmployee && <span className="text-red-500 text-sm">Campo requerido</span>}
+          </div>
 
-            <div>
-              <label className="text-sm font-medium">
-                Rol <span className="text-orange-500">*</span>
-              </label>
-              <input
-                {...register("roleEmployee", { required: true })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="Rol del empleado"
-              />
-              {errors.roleEmployee && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
-
-            <div className="col-span-2">
-              <label className="text-sm font-medium">
-                Contraseña <span className="text-orange-500">*</span>
-              </label>
+          {!employeeToEdit && (
+            <div className="flex flex-col">
+              <label className="text-sm font-medium">Contraseña *</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -206,149 +244,120 @@ export default function EmployeeForm() {
                 )}
               </div>
             </div>
+          )}
 
-            <div className="col-span-2 flex justify-end">
-              <button
-                type="button"
-                onClick={handleNext}
-                className="bg-principal hover:bg-secundario text-white font-semibold px-5 py-3 rounded-full transition flex gap-4 cursor-pointer"
-              >
-                Siguiente
-                <ArrowRightIcon width={24} height={24} />
-              </button>
-            </div>
+          <div className="col-span-2 flex justify-end">
+            <button
+              type="button"
+              onClick={handleNext}
+              className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold px-5 py-3 rounded-full transition flex gap-4 cursor-pointer"
+            >
+              Siguiente
+              <ArrowRightIcon width={24} height={24} />
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {step === 2 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="text-sm font-medium">
-                Calle <span className="text-orange-500">*</span>
-              </label>
-              <input
-                {...register("addressBasicDTO.street", { required: true })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="Calle"
-              />
-              {errors.addressBasicDTO?.street && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
+      {step === 2 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <input type="hidden" {...register("addressBasicDTO.id")} />
 
-            <div>
-              <label className="text-sm font-medium">
-                Provincia <span className="text-orange-500">*</span>
-              </label>
-              <select
-                onChange={(e) => setSelectedProvinceId(Number(e.target.value))}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                defaultValue=""
-              >
-                <option value="" disabled>
-                  Selecciona una provincia
-                </option>
-                {provinces.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">
-                Código Postal <span className="text-orange-500">*</span>
-              </label>
-              <input
-                type="number"
-                {...register("addressBasicDTO.postalCode", {
-                  required: true,
-                  valueAsNumber: true,
-                })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="Código Postal"
-              />
-              {errors.addressBasicDTO?.postalCode && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">
-                Ciudad <span className="text-orange-500">*</span>
-              </label>
-              <select
-                {...register("addressBasicDTO.cityId", {
-                  required: true,
-                  valueAsNumber: true,
-                })}
-                onChange={(e) =>
-                  setValue("addressBasicDTO.cityId", Number(e.target.value))
-                }
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                defaultValue=""
-              >
-                <option value="" disabled>
-                  {selectedProvinceId
-                    ? "Selecciona una ciudad"
-                    : "Primero selecciona una provincia"}
-                </option>
-                {filteredCities.map((city) => (
-                  <option key={city.id} value={city.id}>
-                    {city.name}
-                  </option>
-                ))}
-              </select>
-              {errors.addressBasicDTO?.cityId && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">
-                Número <span className="text-orange-500">*</span>
-              </label>
-              <input
-                type="number"
-                {...register("addressBasicDTO.number", {
-                  required: true,
-                  valueAsNumber: true,
-                })}
-                className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
-                placeholder="Número"
-              />
-              {errors.addressBasicDTO?.number && (
-                <span className="text-red-500 text-sm">Campo requerido</span>
-              )}
-            </div>
-
-            <div className="col-span-2 flex justify-between mt-4">
-              <button
-                type="button"
-                onClick={handleBack}
-                className="bg-gray-100 hover:bg-gray-200 cursor-pointer text-gray-800 font-semibold px-5 py-3 rounded-full transition flex gap-4"
-              >
-                <ArrowLeftIcon width={24} height={24} />
-                Atrás
-              </button>
-              <button
-                type="submit"
-                className="bg-principal hover:bg-secundario text-white font-semibold px-5 py-3 rounded-full transition cursor-pointer"
-              >
-                Registrar Empleado
-              </button>
-            </div>
+          <div>
+            <label className="text-sm font-medium">Calle *</label>
+            <input
+              {...register("addressBasicDTO.street", { required: true })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              placeholder="Calle"
+            />
           </div>
-        )}
-      </form>
 
-      <p className="text-sm text-center mt-6">
-        ¿Ya tienes cuenta?{" "}
-        <Link to="/login" className="text-blue-500 underline font-medium">
-          Inicia Sesión
-        </Link>
-      </p>
-    </div>
+          <div>
+            <label className="text-sm font-medium">Provincia *</label>
+            <select
+              value={selectedProvinceId ?? ""}
+              onChange={(e) => {
+                const id = Number(e.target.value);
+                setSelectedProvinceId(id);
+                setValue("addressBasicDTO.cityId", 0);
+              }}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+            >
+              <option value="" disabled>Selecciona una provincia</option>
+              {provinces.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Código Postal *</label>
+            <input
+              type="number"
+              {...register("addressBasicDTO.postalCode", {
+                required: true,
+                valueAsNumber: true,
+              })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              placeholder="Código Postal"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Ciudad *</label>
+            <select
+              {...register("addressBasicDTO.cityId", {
+                required: true,
+                valueAsNumber: true,
+              })}
+              value={watch("addressBasicDTO.cityId") ?? ""}
+              onChange={(e) => setValue("addressBasicDTO.cityId", Number(e.target.value))}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+            >
+              <option value="" disabled>
+                {selectedProvinceId
+                  ? "Selecciona una ciudad"
+                  : "Primero selecciona una provincia"}
+              </option>
+              {filteredCities.map((city) => (
+                <option key={city.id} value={city.id}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Número *</label>
+            <input
+              type="number"
+              {...register("addressBasicDTO.number", {
+                required: true,
+                valueAsNumber: true,
+              })}
+              className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+              placeholder="Número"
+            />
+          </div>
+
+          <div className="col-span-2 flex justify-between mt-4">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="bg-gray-100 hover:bg-gray-200 cursor-pointer text-gray-800 font-semibold px-5 py-3 rounded-full transition flex gap-4"
+            >
+              <ArrowLeftIcon width={24} height={24} />
+              Atrás
+            </button>
+            <button
+              type="submit"
+              className="bg-admin-principal hover:bg-admin-principal/50 text-white font-semibold px-5 py-3 rounded-full transition cursor-pointer"
+            >
+              {employeeToEdit ? "Actualizar Empleado" : "Registrar Empleado"}
+            </button>
+          </div>
+        </div>
+      )}
+    </form>
   );
 }

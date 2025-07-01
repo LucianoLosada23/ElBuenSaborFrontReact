@@ -20,6 +20,7 @@ export const getAllInsumosCategory = async () => {
   }
 };
 
+
 export const postInsumosCategory = async (
   category: IngredientCategoryCreate
 ) => {
@@ -43,20 +44,27 @@ export const postInsumosCategory = async (
   }
 };
 
-export const putInsumosCategory = async (
-  id: number,
-  category: IngredientCategoryCreate
-) => {
+export const putInsumosCategory = async (id: number,category: IngredientCategoryCreate) => {
   const validation = safeParse(IngredientCategoryCreate, category);
   if (!validation.success) {
     console.error("Error de validación:");
     return;
   }
+  
   try {
     const url = `http://localhost:8080/api/v1/category-ingredients/${id}`;
-    const { data } = await axios.put(url, category);
+    const { data } = await axios.put(url, category , { withCredentials: true });
     return data;
   } catch (error) {
     console.error("Error al actualizar la categoría de insumos:", error);
+  }
+};
+export const deleteInsumosCategory = async (id: number) => {
+  try {
+    const url = `http://localhost:8080/api/v1/category-ingredients/${id}`;
+    const { data } = await axios.delete(url, { withCredentials: true });
+    return data;
+  } catch (error) {
+    console.error("Error al eliminar la categoría de insumos:", error);
   }
 };

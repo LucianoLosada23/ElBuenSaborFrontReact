@@ -1,7 +1,13 @@
-import { number, object, string, type InferOutput } from "valibot";
+import { number, object, optional, string, type InferOutput } from "valibot";
 
 export const companySchema = object({
   id: number(),
+});
+
+export const companyListSchema = object({
+  id: number(),
+  name: string(),
+  image: optional(string()),
 });
 
 export const createCompanySchema = object({
@@ -22,3 +28,4 @@ export const createCompanySchema = object({
 });
 
 export type  CreateCompany = InferOutput<typeof createCompanySchema>
+export type CompanyListItem = InferOutput<typeof companyListSchema>;

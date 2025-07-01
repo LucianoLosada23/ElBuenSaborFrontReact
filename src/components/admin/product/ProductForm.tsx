@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
-import { getAllIngredients } from "../../../services/admin/insumos/Ingredients";
+import { getAllIngredientsToPrepare } from "../../../services/admin/insumos/Ingredients";
 import { getAllProductCategory } from "../../../services/admin/product/category/category";
-import { postProduct, putProduct } from "../../../services/admin/product/product";
+import {
+  postProduct,
+  putProduct,
+} from "../../../services/admin/product/product";
 import type { IngredientCategory } from "../../../types/Insumos/IngredientCategory";
 import type { Ingredient } from "../../../types/Insumos/Ingredient";
 import { useUIState } from "../../../hooks/ui/useUIState";
@@ -21,21 +24,34 @@ interface ProductFormData {
   ingredients: { ingredientId: number; quantity: number }[];
 }
 
-const ProductosForm: React.FC = () => {
+type ProductosFormProps = {
+  onRefresh: () => void;
+};
+
+const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
   const [categories, setCategories] = useState<IngredientCategory[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-  const [filteredIngredients, setFilteredIngredients] = useState<Ingredient[]>([]);
-  const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
-  const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
+  const [filteredIngredients, setFilteredIngredients] = useState<Ingredient[]>(
+    []
+  );
+  const [parentCategories, setParentCategories] = useState<
+    IngredientCategory[]
+  >([]);
+  const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
+    []
+  );
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
-  const [selectedIngredients, setSelectedIngredients] = useState<{ ingredientId: number; quantity: number }[]>([]);
+  const [selectedIngredients, setSelectedIngredients] = useState<
+    { ingredientId: number; quantity: number }[]
+  >([]);
   const [search, setSearch] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-
+  const [profitMargin, setProfitMargin] = useState<number>(0);
+  const [subtotal, setSubtotal] = useState<number>(0);
+  const [finalPrice, setFinalPrice] = useState<number>(0);
 
   const { toggle } = useUIState();
   const { productEdit } = useProduct();
-
   const {
     register,
     handleSubmit,
@@ -50,7 +66,8 @@ const ProductosForm: React.FC = () => {
       title: data.title,
       description: data.description,
       estimatedTime: data.estimatedTime,
-      price: data.price,
+      price: finalPrice,
+      profit_percentage: profitMargin,
       category: { id: data.categoryId },
       productIngredients: selectedIngredients.map((item) => ({
         ingredient: { id: item.ingredientId },
@@ -59,22 +76,24 @@ const ProductosForm: React.FC = () => {
     };
 
     const result = productEdit
-      ? await putProduct(product , productEdit.id)
+      ? await putProduct(product, productEdit.id, imageFile)
       : await postProduct(product, imageFile);
 
     if (result) {
       toggle("isProductOpen");
-      toast.success(productEdit ? "Producto actualizado con éxito" : "Producto creado con éxito");
-      setTimeout(() => {
-            window.location.reload();
-      }, 500); 
+      toast.success(
+        productEdit
+          ? "Producto actualizado con éxito"
+          : "Producto creado con éxito"
+      );
+      onRefresh();
     }
   };
 
   useEffect(() => {
     const fetchData = async () => {
       const cats = await getAllProductCategory();
-      const ingr = await getAllIngredients();
+      const ingr = await getAllIngredientsToPrepare();
       if (cats && ingr) {
         setCategories(cats);
         setIngredients(ingr);
@@ -87,39 +106,58 @@ const ProductosForm: React.FC = () => {
 
   useEffect(() => {
     if (selectedParentId !== null) {
-      const children = categories.filter((cat) => cat.parent?.id === selectedParentId);
+      const children = categories.filter(
+        (cat) => cat.parent?.id === selectedParentId
+      );
       setChildCategories(children);
-      setValue("categoryId", children.length === 0 ? selectedParentId : 0);
     } else {
       setChildCategories([]);
-      setValue("categoryId", 0);
     }
-  }, [selectedParentId, categories, setValue]);
+  }, [selectedParentId, categories]);
 
-  // Prellenar si estamos en modo edición
   useEffect(() => {
-    if (productEdit) {
-      setValue("title", productEdit.title);
-      setValue("description", productEdit.description);
-      setValue("price", productEdit.price);
-      setValue("estimatedTime", productEdit.estimatedTime);
+    if (!productEdit || categories.length === 0) return;
 
-      const parent = categories.find(cat => cat.id === productEdit.category.parent?.id);
-      if (parent) {
-        setSelectedParentId(parent.id);
-        setValue("categoryId", productEdit.category.id);
-      } else {
-        setSelectedParentId(productEdit.category.id);
-        setValue("categoryId", productEdit.category.id);
-      }
+    setValue("title", productEdit.title);
+    setValue("description", productEdit.description);
+    setValue("estimatedTime", productEdit.estimatedTime);
 
-      const formattedIngredients = productEdit.productIngredients.map((pi: any) => ({
+    const categoryId = productEdit.category.id;
+    const category = categories.find((cat) => cat.id === categoryId);
+    const parent = category?.parent;
+
+    if (parent) {
+      setSelectedParentId(parent.id);
+      const children = categories.filter((cat) => cat.parent?.id === parent.id);
+      setChildCategories(children);
+    } else {
+      setSelectedParentId(categoryId);
+      setChildCategories([]);
+    }
+
+    setValue("categoryId", categoryId);
+
+    const formattedIngredients = productEdit.productIngredients.map(
+      (pi: any) => ({
         ingredientId: pi.ingredient.id,
         quantity: pi.quantity,
-      }));
-      setSelectedIngredients(formattedIngredients);
-    }
+      })
+    );
+    setSelectedIngredients(formattedIngredients);
+    setProfitMargin(productEdit.profit_percentage ?? 0);
   }, [productEdit, categories, setValue]);
+
+  useEffect(() => {
+    const total = selectedIngredients.reduce((acc, item) => {
+      const ingredient = ingredients.find((i) => i.id === item.ingredientId);
+      if (!ingredient) return acc;
+      return acc + ingredient.price * item.quantity;
+    }, 0);
+    setSubtotal(total);
+    const final = total + total * (profitMargin / 100);
+    setFinalPrice(Number(final.toFixed(2)));
+    setValue("price", final);
+  }, [selectedIngredients, profitMargin, ingredients, setValue]);
 
   const handleIngredientChange = (ingredientId: number, quantity: number) => {
     setSelectedIngredients((prev) => {
@@ -144,125 +182,163 @@ const ProductosForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-8">
+        {/* Columna 1 */}
         <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-2">
-            <h3 className="font-semibold">Detalles Del Producto</h3>
-            <label className="text-gray-700">
-              Denominación <span className="text-orange-500 text-lg">*</span>
-            </label>
+          <label className="text-gray-700">
+            Denominación <span className="text-orange-500 text-lg">*</span>
+          </label>
+          <input
+            {...register("title", { required: "El título es obligatorio" })}
+            placeholder="Denominación del producto"
+            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+          />
+          {errors.title && (
+            <p className="text-red-500">{errors.title.message}</p>
+          )}
+
+          <label className="text-gray-700">
+            Descripción <span className="text-orange-500 text-lg">*</span>
+          </label>
+          <textarea
+            {...register("description", {
+              required: "La descripción es obligatoria",
+            })}
+            placeholder="Descripción"
+            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+          />
+          {errors.description && (
+            <p className="text-red-500">{errors.description.message}</p>
+          )}
+
+          <label className="text-gray-700">Subtotal (insumos)</label>
+          <input
+            type="number"
+            readOnly
+            value={subtotal.toFixed(2)}
+            className="w-full border-b-2 border-zinc-300 py-1 text-gray-600 bg-gray-100"
+          />
+
+          <label className="text-gray-700">% Ganancia</label>
+          <input
+            type="number"
+            min={0}
+            step={0.01}
+            value={profitMargin}
+            onChange={(e) => setProfitMargin(parseFloat(e.target.value))}
+            className="w-full border-b-2 border-zinc-300 py-1"
+          />
+
+          <label className="text-gray-700">Precio final</label>
+          <input
+            type="number"
+            readOnly
+            value={finalPrice.toFixed(2)}
+            className="w-full border-b-2 border-zinc-300 py-1 text-gray-600 bg-gray-100"
+          />
+          <div className="flex items-start gap-4">
+            <label className="text-gray-700 pt-2">Imagen</label>
             <input
-              {...register("title", { required: "El título es obligatorio" })}
-              placeholder="Denominación del producto"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.title && <p className="text-red-500">{errors.title.message}</p>}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Descripción <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <textarea
-              {...register("description", { required: "La descripción es obligatoria" })}
-              placeholder="Descripción"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.description && <p className="text-red-500">{errors.description.message}</p>}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Precio <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              {...register("price", { required: true, min: 0 })}
-              placeholder="Precio"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.price && <p className="text-red-500">Precio inválido</p>}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Imagen <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setImageFile(file);
-                  }
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            {errors.image && <p className="text-red-500">{errors.image.message}</p>}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <h3 className="font-semibold">Categorías y Tiempo Estimado</h3>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Tiempo Estimado <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <input
-              type="number"
-              {...register("estimatedTime", { required: true, min: 1 })}
-              placeholder="Tiempo estimado en minutos"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.estimatedTime && <p className="text-red-500">Tiempo estimado inválido</p>}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-700">
-              Categoría <span className="text-orange-500 text-lg">*</span>
-            </label>
-            <select
+              type="file"
+              accept="image/*"
               onChange={(e) => {
-                const id = parseInt(e.target.value);
-                setSelectedParentId(isNaN(id) ? null : id);
+                const file = e.target.files?.[0];
+                if (file) setImageFile(file);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Seleccioná categoría principal</option>
-              {parentCategories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+            />
 
-          {childCategories.length > 0 && (
-            <select
-              {...register("categoryId", {
-                required: "La subcategoría es obligatoria",
-              })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Seleccioná subcategoría</option>
-              {childCategories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+            {(imageFile || productEdit?.image) && (
+              <img
+                src={
+                  imageFile
+                    ? URL.createObjectURL(imageFile)
+                    : productEdit?.image ?? undefined
+                }
+                alt={productEdit?.title || "Preview"}
+                width={80}
+                height={80}
+                className="rounded-md object-cover"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Columna 2 */}
+        <div className="flex flex-col gap-2">
+          <label className="text-gray-700">
+            Tiempo Estimado <span className="text-orange-500 text-lg">*</span>
+          </label>
+          <input
+            type="number"
+            {...register("estimatedTime", { required: true, min: 1 })}
+            placeholder="Tiempo estimado en minutos"
+            className="w-full border-b-2 border-zinc-300 focus:outline-none py-1"
+          />
+          {errors.estimatedTime && (
+            <p className="text-red-500">Tiempo estimado inválido</p>
           )}
-          {errors.categoryId && (
-            <p className="text-red-500">{errors.categoryId.message}</p>
+
+          <label className="text-gray-700">Categoría principal</label>
+          <select
+            onChange={(e) => {
+              const id = parseInt(e.target.value);
+              setSelectedParentId(isNaN(id) ? null : id);
+
+              const hasChildren = categories.some(
+                (cat) => cat.parent?.id === id
+              );
+              if (!hasChildren) {
+                // Si no tiene hijas, es hoja → usar como categoría directamente
+                setValue("categoryId", id);
+              } else {
+                // Si tiene hijas, esperar que elijan una
+                setValue("categoryId", 0);
+              }
+            }}
+            value={selectedParentId ?? ""}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="">Seleccioná categoría principal</option>
+            {parentCategories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+
+          {childCategories.length > 0 ? (
+            <>
+              <label className="text-gray-700">Subcategoría</label>
+              <select
+                {...register("categoryId", {
+                  required: "La subcategoría es obligatoria",
+                  valueAsNumber: true,
+                })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="">Seleccioná subcategoría</option>
+                {childCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              {errors.categoryId && (
+                <p className="text-red-500">{errors.categoryId.message}</p>
+              )}
+            </>
+          ) : (
+            <input
+              type="hidden"
+              {...register("categoryId", { valueAsNumber: true })}
+            />
           )}
         </div>
 
+        {/* Columna 3 */}
         <div className="flex flex-col justify-between h-full">
           <div className="flex flex-col gap-2">
-            <h3 className="font-semibold">Ingredientes</h3>
             <label className="text-gray-700">
               Ingredientes <span className="text-orange-500 text-lg">*</span>
             </label>
@@ -273,6 +349,7 @@ const ProductosForm: React.FC = () => {
               placeholder="Buscar ingrediente..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
+
             {search && filteredIngredients.length > 0 && (
               <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md mt-2">
                 {filteredIngredients.map((ingredient) => (
@@ -319,13 +396,16 @@ const ProductosForm: React.FC = () => {
                     type="number"
                     min={0}
                     step={0.01}
-                    placeholder="Cantidad"
                     value={item.quantity}
                     onChange={(e) =>
-                      handleIngredientChange(item.ingredientId, parseFloat(e.target.value))
+                      handleIngredientChange(
+                        item.ingredientId,
+                        parseFloat(e.target.value)
+                      )
                     }
                     className="w-18 border border-gray-300 rounded-md"
                   />
+                  <span>{ingredient?.unitMeasure}</span>
                   <button
                     type="button"
                     onClick={() =>

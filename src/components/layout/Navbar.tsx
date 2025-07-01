@@ -36,7 +36,7 @@ export default function Navbar() {
     try {
       const result = await logout();
       console.log(result);
-      
+
       logoutUser();
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
@@ -96,9 +96,8 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`bg-white w-full z-40 transition-all duration-300 ease-in-out transform py-4 ${
-        isStickyEnabled ? "fixed top-0 left-0 shadow-md translate-y-0" : ""
-      }`}
+      className={`bg-white w-full z-40 transition-all duration-300 ease-in-out transform py-4 ${isStickyEnabled ? "fixed top-0 left-0 shadow-md translate-y-0" : ""
+        }`}
     >
       <div className="flex justify-between items-center w-full max-w-8xl mx-auto px-4">
         <Link to="/">

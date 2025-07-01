@@ -70,7 +70,11 @@ const GenericTable = <T extends object>({
             <PencilIcon width={16} height={16} />
           </button>
           <button
-            onClick={() => onDelete?.(row.original)}
+            onClick={() => {
+              if (window.confirm("¿Está seguro de eliminar este elemento?")) {
+                onDelete?.(row.original);
+              }
+            }}
             className="border border-admin-principal text-admin-principal hover:bg-gray-100 p-2 rounded-full cursor-pointer"
             aria-label="Eliminar"
           >
@@ -114,28 +118,52 @@ const GenericTable = <T extends object>({
 
         <div className="flex items-center gap-8">
           {extraHeaderButton && extraHeaderButton}
-          {!extraHeaderButton && (location.pathname === "/admin/insumos" ||
-            location.pathname === "/admin/insumos-categorias") && (
-            <button
-              onClick={() =>
-                navigate(
-                  location.pathname === "/admin/insumos"
-                    ? "/admin/insumos-categorias"
-                    : "/admin/insumos"
-                )
-              }
-              className="flex gap-2 cursor-pointer text-sm hover:text-admin-principal items-center"
-            >
-              {location.pathname === "/admin/insumos-categorias" && (
-                <ArrowLeftStartOnRectangleIcon width={20} height={20} />
+          {!extraHeaderButton && (
+            <>
+              {(location.pathname === "/admin/insumos" ||
+                location.pathname === "/admin/insumos-categorias") && (
+                <button
+                  onClick={() =>
+                    navigate(
+                      location.pathname === "/admin/insumos"
+                        ? "/admin/insumos-categorias"
+                        : "/admin/insumos"
+                    )
+                  }
+                  className="flex gap-2 cursor-pointer text-sm hover:text-admin-principal items-center"
+                >
+                  {location.pathname === "/admin/insumos-categorias" && (
+                    <ArrowLeftStartOnRectangleIcon width={20} height={20} />
+                  )}
+                  {location.pathname === "/admin/insumos-categorias"
+                    ? "Volver"
+                    : "Ir a Categorías"}
+                  {location.pathname === "/admin/insumos" && (
+                    <ArrowRightStartOnRectangleIcon width={20} height={20} />
+                  )}
+                </button>
               )}
-              {location.pathname === "/admin/insumos-categorias"
-                ? "volver"
-                : "Ir a Categorías"}
-              {location.pathname === "/admin/insumos" && (
-                <ArrowRightStartOnRectangleIcon width={20} height={20} />
+
+              {location.pathname === "/admin/promociones" && (
+                <button
+                  onClick={() => navigate("/admin/promociones-tipos")}
+                  className="flex gap-2 cursor-pointer text-sm hover:text-admin-principal items-center"
+                >
+                  Ir a Tipos de Promociones
+                  <ArrowRightStartOnRectangleIcon width={20} height={20} />
+                </button>
               )}
-            </button>
+
+              {location.pathname === "/admin/promociones-tipos" && (
+                <button
+                  onClick={() => navigate("/admin/promociones")}
+                  className="flex gap-2 cursor-pointer text-sm hover:text-admin-principal items-center"
+                >
+                  <ArrowLeftStartOnRectangleIcon width={20} height={20} />
+                  Volver a Promociones
+                </button>
+              )}
+            </>
           )}
           {onAddClick && (
             <button

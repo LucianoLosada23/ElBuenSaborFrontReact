@@ -9,6 +9,23 @@ export const getAllProductCategory = async () => {
     const { data } = await axios.get(url , {
       withCredentials: true
     });
+    console.log(data);
+    
+    const result = safeParse(ingredientCategoryListSchema, data);
+    if (result.success) {
+      return result.output;
+    }
+  } catch (error) {
+    console.error("Error al obtener las categorías de insumos:", error);
+  }
+};
+
+export const getAllProductCategorybyId = async (id : number) => {
+  try {
+    const url = `http://localhost:8080/api/v1/category/public/${id}`;
+    const { data } = await axios.get(url , {
+      withCredentials: true
+    });
     const result = safeParse(ingredientCategoryListSchema, data);
     if (result.success) {
       return result.output;
@@ -37,7 +54,7 @@ export const postProductCategory = async (category: IngredientCategoryCreate) =>
 
 export const putProductCategory = async (id: number,category: IngredientCategoryCreate) => {
   const url = `http://localhost:8080/api/v1/category/${id}`;
-  const { data } = await axios.put(url, category);
+  const { data } = await axios.put(url, category, {withCredentials : true});
   const result = safeParse(IngredientCategoryCreate, data);
   if (result.success) {
     return result.output;
@@ -47,5 +64,16 @@ export const putProductCategory = async (id: number,category: IngredientCategory
   try {
   } catch (error) {
     console.error("Error al actualizar la categoría de insumos:", error);
+  }
+};
+
+export const deleteProductCategory = async (id: number) => {
+  try {
+    const url = `http://localhost:8080/api/v1/category/${id}`;
+    const { data } = await axios.delete(url, { withCredentials: true });
+    return data;
+  } catch (error) {
+    console.error("Error al eliminar la categoría de productos:", error);
+    throw error;
   }
 };

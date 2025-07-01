@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useUIState } from "../../../../hooks/ui/useUIState";
 import GenericTable from "../../../../components/ui/GenericTable";
-import { getAllInsumosCategory } from "../../../../services/admin/insumos/insumosCategory/InsumosCategory";
+import { deleteInsumosCategory, getAllInsumosCategory } from "../../../../services/admin/insumos/insumosCategory/InsumosCategory";
 
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
 import InsumosSubCategoryModal from "../../../../components/admin/insumos/insumosCategory/insumosSubCategory/InsumosSubCategoryModal";
@@ -15,15 +15,16 @@ import type {
 } from "../../../../types/Insumos/IngredientCategory";
 
 export default function InsumosCategory() {
-  const [ingredientCategory, setIngredientCategory] =
-    useState<IngredientCategoryList>([]);
-  const [parentCategories, setParentCategories] = useState<
-    IngredientCategory[]
-  >([]);
-  const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
-    []
-  );
+  //state
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [ingredientCategory, setIngredientCategory] = useState<IngredientCategoryList>([]);
+  const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
+  const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
 
+  //funciones
+  const refreshEmployees = () => setRefreshTrigger((prev) => prev + 1);
+
+  //hooks
   const { toggle } = useUIState();
   const { selectedParentId, selectParentCategory } = useInsumosCategory();
 
@@ -47,7 +48,7 @@ export default function InsumosCategory() {
     };
 
     fetchIngredients();
-  }, []);
+  }, [refreshTrigger]);
 
   useEffect(() => {
     if (selectedParentId !== null) {
@@ -116,7 +117,33 @@ export default function InsumosCategory() {
       toggle("isInsumosSubCategoryOpen");
     }
   };
+  const handleDelete = async (categoria: {
+    id: number;
+    name: string;
+    parent?: { id: number } | null;
+  }) => {
+    if (window.confirm(`¿Está seguro de eliminar la categoría ${categoria.name}?`)) {
+      try {
+        // Realiza la eliminación a través del servicio correspondiente.
+        await deleteInsumosCategory(categoria.id);
 
+        // Actualiza el estado eliminando la categoría de las listas.
+        setIngredientCategory((prev) =>
+          prev.filter((cat) => cat.id !== categoria.id)
+        );
+        setParentCategories((prev) =>
+          prev.filter((cat) => cat.id !== categoria.id)
+        );
+        if (selectedParentId && categoria.parent?.id === selectedParentId) {
+          setChildCategories((prev) =>
+            prev.filter((cat) => cat.id !== categoria.id)
+          );
+        }
+      } catch (error) {
+        console.error("Error eliminando la categoría:", error);
+      }
+    }
+  };
   return (
     <>
       {selectedParentId !== null ? (
@@ -127,6 +154,7 @@ export default function InsumosCategory() {
           addButtonText="Añadir Subcategoría"
           onAddClick={() => toggle("isInsumosSubCategoryOpen")}
           onEdit={handleEdit}
+          onDelete={handleDelete}
           extraHeaderButton={
             <button
               onClick={() => selectParentCategory(null)}
@@ -143,13 +171,18 @@ export default function InsumosCategory() {
           columns={parentColumns}
           data={parentCategories}
           addButtonText="Añadir Categoría"
+          onDelete={handleDelete}
           onAddClick={() => toggle("isInsumosCategoryOpen")}
           onEdit={handleEdit}
         />
       )}
 
-      <InsumosCategoryModal />
-      <InsumosSubCategoryModal />
+      <InsumosCategoryModal 
+        onRefresh={refreshEmployees}
+      />
+      <InsumosSubCategoryModal 
+        onRefresh={refreshEmployees}
+      />
     </>
   );
 }

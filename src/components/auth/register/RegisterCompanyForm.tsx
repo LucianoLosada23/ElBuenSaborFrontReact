@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   EyeIcon,
@@ -7,10 +7,6 @@ import {
   ArrowLeftIcon,
 } from "@heroicons/react/24/solid";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  getAllCities,
-  getAllProvinces,
-} from "../../../services/address/Address";
 import useAddress from "../../../hooks/address/useAddress";
 import type { CreateCompany } from "../../../types/Company/Company";
 import { registerCompany } from "../../../services/auth/register/registerCompany";
@@ -30,25 +26,13 @@ export default function RegisterCompanyForm() {
   const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(
     null
   );
-  const { provinces, cities, setProvinces, setCities } = useAddress();
+  const { provinces, cities } = useAddress();
 
   //location
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const provincesData = await getAllProvinces();
-        const citiesData = await getAllCities();
-        setProvinces(provincesData);
-        setCities(citiesData);
-      } catch (error) {
-        console.error("Error cargando provincias o ciudades:", error);
-      }
-    };
-    fetchData();
-  }, []);
+
 
   const filteredCities = selectedProvinceId
     ? cities.filter((city) => city.province.id === selectedProvinceId)
