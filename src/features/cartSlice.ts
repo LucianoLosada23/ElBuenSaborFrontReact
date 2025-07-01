@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import type { Carrito } from "../types/shop/carrito/Carrito";
+import { getAppliedPrice } from "../utils/getAppliedPrice";
 
 export type DeliveryType = "TAKEAWAY" | "DELIVERY";
 export type PayType = "EFECTIVO" | "MERCADO_PAGO";
@@ -30,45 +31,11 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action: PayloadAction<Carrito>) => {
-      const { product, quantity, clarifications } = action.payload;
+      const { product, quantity, clarifications, appliedPrice } = action.payload;
       const existingItem = state.cart.find(item => item.product.id === product.id);
 
-      // 📌 Calcular precio final aplicado por promo
-      let priceToApply = product.price;
-
-      if (product.promotionType) {
-        const behavior = product.promotionType;
-        const promoValue = product.promotionalPrice;
-        const extraValue = product.promotionalExtraValue;
-
-        switch (behavior) {
-          case "PRECIO_FIJO":
-            if (promoValue != null) {
-              priceToApply = promoValue;
-            }
-            break;
-
-          case "DESCUENTO_PORCENTAJE":
-            if (promoValue != null) {
-              priceToApply = promoValue;
-            }
-            break;
-
-          case "X_POR_Y":
-            if (promoValue != null && extraValue != null) {
-              const x = promoValue;
-              const y = extraValue;
-              const cantidadPromos = Math.floor(quantity / x);
-              const resto = quantity % x;
-              const unidadesACobrar = cantidadPromos * y + resto;
-              priceToApply = (product.price * unidadesACobrar) / quantity;
-            }
-            break;
-
-          default:
-            priceToApply = product.price;
-        }
-      }
+      // 👉 Si ya viene aplicado lo uso, si no lo calculo acá
+      const priceToApply = appliedPrice ?? getAppliedPrice(product, quantity);
 
       if (existingItem) {
         existingItem.quantity += quantity;

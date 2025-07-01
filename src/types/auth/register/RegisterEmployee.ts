@@ -46,7 +46,9 @@ export const editEmployeeSchema = object({
     street: string(),
     number: number(),
     postalCode: number(),
-    cityId: number(),
+    city: object({
+      id: number(),
+    })
   }),
 });
 
@@ -64,7 +66,9 @@ export const registerEmployeeSchema = object({
         street: string(),
         number: number(),
         postalCode: number(),
-        cityId: number()
+        city: object({
+          id: number(),
+        })
     })
 })
 
