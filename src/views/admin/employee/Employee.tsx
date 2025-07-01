@@ -5,6 +5,7 @@ import { useUIState } from "../../../hooks/ui/useUIState";
 import EmployeeModal from "../../../components/admin/employee/EmployeeModal";
 import { deleteEmployee, getAllEmployees } from "../../../services/admin/employee/employeeServices";
 import type { Employee } from "../../../types/auth/register/RegisterEmployee";
+import { translateGenero, translateRoleEmployee } from "../../../utils/statusTranslations";
 
 const columns: MRT_ColumnDef<Employee>[] = [
   { accessorKey: "name", header: "Nombre" },
@@ -12,8 +13,12 @@ const columns: MRT_ColumnDef<Employee>[] = [
   { accessorKey: "email", header: "Email" },
   { accessorKey: "phone", header: "Teléfono" },
   { accessorKey: "born_date", header: "Fecha de Nacimiento" },
-  { accessorKey: "genero", header: "Género" },
-  { accessorKey: "roleEmployee", header: "Rol" },
+  { accessorKey: "genero", header: "Género", Cell: ({ cell }) => translateGenero(cell.getValue<string>())},
+  {
+    accessorKey: "roleEmployee",
+    header: "Rol",
+    Cell: ({ cell }) => translateRoleEmployee(cell.getValue<string>()),
+  },
   { accessorKey: "addressBasicDTO.street", header: "Calle" },
   { accessorKey: "addressBasicDTO.number", header: "Número" },
   { accessorKey: "addressBasicDTO.postalCode", header: "Código Postal" },

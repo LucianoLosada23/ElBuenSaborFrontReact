@@ -53,9 +53,16 @@ export const dayOfWeekMap: Record<string, string> = {
   SUNDAY: "Domingo",
 };
 
+export const genero: Record<string, string> = {
+  MASCULINO: "Masculino",
+  FEMENINO: "Femenino",
+  OTRO: "Otro"
+};
+
 export const translateRoleEmployee = (role: string) => roleEmployeeMap[role] || role;
 export const translateUnitMeasure = (unit: string) => unitMeasureMap[unit] || unit;
 export const translatePromotionBehavior = (behavior: string) => promotionBehaviorMap[behavior] || behavior;
 export const translateStatus = (status: string) => statusMap[status] || status;
 export const translateDeliveryType = (type: string) => deliveryTypeMap[type] || type;
 export const translateDayOfWeek = (day: string) => dayOfWeekMap[day] || day;
+export const translateGenero = (gen: string) => genero[gen] || gen;

@@ -9,6 +9,7 @@ import InsumosModal from "../../../components/admin/insumos/InsumosModal";
 import { useUIState } from "../../../hooks/ui/useUIState";
 import type {Ingredient} from "../../../types/Insumos/Ingredient";
 import { useInsumoEdit } from "../../../hooks/insumos/useInsumoEdit";
+import { translateUnitMeasure } from "../../../utils/statusTranslations";
 
 const columns: MRT_ColumnDef<Ingredient>[] = [
   { accessorKey: "name", header: "Nombre" },
@@ -19,7 +20,11 @@ const columns: MRT_ColumnDef<Ingredient>[] = [
     Cell: ({ cell }) =>
       cell.getValue<boolean>() ? "Disponible" : "No disponible",
   },
-  { accessorKey: "unitMeasure", header: "Unidad de Medida" },
+  {
+    accessorKey: "unitMeasure",
+    header: "Unidad de Medida",
+    Cell: ({ cell }) => translateUnitMeasure(cell.getValue<string>()),
+  },
   { accessorKey: "currentStock", header: "Stock" },
   {
     header: "Categoría",
