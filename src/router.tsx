@@ -21,6 +21,8 @@ import PromotionsTypes from "./views/admin/promotions/promotionsTypes/Promotions
 import LandingCompanies from "./views/landingCompanies/landingCompanies";
 import Metrics from "./views/admin/metrics/Metrics";
 import Clients from "./views/admin/clients/Clients";
+import RoleGuard from "./components/routes/RoleGuard";
+import Home from "./views/admin/home/Home";
 
 export const router = createBrowserRouter([
   {
@@ -70,7 +72,11 @@ export const router = createBrowserRouter([
   // Rutas protegidas solo para admin
   {
     path: "/admin",
-    element: <PrivateRoutes allowedRoles={["COMPANY" , "DELIVERY"]} />,
+    element: (
+      <PrivateRoutes
+        allowedRoles={["COMPANY", "DELIVERY", "COOK", "CASHIER"]}
+      />
+    ),
     children: [
       {
         path: "",
@@ -78,44 +84,93 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <Metrics />,
+            element: (
+              <RoleGuard allowedRoles={["COMPANY", "DELIVERY", "COOK", "CASHIER"]}>
+                <Home />
+              </RoleGuard>
+            ),
           },
           {
             path: "promociones",
-            element: <Promotions />,
+            element: (
+              <RoleGuard allowedRoles={["COMPANY"]}>
+                <Promotions />
+              </RoleGuard>
+            ),
           },
-
           {
             path: "promociones-tipos",
-            element: <PromotionsTypes />,
+            element: (
+              <RoleGuard allowedRoles={["COMPANY"]}>
+                <PromotionsTypes />
+              </RoleGuard>
+            ),
           },
           {
             path: "insumos",
-            element: <Insumos />,
+            element: (
+              <RoleGuard allowedRoles={["COMPANY", "COOK"]}>
+                <Insumos />
+              </RoleGuard>
+            ),
           },
           {
             path: "insumos-categorias",
-            element: <InsumosCategory />,
+            element: (
+              <RoleGuard allowedRoles={["COMPANY", "COOK"]}>
+                <InsumosCategory />
+              </RoleGuard>
+            ),
           },
           {
             path: "productos",
-            element: <Product />,
+            element: (
+              <RoleGuard allowedRoles={["COMPANY", "COOK"]}>
+                <Product />
+              </RoleGuard>
+            ),
           },
           {
             path: "productos-categorias",
-            element: <ProductCategory />,
+            element: (
+              <RoleGuard allowedRoles={["COMPANY", "COOK"]}>
+                <ProductCategory />
+              </RoleGuard>
+            ),
           },
           {
             path: "ordenes",
-            element: <Orders />,
+            element: (
+              <RoleGuard
+                allowedRoles={["COMPANY", "DELIVERY", "COOK", "CASHIER"]}
+              >
+                <Orders />
+              </RoleGuard>
+            ),
           },
           {
             path: "clientes",
-            element: <Clients />,
+            element: (
+              <RoleGuard allowedRoles={["COMPANY", "CASHIER"]}>
+                <Clients />
+              </RoleGuard>
+            ),
           },
           {
             path: "empleados",
-            element: <Employee />,
+            element: (
+              <RoleGuard allowedRoles={["COMPANY"]}>
+                <Employee />
+              </RoleGuard>
+            ),
+          },
+          {
+            path: "estadistica",
+            element: (
+              <RoleGuard allowedRoles={["COMPANY"]}>
+                <Metrics />
+              </RoleGuard>
+            ),
           },
         ],
       },

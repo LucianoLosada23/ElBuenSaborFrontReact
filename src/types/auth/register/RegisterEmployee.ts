@@ -1,4 +1,4 @@
-import { array, number, object, optional, string, type InferOutput } from "valibot"
+import { array, boolean, number, object, optional, string, type InferOutput } from "valibot"
 
 /* --EMPLEADO-- */
 
@@ -12,14 +12,19 @@ export const employeeSchema = object({
     phone: number(),
     lastname: string(),
     born_date: string(),
+    isActive : boolean(),
     genero: string(),
     roleEmployee: string(),
     addressBasicDTO: object({
         id: number(),
         street: string(),
         number: number(),
+        isActive : boolean(),
         postalCode: number(),
-        cityId: number()
+        city: object({
+          id : number(),
+          name : string()
+        })
     })  
 })
 
