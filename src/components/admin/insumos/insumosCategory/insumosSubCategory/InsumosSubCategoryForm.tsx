@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -10,13 +10,17 @@ import { putProductCategory } from "../../../../../services/admin/product/catego
 import { postInsumosSubCategory } from "../../../../../services/admin/insumos/insumosCategory/insumosSubCategory/insumosSubCategory";
 import { postProductSubCategory } from "../../../../../services/admin/product/category/subcategory/subCategory";
 
+type InsumosSubCategoryFormProps = {
+  onRefresh: () => void;
+}
+
 interface SubcategoryFormData {
   name: string;
 }
 
-const InsumosSubCategoryForm: React.FC = () => {
+const InsumosSubCategoryForm = ({onRefresh}: InsumosSubCategoryFormProps) => {
   const location = useLocation();
-  const { selectedCategory } = useCategorias(); // Subcategoría seleccionada
+  const { selectedCategory, limpiarCategoria} = useCategorias();
   const { selectedParentId } = useInsumosCategory();
   const { toggle } = useUIState();
 
@@ -65,12 +69,18 @@ const InsumosSubCategoryForm: React.FC = () => {
             selectedCategory.id,
             subcategoryToSend
           );
+          if (!result) throw new Error("Error al actualizar una subcategory insumo");
+          onRefresh()
+          limpiarCategoria()
           toggle("isInsumosSubCategoryOpen");
         } else if (location.pathname === "/admin/productos-categorias") {
           result = await putProductCategory(
             selectedCategory.id,
             subcategoryToSend
           );
+          if (!result) throw new Error("Error al actualizar una subcategory producto");
+          onRefresh()
+          limpiarCategoria()
           toggle("isProductSubCategoryOpen");
         }
 
@@ -81,9 +91,13 @@ const InsumosSubCategoryForm: React.FC = () => {
         // CREAR
         if (location.pathname === "/admin/insumos-categorias") {
           result = await postInsumosSubCategory(subcategoryToSend);
+          if (!result) throw new Error("Error al crear una subcategory insumo");
+          onRefresh()
           toggle("isInsumosSubCategoryOpen");
         } else if (location.pathname === "/admin/productos-categorias") {
           result = await postProductSubCategory(subcategoryToSend);
+          if (!result) throw new Error("Error al crear una subcategory insumo");
+          onRefresh()
           toggle("isProductSubCategoryOpen");
         }
 

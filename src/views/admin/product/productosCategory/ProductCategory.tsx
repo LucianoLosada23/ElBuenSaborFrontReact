@@ -14,34 +14,46 @@ import type {
 import { useCategorias } from "../../../../hooks/useCategorias";
 
 export default function ProductCategory() {
-  const [ingredientCategory, setIngredientCategory] =
-    useState<IngredientCategoryList>([]);
-  const [parentCategories, setParentCategories] = useState<
-    IngredientCategory[]
-  >([]);
-  const [childCategories, setChildCategories] = useState<IngredientCategory[]>(
-    []
-  );
 
+  //state
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [ingredientCategory, setIngredientCategory] =useState<IngredientCategoryList>([]);
+  const [parentCategories, setParentCategories] = useState<IngredientCategory[]>([]);
+  const [childCategories, setChildCategories] = useState<IngredientCategory[]>([]);
+
+  //funciones
+  const refreshEmployees = () => setRefreshTrigger((prev) => prev + 1);
+
+  //hooks
   const { toggle } = useUIState();
   const { selectedParentId, selectParentCategory } = useInsumosCategory();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getAllProductCategory();
-        if (data) {
-          setIngredientCategory(data);
-          const parents = data.filter((cat) => cat.parent === null);
-          setParentCategories(parents);
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
+  const fetchProducts = async () => {
+    try {
+      const data = await getAllProductCategory();
+      if (data) {
+        setIngredientCategory(data);
+        const parents = data.filter((cat) => cat.parent === null);
+        setParentCategories(parents);
 
-    fetchProducts();
-  }, []);
+        if (selectedParentId !== null) {
+          const children = data.filter(
+            (cat) => cat.parent?.id === selectedParentId
+          );
+          setChildCategories(children);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setIngredientCategory([]);
+      setParentCategories([]);
+      setChildCategories([]); 
+    }
+  };
+
+  fetchProducts();
+}, [refreshTrigger]);
 
   const parentColumns: MRT_ColumnDef<IngredientCategory>[] = [
     {
@@ -164,8 +176,13 @@ export default function ProductCategory() {
           onDelete={handleDelete}
         />
       )}
-      <ProductCategoryModal />
-      <ProductSubCategoryModal />
+      <ProductCategoryModal 
+        onRefresh={refreshEmployees}
+      
+      />
+      <ProductSubCategoryModal 
+        onRefresh={refreshEmployees}
+      />
     </>
   );
 }

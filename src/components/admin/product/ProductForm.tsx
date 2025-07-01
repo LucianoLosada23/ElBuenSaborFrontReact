@@ -57,7 +57,6 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
     handleSubmit,
     setValue,
     formState: { errors },
-    watch,
   } = useForm<ProductFormData>();
 
   const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
@@ -237,17 +236,32 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
             value={finalPrice.toFixed(2)}
             className="w-full border-b-2 border-zinc-300 py-1 text-gray-600 bg-gray-100"
           />
+          <div className="flex items-start gap-4">
+            <label className="text-gray-700 pt-2">Imagen</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) setImageFile(file);
+              }}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+            />
 
-          <label className="text-gray-700">Imagen</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setImageFile(file);
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-          />
+            {(imageFile || productEdit?.image) && (
+              <img
+                src={
+                  imageFile
+                    ? URL.createObjectURL(imageFile)
+                    : productEdit?.image ?? undefined
+                }
+                alt={productEdit?.title || "Preview"}
+                width={80}
+                height={80}
+                className="rounded-md object-cover"
+              />
+            )}
+          </div>
         </div>
 
         {/* Columna 2 */}
