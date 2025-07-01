@@ -4,6 +4,7 @@ export interface Carrito {
     product: Product,
     quantity: number,
     clarifications?: string
+    appliedPrice: number;
 }
 
 
