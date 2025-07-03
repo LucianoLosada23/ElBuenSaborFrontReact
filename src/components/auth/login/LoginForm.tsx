@@ -25,13 +25,26 @@ const LoginForm: React.FC = () => {
   //Login
   const onSubmit: SubmitHandler<Login> = async (data) => {
     try {
-      const result = await login(data);
+      const result = await login(data); // ← acá asumimos que te devuelve usuario logueado o token con datos
+
       set("isLoginModal", false);
       loginUser(result);
-      const from = (location.state as any)?.from?.pathname || "/";
-      navigate(from, { replace: true });
+
+      // Si es Company o Employee, a /admin
+      const role = result.User.role;
+      
+      console.log(result.user)// ← asegurate que esto exista en el objeto result o en su payload
+
+      if (role === "COMPANY" || role === "EMPLOYEE") {
+        console.log("estoyaca")
+        navigate("/admin", { replace: true });
+      } else {
+        const from = (location.state as any)?.from?.pathname || "/";
+        navigate(from, { replace: true });
+      }
+
     } catch (error: any) {
-      toast.error(error.response.data.error);
+      console.log(error.message);
     }
   };
 
