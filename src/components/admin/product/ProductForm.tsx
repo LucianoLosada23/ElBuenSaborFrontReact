@@ -164,22 +164,29 @@ const ProductosForm = ({ onRefresh }: ProductosFormProps) => {
       })
     );
     setSelectedIngredients(formattedIngredients);
+
     if (formattedIngredients.length === 0) {
       const matchingIngredient = ingredients.find(
         (ing) => ing.name === productEdit.title
       );
       if (matchingIngredient) {
-        // Usar el precio del insumo como subtotal y calcular final
         const basePrice = matchingIngredient.price;
         setSubtotal(basePrice);
         const final =
           basePrice + (basePrice * (productEdit.profit_percentage ?? 0)) / 100;
         setFinalPrice(Number(final.toFixed(2)));
         setValue("price", final);
+
+        // 👈 ACA
+        setSelectedIngredients([
+          { ingredientId: matchingIngredient.id, quantity: 1 },
+        ]);
       }
     }
+
     setProfitMargin(productEdit.profit_percentage ?? 0);
-  }, [productEdit, categories, setValue]);
+  }, [productEdit, categories, ingredients, setValue]);
+
 
   useEffect(() => {
     const total = selectedIngredients.reduce((acc, item) => {
